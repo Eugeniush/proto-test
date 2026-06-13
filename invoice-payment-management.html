@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice — Payment Management</title>
+<link rel="stylesheet" href="https://unpkg.com/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;
+  --bg-2:#f9fafb;
+  --bg-3:#f3f4f6;
+  --border:#e5e7eb;
+  --border-2:#d1d5db;
+  --text:#111827;
+  --text-2:#6b7280;
+  --text-3:#9ca3af;
+  --blue:#2563eb;
+  --blue-l:#eff6ff;
+  --blue-b:#bfdbfe;
+  --blue-t:#1d4ed8;
+  --green:#16a34a;
+  --green-l:#f0fdf4;
+  --green-b:#bbf7d0;
+  --green-t:#15803d;
+  --amber:#d97706;
+  --amber-l:#fffbeb;
+  --amber-b:#fde68a;
+  --amber-t:#b45309;
+  --red:#dc2626;
+  --red-l:#fef2f2;
+  --red-b:#fecaca;
+  --red-t:#b91c1c;
+  --r:8px;
+  --rl:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.06);
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;
+  background:#f1f5f9;
+  min-height:100vh;
+  padding:48px 24px;
+  color:var(--text);
+  font-size:14px;
+  line-height:1.5;
+}
+
+.page{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+/* ── Invoice header ── */
+.inv-header{
+  background:var(--bg);border-radius:var(--rl);border:1px solid var(--border);
+  padding:18px 24px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:var(--shadow);
+}
+.inv-left{display:flex;align-items:center;gap:14px}
+.inv-id{font-size:18px;font-weight:700;color:var(--text)}
+.inv-meta{font-size:12px;color:var(--text-3)}
+.inv-actions{display:flex;gap:8px;align-items:center}
+
+/* ── Summary cards ── */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{background:var(--bg);border-radius:var(--rl);border:1px solid var(--border);padding:16px 18px;box-shadow:var(--shadow)}
+.card .lbl{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.card .val{font-size:22px;font-weight:700;color:var(--text)}
+.card .sub{font-size:12px;color:var(--text-3);margin-top:2px}
+.val.g{color:var(--green)}.val.r{color:var(--red)}.val.b{color:var(--blue)}
+
+/* ── Payment block ── */
+.pay-block{background:var(--bg);border-radius:var(--rl);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+
+.block-head{
+  padding:16px 24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.block-title{font-size:15px;font-weight:700;color:var(--text)}
+
+/* active method pill */
+.method-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;
+  background:var(--amber-l);color:var(--amber-t);border:1px solid var(--amber-b);
+}
+.method-pill i{font-size:13px}
+
+/* ── Tabs ── */
+.tabs{
+  display:flex;border-bottom:1px solid var(--border);
+  padding:0 24px;background:var(--bg-2);
+}
+.tab{
+  padding:11px 14px;font-size:13px;font-weight:500;
+  color:var(--text-2);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color .15s;display:flex;align-items:center;gap:6px;
+  white-space:nowrap;
+}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab .count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;
+  border-radius:9px;font-size:10px;font-weight:700;
+  background:var(--bg-3);color:var(--text-2);
+}
+.tab.active .count{background:var(--blue-l);color:var(--blue-t)}
+
+.tc{display:none}.tc.active{display:block}
+
+/* ── Method empty / not set ── */
+.empty{
+  padding:48px 24px;text-align:center;
+}
+.empty i{font-size:36px;color:var(--text-3);margin-bottom:12px;display:block}
+.empty p{font-size:13px;color:var(--text-2);margin-bottom:16px}
+
+/* ── Info banner ── */
+.banner{
+  margin:18px 24px 0;padding:11px 14px;border-radius:var(--r);
+  font-size:12px;display:flex;align-items:center;gap:8px;
+}
+.banner i{font-size:15px;flex-shrink:0}
+.banner strong{font-weight:600}
+.banner.blue{background:var(--blue-l);border:1px solid var(--blue-b);color:var(--blue-t)}
+.banner.amber{background:var(--amber-l);border:1px solid var(--amber-b);color:var(--amber-t)}
+.banner.green{background:var(--green-l);border:1px solid var(--green-b);color:var(--green-t)}
+
+/* ── Table ── */
+.tw{padding:0 24px 20px}
+.tw.pad-top{padding-top:16px}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--bg-2)}
+th{
+  text-align:left;padding:9px 10px;
+  font-size:10px;font-weight:700;color:var(--text-3);
+  text-transform:uppercase;letter-spacing:.06em;
+  border-bottom:1px solid var(--border);
+}
+th:first-child{padding-left:0;border-radius:var(--r) 0 0 0}
+th:last-child{text-align:right}
+td{padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+td:first-child{padding-left:0}
+td:last-child{text-align:right}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg-2)}
+
+.num{font-variant-numeric:tabular-nums;font-weight:500}
+.muted{color:var(--text-2)}
+.paid-amt{color:var(--green);font-weight:600}
+.due-date-warn{color:var(--amber);font-weight:500}
+.ref-link{color:var(--blue-t);font-weight:600;cursor:pointer}
+.ref-link:hover{text-decoration:underline}
+
+/* ── Table footer totals ── */
+.tfoot{
+  padding:12px 24px;border-top:1px solid var(--border);
+  background:var(--bg-2);display:flex;justify-content:flex-end;gap:28px;
+}
+.tfoot-item{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.tfoot-lbl{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em}
+.tfoot-val{font-size:14px;font-weight:700;color:var(--text)}
+.tfoot-val.g{color:var(--green)}.tfoot-val.r{color:var(--red)}
+
+/* ── Progress bar ── */
+.pb-wrap{display:flex;align-items:center;gap:8px}
+.pb{flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden;min-width:56px}
+.pbf{height:100%;background:var(--green);border-radius:99px}
+.pct{font-size:11px;color:var(--text-3);white-space:nowrap}
+
+/* ── Finance card ── */
+.finance-wrap{margin:18px 24px 20px}
+.fc{border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.fc-head{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  background:var(--bg-2);display:flex;align-items:center;justify-content:space-between;
+}
+.fc-provider{display:flex;align-items:center;gap:10px}
+.fc-logo{
+  width:32px;height:32px;border-radius:6px;
+  background:linear-gradient(135deg,#1e3a8a,#3b82f6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;color:#fff;letter-spacing:-.5px;
+}
+.fc-name{font-weight:700;font-size:13px}
+.fc-sub{font-size:11px;color:var(--text-3)}
+.fc-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.fc-field{padding:14px 16px;border-right:1px solid var(--border)}
+.fc-field:last-child{border-right:none}
+.fc-lbl{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.fc-val{font-size:16px;font-weight:700}
+.fc-hint{font-size:11px;color:var(--text-3);margin-top:2px}
+
+/* ── History row ── */
+.hist-icon{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.hist-icon.credit{background:var(--green-l);color:var(--green)}
+.hist-icon.debit{background:var(--red-l);color:var(--red)}
+.hist-icon i{font-size:14px}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.b-blue{background:var(--blue-l);color:var(--blue-t);border:1px solid var(--blue-b)}
+.b-green{background:var(--green-l);color:var(--green-t);border:1px solid var(--green-b)}
+.b-amber{background:var(--amber-l);color:var(--amber-t);border:1px solid var(--amber-b)}
+.b-red{background:var(--red-l);color:var(--red-t);border:1px solid var(--red-b)}
+.b-gray{background:var(--bg-3);color:var(--text-2);border:1px solid var(--border)}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 13px;border-radius:var(--r);
+  font-size:13px;font-weight:500;cursor:pointer;border:1px solid;
+  transition:background .15s,border-color .15s;
+}
+.btn-sec{background:var(--bg);color:var(--text);border-color:var(--border-2)}
+.btn-sec:hover{background:var(--bg-2)}
+.btn-pri{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-pri:hover{background:var(--blue-t)}
+.btn-ghost-red{background:var(--bg);color:var(--red-t);border-color:var(--red-b)}
+.btn-ghost-red:hover{background:var(--red-l)}
+.btn-sm{padding:4px 9px;font-size:12px}
+.btn i{font-size:14px}
+
+.ib{
+  width:30px;height:30px;border-radius:var(--r);border:1px solid var(--border);
+  background:var(--bg);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text-2);transition:background .15s;
+}
+.ib:hover{background:var(--bg-2);color:var(--text)}
+.ib i{font-size:15px}
+
+/* ── Add row ── */
+.add-row{
+  display:flex;align-items:center;gap:8px;
+  padding:11px 0;color:var(--blue-t);font-size:12px;font-weight:600;
+  cursor:pointer;border-top:1px dashed var(--blue-b);margin-top:0;
+}
+.add-row:hover{color:var(--blue)}
+.add-row i{font-size:15px}
+
+/* ── Setup CTA (when no method) ── */
+.setup-cta{
+  margin:24px;border:1.5px dashed var(--border-2);border-radius:var(--rl);
+  padding:36px 24px;text-align:center;
+}
+.setup-cta .icon-wrap{
+  width:52px;height:52px;border-radius:50%;background:var(--bg-3);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
+}
+.setup-cta .icon-wrap i{font-size:24px;color:var(--text-2)}
+.setup-cta h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.setup-cta p{font-size:13px;color:var(--text-2);max-width:340px;margin:0 auto 18px}
+
+/* ── Modal ── */
+.modal-back{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.modal-back.open{display:flex}
+.modal{
+  background:var(--bg);border-radius:var(--rl);border:1px solid var(--border);
+  box-shadow:var(--shadow-lg);width:460px;max-width:calc(100vw - 32px);overflow:hidden;
+}
+.mh{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.mt{font-size:15px;font-weight:700}
+.mb{padding:18px 20px}
+.mb p{font-size:13px;color:var(--text-2);margin-bottom:14px}
+.mf{padding:13px 20px;border-top:1px solid var(--border);background:var(--bg-2);display:flex;justify-content:flex-end;gap:8px}
+
+.mo{
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:13px 14px;cursor:pointer;margin-bottom:8px;
+  display:flex;align-items:flex-start;gap:12px;
+  transition:border-color .15s,background .15s;
+}
+.mo:last-child{margin-bottom:0}
+.mo:hover{border-color:var(--blue);background:var(--blue-l)}
+.mo.sel{border-color:var(--blue);background:var(--blue-l)}
+.mo-ic{
+  width:34px;height:34px;border-radius:var(--r);
+  background:var(--bg-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.mo.sel .mo-ic{background:#dbeafe}
+.mo-ic i{font-size:17px;color:var(--text-2)}
+.mo.sel .mo-ic i{color:var(--blue)}
+.mo-t{font-weight:700;font-size:13px;color:var(--text)}
+.mo-d{font-size:12px;color:var(--text-2);margin-top:2px}
+
+/* ── Record payment modal ── */
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.form-row input,.form-row select{
+  width:100%;padding:8px 11px;border:1px solid var(--border-2);border-radius:var(--r);
+  font-size:13px;color:var(--text);background:var(--bg);
+  outline:none;transition:border-color .15s;
+}
+.form-row input:focus,.form-row select:focus{border-color:var(--blue)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Invoice Header -->
+  <div class="inv-header">
+    <div class="inv-left">
+      <span class="inv-id">INV #1</span>
+      <span class="badge b-blue"><i class="ti ti-clock" style="font-size:11px"></i> Open</span>
+      <span class="inv-meta">Created 01/02/2026 &nbsp;·&nbsp; Job #12 &nbsp;·&nbsp; Quote #3</span>
+    </div>
+    <div class="inv-actions">
+      <button class="btn btn-sec"><i class="ti ti-mail"></i> Send</button>
+      <button class="btn btn-sec"><i class="ti ti-share"></i> Share</button>
+      <button class="btn btn-pri" onclick="openModal('pay')"><i class="ti ti-currency-dollar"></i> Record Payment</button>
+      <div class="ib"><i class="ti ti-dots"></i></div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="cards">
+    <div class="card">
+      <div class="lbl">Invoice total</div>
+      <div class="val">$8,400.00</div>
+      <div class="sub">inc. GST</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Total paid</div>
+      <div class="val g">$2,520.00</div>
+      <div class="sub">30% collected</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Owing</div>
+      <div class="val r">$5,880.00</div>
+      <div class="sub">2 payments remaining</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Next due</div>
+      <div class="val b">10 Jul</div>
+      <div class="sub">$2,940.00 · Progress payment</div>
+    </div>
+  </div>
+
+  <!-- Payment Management Block -->
+  <div class="pay-block">
+
+    <div class="block-head">
+      <span class="block-title">Payment management</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="method-pill"><i class="ti ti-calendar"></i> Payment schedule</span>
+        <button class="btn btn-sec btn-sm" onclick="openModal('method')"><i class="ti ti-settings-2"></i> Change method</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="sw('schedule',this)">
+        <i class="ti ti-calendar"></i> Payment schedule
+      </div>
+      <div class="tab" onclick="sw('milestones',this)">
+        <i class="ti ti-flag"></i> Milestones
+      </div>
+      <div class="tab" onclick="sw('finance',this)">
+        <i class="ti ti-building-bank"></i> Finance
+      </div>
+      <div class="tab" onclick="sw('history',this)">
+        <i class="ti ti-history"></i> Payment history <span class="count">2</span>
+      </div>
+    </div>
+
+    <!-- Tab: Payment Schedule (ACTIVE METHOD) -->
+    <div id="tc-schedule" class="tc active">
+      <div class="banner blue">
+        <i class="ti ti-info-circle"></i>
+        <span><strong>Active method.</strong> Payments split by due date. Invoice total is the source of truth — adding rows does not change the invoice amount.</span>
+      </div>
+      <div class="tw pad-top">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Description</th>
+              <th>Due date</th>
+              <th>Amount</th>
+              <th>Paid</th>
+              <th>Owing</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="muted">PS1</td>
+              <td style="font-weight:500">Deposit</td>
+              <td class="muted">01 Feb 2026</td>
+              <td class="num">$2,520.00</td>
+              <td class="paid-amt">$2,520.00</td>
+              <td class="num">$0.00</td>
+              <td><span class="badge b-green">Paid</span></td>
+              <td>
+                <div style="display:flex;justify-content:flex-end;gap:5px">
+                  <div class="ib"><i class="ti ti-receipt"></i></div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="muted">PS2</td>
+              <td style="font-weight:500">Progress payment</td>
+              <td class="due-date-warn">10 Jul 2026</td>
+              <td class="num">$2,940.00</td>
+              <td class="paid-amt">$0.00</td>
+              <td class="num" style="color:var(--red);font-weight:600">$2,940.00</td>
+              <td><span class="badge b-amber">Pending</span></td>
+              <td>
+                <div style="display:flex;justify-content:flex-end;gap:5px">
+                  <button class="btn btn-pri btn-sm" onclick="openModal('pay')"><i class="ti ti-currency-dollar"></i> Pay</button>
+                  <div class="ib"><i class="ti ti-dots"></i></div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="muted">PS3</td>
+              <td style="font-weight:500">Final payment</td>
+              <td class="muted">01 Aug 2026</td>
+              <td class="num">$2,940.00</td>
+              <td class="paid-amt">$0.00</td>
+              <td class="num">$2,940.00</td>
+              <td><span class="badge b-gray">Upcoming</span></td>
+              <td>
+                <div style="display:flex;justify-content:flex-end;gap:5px">
+                  <div class="ib"><i class="ti ti-dots"></i></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="add-row" onclick="alert('Add payment row')">
+          <i class="ti ti-plus"></i> Add payment
+        </div>
+      </div>
+      <div class="tfoot">
+        <div class="tfoot-item"><div class="tfoot-lbl">Invoice total</div><div class="tfoot-val">$8,400.00</div></div>
+        <div class="tfoot-item"><div class="tfoot-lbl">Collected</div><div class="tfoot-val g">$2,520.00</div></div>
+        <div class="tfoot-item"><div class="tfoot-lbl">Remaining</div><div class="tfoot-val r">$5,880.00</div></div>
+      </div>
+    </div>
+
+    <!-- Tab: Milestones (inactive method) -->
+    <div id="tc-milestones" class="tc">
+      <div class="setup-cta">
+        <div class="icon-wrap"><i class="ti ti-flag"></i></div>
+        <h3>Payment milestones not active</h3>
+        <p>This invoice is currently using <strong>Payment schedule</strong>. Switch to Payment milestones to tie payments to project stages like Installation, Inspection, and Handover.</p>
+        <button class="btn btn-sec" onclick="openModal('method')"><i class="ti ti-settings-2"></i> Change method</button>
+      </div>
+    </div>
+
+    <!-- Tab: Finance (inactive method) -->
+    <div id="tc-finance" class="tc">
+      <div class="setup-cta">
+        <div class="icon-wrap"><i class="ti ti-building-bank"></i></div>
+        <h3>Finance not configured</h3>
+        <p>This invoice is currently using <strong>Payment schedule</strong>. Switch to Finance to collect payment via a third-party provider like EzyFinance.</p>
+        <button class="btn btn-sec" onclick="openModal('method')"><i class="ti ti-settings-2"></i> Change method</button>
+      </div>
+    </div>
+
+    <!-- Tab: Payment History -->
+    <div id="tc-history" class="tc">
+      <div class="tw pad-top">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Reference</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Method</th>
+              <th>Amount</th>
+              <th>Owing after</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="hist-icon credit"><i class="ti ti-arrow-down"></i></div></td>
+              <td><span class="ref-link">PMT-001</span></td>
+              <td><span class="badge b-blue">Deposit</span></td>
+              <td class="muted">01 Feb 2026</td>
+              <td class="muted">Card ···4521</td>
+              <td class="paid-amt">+$2,520.00</td>
+              <td class="num">$5,880.00</td>
+              <td>
+                <div style="display:flex;justify-content:flex-end;gap:5px">
+                  <div class="ib" title="View receipt"><i class="ti ti-receipt"></i></div>
+                  <button class="btn btn-ghost-red btn-sm"><i class="ti ti-corner-up-left"></i> Refund</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="hist-icon credit"><i class="ti ti-arrow-down"></i></div></td>
+              <td><span class="ref-link">PMT-002</span></td>
+              <td><span class="badge b-blue">Progress</span></td>
+              <td class="muted">09 Feb 2026</td>
+              <td class="muted">Bank transfer</td>
+              <td class="paid-amt">+$600.00</td>
+              <td class="num">$5,280.00</td>
+              <td>
+                <div style="display:flex;justify-content:flex-end;gap:5px">
+                  <div class="ib" title="View receipt"><i class="ti ti-receipt"></i></div>
+                  <button class="btn btn-ghost-red btn-sm"><i class="ti ti-corner-up-left"></i> Refund</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tfoot">
+        <div class="tfoot-item"><div class="tfoot-lbl">Total collected</div><div class="tfoot-val g">$3,120.00</div></div>
+        <div class="tfoot-item"><div class="tfoot-lbl">Total refunded</div><div class="tfoot-val r">$0.00</div></div>
+        <div class="tfoot-item"><div class="tfoot-lbl">Net received</div><div class="tfoot-val">$3,120.00</div></div>
+      </div>
+    </div>
+
+  </div><!-- /pay-block -->
+</div><!-- /page -->
+
+
+<!-- ── Modal: Change Method ── -->
+<div class="modal-back" id="modal-method" onclick="if(event.target===this)closeModal('method')">
+  <div class="modal">
+    <div class="mh">
+      <span class="mt">Change payment method</span>
+      <div class="ib" onclick="closeModal('method')"><i class="ti ti-x"></i></div>
+    </div>
+    <div class="mb">
+      <p>Select how payments for this invoice will be collected. Only one method can be active at a time. The invoice total remains unchanged.</p>
+      <div class="mo sel" onclick="selM(this)">
+        <div class="mo-ic"><i class="ti ti-calendar"></i></div>
+        <div>
+          <div class="mo-t">Payment schedule</div>
+          <div class="mo-d">Split the invoice by due date. Ideal for staged or time-based billing.</div>
+        </div>
+      </div>
+      <div class="mo" onclick="selM(this)">
+        <div class="mo-ic"><i class="ti ti-flag"></i></div>
+        <div>
+          <div class="mo-t">Payment milestones</div>
+          <div class="mo-d">Tie payments to project stages — Installation, Inspection, Handover.</div>
+        </div>
+      </div>
+      <div class="mo" onclick="selM(this)">
+        <div class="mo-ic"><i class="ti ti-building-bank"></i></div>
+        <div>
+          <div class="mo-t">Finance</div>
+          <div class="mo-d">Customer pays via a third-party finance provider (e.g. EzyFinance).</div>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-sec" onclick="closeModal('method')">Cancel</button>
+      <button class="btn btn-pri" onclick="closeModal('method')">Apply method</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Record Payment ── -->
+<div class="modal-back" id="modal-pay" onclick="if(event.target===this)closeModal('pay')">
+  <div class="modal">
+    <div class="mh">
+      <span class="mt">Record payment</span>
+      <div class="ib" onclick="closeModal('pay')"><i class="ti ti-x"></i></div>
+    </div>
+    <div class="mb">
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Amount</label>
+          <input type="text" value="$2,940.00" />
+        </div>
+        <div class="form-row">
+          <label>Date received</label>
+          <input type="date" value="2026-06-13" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Payment method</label>
+        <select>
+          <option>Bank transfer</option>
+          <option>Card</option>
+          <option>Cash</option>
+          <option>Cheque</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Reference / Note</label>
+        <input type="text" placeholder="e.g. BSB 012-345, Acc 987654" />
+      </div>
+      <div class="form-row">
+        <label>Allocate to</label>
+        <select>
+          <option>PS2 — Progress payment ($2,940.00)</option>
+          <option>PS3 — Final payment ($2,940.00)</option>
+          <option>Unallocated</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-sec" onclick="closeModal('pay')">Cancel</button>
+      <button class="btn btn-pri" onclick="closeModal('pay')"><i class="ti ti-check"></i> Record payment</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function sw(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tc').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tc-' + name).classList.add('active');
+}
+function selM(el) {
+  document.querySelectorAll('.mo').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function openModal(id) { document.getElementById('modal-' + id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
+</script>
+</body>
+</html>
