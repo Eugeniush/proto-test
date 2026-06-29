@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Solarpreneur — Settings / General (draft)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#155EEF;
+    --primary-50:#EFF4FF;
+    --primary-600:#155EEF;
+    --primary-700:#004EEB;
+    --bg:#FAFAFA;
+    --surface:#FFFFFF;
+    --border:#E4E7EC;
+    --text-primary:#101828;
+    --text-secondary:#475467;
+    --text-muted:#98A2B3;
+    --warning:#B54708;
+    --warning-bg:#FFFAEB;
+    --warning-border:#FEDF89;
+    --radius:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text-primary);}
+
+  /* top nav */
+  .topnav{
+    height:64px;background:var(--surface);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:24px;padding:0 32px;font-size:14px;font-weight:500;color:var(--text-secondary);
+  }
+  .topnav .logo{font-weight:700;color:var(--primary);font-size:16px;margin-right:8px;}
+  .topnav a{color:var(--text-secondary);cursor:default;}
+  .topnav a.active{color:var(--primary);}
+  .topnav .spacer{flex:1;}
+
+  .shell{max-width:1440px;margin:0 auto;padding:0 32px;}
+  .crumbs{font-size:13px;color:var(--text-muted);padding:24px 0 4px;}
+  .pageheader{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:0;}
+  .pageheader h1{font-size:22px;font-weight:600;}
+
+  /* admin tabs */
+  .admintabs{display:flex;gap:4px;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:24px;}
+  .admintab{
+    padding:8px 14px;border-radius:6px;font-size:14px;font-weight:500;color:var(--text-secondary);cursor:pointer;
+  }
+  .admintab.active{background:var(--primary-50);color:var(--primary-700);}
+
+  .layout{display:flex;gap:32px;align-items:flex-start;}
+
+  /* left sidebar */
+  .sidebar{width:220px;flex-shrink:0;}
+  .sidebar .group-label{font-size:12px;font-weight:600;letter-spacing:.03em;color:var(--text-muted);text-transform:uppercase;padding:0 12px 8px;}
+  .navitem{
+    padding:9px 12px;border-radius:6px;font-size:14px;color:var(--text-secondary);cursor:pointer;margin-bottom:2px;
+  }
+  .navitem:hover{background:#F2F4F7;}
+  .navitem.active{background:var(--primary-50);color:var(--primary-700);font-weight:500;}
+
+  .content{flex:1;min-width:0;}
+  .section-title{font-size:18px;font-weight:600;margin-bottom:4px;}
+  .section-desc{font-size:14px;color:var(--text-secondary);margin-bottom:24px;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;
+  }
+  .card.proposed{border-style:dashed;border-color:var(--warning-border);background:var(--warning-bg);}
+  .card label{display:block;font-size:14px;font-weight:500;margin-bottom:8px;}
+  .badge{
+    display:inline-flex;align-items:center;font-size:11px;font-weight:600;color:var(--warning);
+    background:#FFFFFF;border:1px solid var(--warning-border);border-radius:999px;padding:2px 8px;margin-left:8px;
+  }
+  select,input[type=text]{
+    width:100%;height:40px;border:1px solid var(--border);border-radius:8px;padding:0 12px;font-size:14px;
+    font-family:'Inter',sans-serif;color:var(--text-primary);background:var(--surface);
+  }
+  select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%23475467' stroke-width='1.5' fill='none'/></svg>");background-repeat:no-repeat;background-position:right 12px center;}
+  .helper{font-size:13px;color:var(--text-muted);margin-top:6px;}
+  .row{display:flex;align-items:center;gap:12px;}
+
+  .toggle{width:40px;height:22px;border-radius:11px;background:var(--border);position:relative;cursor:pointer;flex-shrink:0;}
+  .toggle.on{background:var(--primary);}
+  .toggle .knob{width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .15s;}
+  .toggle.on .knob{left:20px;}
+
+  .placeholder{
+    background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:40px;text-align:center;
+    color:var(--text-muted);font-size:14px;
+  }
+
+  .actions{display:flex;gap:8px;margin-top:8px;}
+  .btn{height:40px;padding:0 18px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;}
+  .btn-primary{background:var(--primary);color:#fff;border:none;}
+  .btn-secondary{background:#fff;color:var(--text-primary);border:1px solid var(--border);}
+
+  footer{height:40px;}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="logo">Solarpreneur</span>
+  <a>Home</a><a>Customers</a><a>Operations</a><a>Inventory</a><a>Service</a><a>Finance</a><a>Manage</a><a>Integrations</a>
+  <span class="spacer"></span>
+  <a>Me</a>
+</div>
+
+<div class="shell">
+  <div class="pageheader"><h1>Settings</h1></div>
+
+  <div class="admintabs" id="admintabs">
+    <div class="admintab active" data-tab="default">Default</div>
+    <div class="admintab" data-tab="settings">Settings</div>
+    <div class="admintab" data-tab="integrations">Integrations</div>
+    <div class="admintab" data-tab="finance">Finance</div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="group-label">Settings</div>
+      <div id="sidenav">
+        <div class="navitem" data-nav="leads">Leads</div>
+        <div class="navitem" data-nav="quotes">Quotes</div>
+        <div class="navitem" data-nav="invoices">Invoices</div>
+        <div class="navitem" data-nav="security">Security</div>
+        <div class="navitem active" data-nav="general">General</div>
+      </div>
+    </div>
+
+    <div class="content" id="content"></div>
+  </div>
+</div>
+<footer></footer>
+
+<script>
+const general = `
+  <div class="section-title">General</div>
+  <div class="section-desc">Settings that apply to the entire business account.</div>
+
+  <div class="grid">
+    <div class="card proposed">
+      <label>Business profile <span class="badge">Proposed</span></label>
+      <div class="row" style="margin-bottom:10px">
+        <input type="text" value="SunCore Solar Pty Ltd" />
+      </div>
+      <div class="row">
+        <input type="text" value="ABN 12 345 678 910" />
+      </div>
+      <div class="helper">Company name and ABN shown on quotes, invoices, and email communications.</div>
+    </div>
+
+    <div class="card">
+      <label>Default quote template</label>
+      <select>
+        <option>Solar PV</option>
+        <option>Battery Storage</option>
+        <option>HVAC Install</option>
+        <option>Custom</option>
+      </select>
+      <div class="helper">Template applied to new quotes by default.</div>
+    </div>
+
+    <div class="card">
+      <label>Time zone</label>
+      <select>
+        <option>Australia/Sydney (GMT+10)</option>
+        <option>Australia/Perth (GMT+8)</option>
+        <option>Australia/Brisbane (GMT+10)</option>
+      </select>
+      <div class="helper">Default time zone for bookings and new users.</div>
+    </div>
+
+    <div class="card">
+      <label>Default role for new team members</label>
+      <select>
+        <option>Sales Rep</option>
+        <option>Installer</option>
+        <option>Office Admin</option>
+        <option>Owner</option>
+      </select>
+      <div class="helper">Role assigned to a new team member when added to the system.</div>
+    </div>
+
+    <div class="card">
+      <label>System language</label>
+      <select>
+        <option>English (Australia)</option>
+        <option>English (US)</option>
+      </select>
+      <div class="helper">Default interface language for the whole account.</div>
+    </div>
+
+    <div class="card">
+      <label>Currency</label>
+      <select>
+        <option>AUD ($)</option>
+        <option>USD ($)</option>
+        <option>NZD ($)</option>
+      </select>
+      <div class="helper">Default currency for quotes, invoices, and financial reporting.</div>
+    </div>
+
+    <div class="card">
+      <label>Appearance</label>
+      <div class="row">
+        <div class="toggle on" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
+        <span style="font-size:14px">Dark mode</span>
+      </div>
+      <div class="helper">Personal preference — may make more sense under the "Me" profile.</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary">Save</button>
+    <button class="btn btn-secondary">Cancel</button>
+  </div>
+`;
+
+const placeholder = (name) => `
+  <div class="section-title">${name}</div>
+  <div class="section-desc">Draft content for this section has not been proposed yet.</div>
+  <div class="placeholder">Content for "${name}" — TBD, needs separate discussion</div>
+`;
+
+const sections = {
+  general: general,
+  leads: placeholder('Leads settings'),
+  quotes: placeholder('Quotes settings'),
+  invoices: placeholder('Invoices settings'),
+  security: placeholder('Security settings')
+};
+
+const content = document.getElementById('content');
+function renderNav(){
+  content.innerHTML = sections[document.querySelector('.navitem.active').dataset.nav];
+}
+document.querySelectorAll('.navitem').forEach(el=>{
+  el.onclick = () => {
+    document.querySelectorAll('.navitem').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    renderNav();
+  };
+});
+document.querySelectorAll('.admintab').forEach(el=>{
+  el.onclick = () => {
+    document.querySelectorAll('.admintab').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    if(el.dataset.tab !== 'default'){
+      content.innerHTML = placeholder(el.textContent);
+    } else {
+      renderNav();
+    }
+  };
+});
+renderNav();
+</script>
+</body>
+</html>
