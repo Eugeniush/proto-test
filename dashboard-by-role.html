@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solarpreneur — Dashboard by Role</title>
+<style>
+  :root{
+    --primary:#155EEF;
+    --primary-dark:#004EEB;
+    --primary-50:#EFF4FF;
+    --gray-25:#FCFCFD;
+    --gray-50:#F9FAFB;
+    --gray-100:#F2F4F7;
+    --gray-200:#E4E7EC;
+    --gray-300:#D0D5DD;
+    --gray-400:#98A2B3;
+    --gray-500:#667085;
+    --gray-600:#475467;
+    --gray-700:#344054;
+    --gray-900:#101828;
+    --green-50:#ECFDF3; --green-600:#079455; --green-700:#067647;
+    --blue-50:#EFF8FF; --blue-700:#175CD3;
+    --amber-50:#FFFAEB; --amber-700:#B54708;
+    --red-50:#FEF3F2; --red-700:#B42318;
+    --violet-50:#F4F3FF; --violet-700:#5925DC;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--gray-50);
+    color:var(--gray-900);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ---------- PREVIEW / ROLE SWITCHER BAR ---------- */
+  .preview-bar{
+    background:var(--gray-900);
+    color:#fff;
+    padding:10px 24px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .preview-label{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--gray-400);
+    white-space:nowrap;
+  }
+  .role-pills{display:flex;gap:6px;flex-wrap:wrap;}
+  .role-pill{
+    border:1px solid rgba(255,255,255,.16);
+    background:transparent;
+    color:#fff;
+    padding:6px 14px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:500;
+    transition:all .15s ease;
+  }
+  .role-pill:hover{background:rgba(255,255,255,.08);}
+  .role-pill.active{
+    background:var(--primary);
+    border-color:var(--primary);
+    font-weight:600;
+  }
+  .preview-note{
+    margin-left:auto;
+    font-size:12px;
+    color:var(--gray-400);
+  }
+
+  /* ---------- TOP NAV (static, per Eugene's header) ---------- */
+  .topnav{
+    background:#fff;
+    border-bottom:1px solid var(--gray-200);
+    display:flex;
+    align-items:center;
+    gap:32px;
+    padding:14px 24px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;white-space:nowrap;}
+  .brand-mark{
+    width:32px;height:32px;border-radius:8px;background:var(--gray-900);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;
+  }
+  .nav-main{display:flex;gap:24px;flex:1;}
+  .nav-item{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    font-size:12px;color:var(--gray-500);font-weight:500;
+  }
+  .nav-item.active{color:var(--primary);}
+  .nav-icon{font-size:16px;line-height:1;}
+  .topnav-right{display:flex;align-items:center;gap:16px;}
+  .search-box{
+    background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;
+    padding:8px 12px;font-size:13px;color:var(--gray-400);width:200px;
+  }
+  .icon-btn{
+    width:36px;height:36px;border-radius:8px;border:1px solid var(--gray-200);
+    display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--gray-500);
+    background:#fff; position:relative;
+  }
+  .avatar{
+    width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#7A5AF8);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .container{max-width:1376px;margin:0 auto;padding:32px 24px 64px;}
+  .page-head{margin-bottom:28px;}
+  .page-head .date{margin:0 0 4px;font-size:13px;color:var(--gray-500);font-weight:500;}
+  .page-head h1{margin:0 0 6px;font-size:28px;font-weight:700;}
+  .page-head .role-desc{margin:0;font-size:14px;color:var(--gray-500);}
+  .role-tag{
+    display:inline-flex;align-items:center;margin-left:10px;
+    background:var(--primary-50);color:var(--primary);
+    font-size:12px;font-weight:600;padding:3px 10px;border-radius:6px;
+    vertical-align:middle;
+  }
+
+  .block{
+    background:#fff;border:1px solid var(--gray-200);border-radius:12px;
+    margin-bottom:24px;overflow:hidden;
+  }
+  .block-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 20px;border-bottom:1px solid var(--gray-200);
+  }
+  .block-head h2{margin:0;font-size:16px;font-weight:600;}
+  .block-body{padding:20px;}
+
+  .two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start;}
+  @media (max-width:900px){.two-col{grid-template-columns:1fr;}}
+
+  /* ---------- QUICK OVERVIEW CARDS ---------- */
+  .cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .cards-row.cols-2{grid-template-columns:repeat(2,1fr);}
+  .status-card{border:1px solid var(--gray-200);border-radius:10px;overflow:hidden;}
+  .status-card-head{padding:14px 16px 10px;}
+  .status-card-head .title{font-size:14px;font-weight:600;margin:0 0 8px;}
+  .status-card-head .metric-label{font-size:11px;color:var(--gray-500);margin:0;}
+  .status-card-head .metric{font-size:26px;font-weight:700;margin:0 0 12px;}
+  .status-card-divider{border-top:1px solid var(--gray-200);}
+  .status-list{list-style:none;margin:0;padding:10px 16px 14px;font-size:13px;}
+  .status-list li{display:flex;justify-content:space-between;padding:4px 0;color:var(--gray-700);}
+  .status-list li.muted{color:var(--gray-400);}
+
+  /* ---------- TABS ---------- */
+  .tabs{display:flex;gap:4px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:3px;width:fit-content;}
+  .tab-btn{
+    border:none;background:transparent;padding:6px 14px;border-radius:6px;
+    font-size:13px;font-weight:500;color:var(--gray-500);
+  }
+  .tab-btn.active{background:#fff;color:var(--gray-900);box-shadow:0 1px 2px rgba(0,0,0,.06);}
+
+  .filter-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .range-pills{display:flex;gap:4px;}
+  .range-pill{
+    border:1px solid var(--gray-200);background:#fff;border-radius:6px;
+    padding:5px 10px;font-size:12px;color:var(--gray-500);
+  }
+  .range-pill.active{border-color:var(--primary);color:var(--primary);background:var(--primary-50);}
+
+  /* ---------- TABLES ---------- */
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;min-width:560px;border-collapse:collapse;margin-top:14px;font-size:13px;}
+  thead th{
+    text-align:left;color:var(--gray-500);font-weight:600;font-size:11px;
+    text-transform:uppercase;letter-spacing:.03em;padding:8px 10px;
+    border-bottom:1px solid var(--gray-200);white-space:nowrap;
+  }
+  tbody td{padding:10px 10px;border-bottom:1px solid var(--gray-100);color:var(--gray-700);white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  .empty-row td{color:var(--gray-300);text-align:center;padding:18px;}
+
+  .badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:500;}
+  .badge.gray{background:var(--gray-100);color:var(--gray-600);}
+  .badge.blue{background:var(--blue-50);color:var(--blue-700);}
+  .badge.amber{background:var(--amber-50);color:var(--amber-700);}
+  .badge.green{background:var(--green-50);color:var(--green-700);}
+  .badge.red{background:var(--red-50);color:var(--red-700);}
+  .badge.violet{background:var(--violet-50);color:var(--violet-700);}
+
+  /* ---------- DISPATCH MAP ---------- */
+  .map-canvas{
+    position:relative;height:320px;border-radius:8px;
+    background:
+      linear-gradient(var(--gray-100) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg, var(--gray-100) 1px, transparent 1px) 0 0/28px 28px,
+      var(--gray-50);
+    border:1px solid var(--gray-200);
+    overflow:hidden;
+  }
+  .pin{
+    position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px;
+  }
+  .pin-dot{
+    width:14px;height:14px;border-radius:50%;border:3px solid #fff;
+    box-shadow:0 0 0 1px var(--gray-200), 0 2px 4px rgba(0,0,0,.15);
+  }
+  .pin-dot.available{background:var(--green-600);}
+  .pin-dot.enroute{background:var(--primary);}
+  .pin-dot.onjob{background:var(--amber-700);}
+  .pin-label{
+    background:#fff;border:1px solid var(--gray-200);border-radius:6px;
+    padding:2px 8px;font-size:11px;font-weight:500;white-space:nowrap;
+    box-shadow:0 1px 2px rgba(0,0,0,.05);
+  }
+  .map-route-line{position:absolute;border-top:2px dashed var(--gray-300);}
+  .map-legend{display:flex;gap:16px;margin-top:14px;font-size:12px;color:var(--gray-500);}
+  .map-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+  .myroute-list{list-style:none;margin:0;padding:0;}
+  .myroute-item{
+    display:flex;gap:14px;align-items:flex-start;padding:14px 0;
+    border-bottom:1px solid var(--gray-100);
+  }
+  .myroute-item:last-child{border-bottom:none;}
+  .myroute-step{
+    width:26px;height:26px;border-radius:50%;background:var(--primary-50);color:var(--primary);
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .myroute-time{font-size:12px;color:var(--gray-500);}
+  .myroute-title{font-size:13px;font-weight:600;margin:2px 0;}
+  .myroute-addr{font-size:12px;color:var(--gray-500);}
+
+  /* ---------- ACTIVITY LIST ---------- */
+  .activity-list{list-style:none;margin:0;padding:0;}
+  .activity-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--gray-100);}
+  .activity-item:last-child{border-bottom:none;}
+  .activity-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);margin-top:6px;flex-shrink:0;}
+  .activity-text{font-size:13px;color:var(--gray-700);}
+  .activity-text b{font-weight:600;color:var(--gray-900);}
+  .activity-time{font-size:12px;color:var(--gray-400);margin-top:2px;}
+
+  .empty-state{
+    padding:32px 20px;text-align:center;color:var(--gray-400);font-size:13px;
+  }
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+  <!-- ROLE SWITCHER -->
+  <div class="preview-bar">
+    <span class="preview-label">Viewing dashboard as</span>
+    <div class="role-pills" id="rolePills">
+      <button class="role-pill active" data-role="admin">Admin</button>
+      <button class="role-pill" data-role="manager">Manager</button>
+      <button class="role-pill" data-role="office-admin">Office Admin</button>
+      <button class="role-pill" data-role="sales-rep">Sales Rep</button>
+      <button class="role-pill" data-role="technician">Technician</button>
+    </div>
+    <span class="preview-note">Prototype — content shown is filtered per role access matrix</span>
+  </div>
+
+  <!-- STATIC TOP NAV -->
+  <header class="topnav">
+    <div class="brand"><span class="brand-mark">✦</span> Acme Corp</div>
+    <nav class="nav-main">
+      <span class="nav-item active"><span class="nav-icon">⌂</span>Home</span>
+      <span class="nav-item"><span class="nav-icon">⚇</span>Customers</span>
+      <span class="nav-item"><span class="nav-icon">⚙</span>Operations</span>
+      <span class="nav-item"><span class="nav-icon">▣</span>Inventory</span>
+      <span class="nav-item"><span class="nav-icon">✦</span>Service</span>
+      <span class="nav-item"><span class="nav-icon">$</span>Finance</span>
+      <span class="nav-item"><span class="nav-icon">💼</span>Manage</span>
+    </nav>
+    <div class="topnav-right">
+      <input class="search-box" placeholder="Search" disabled>
+      <div class="icon-btn">🔔</div>
+      <div class="avatar" id="avatarInitial">A</div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <div class="page-head">
+      <p class="date">Monday, June 29</p>
+      <h1>Good morning, <span id="roleName">Admin</span><span class="role-tag" id="roleTag">Admin</span></h1>
+      <p class="role-desc" id="roleDesc">Full visibility across all modules.</p>
+    </div>
+
+    <!-- ===================== QUICK OVERVIEW ===================== -->
+    <section class="block" id="quickOverviewBlock">
+      <div class="block-head"><h2>Quick overview</h2></div>
+      <div class="block-body">
+        <div class="cards-row" id="cardsRow">
+
+          <div class="status-card" data-card="leads">
+            <div class="status-card-head">
+              <p class="title">Leads</p>
+              <p class="metric-label">Conversion</p>
+              <p class="metric">30%</p>
+            </div>
+            <div class="status-card-divider"></div>
+            <ul class="status-list">
+              <li><span>All</span><span>7</span></li>
+              <li><span>New</span><span>2</span></li>
+              <li><span>Qualified</span><span>1</span></li>
+              <li><span>Proposal Sent</span><span>1</span></li>
+              <li><span>Negotiation</span><span>1</span></li>
+              <li><span>Won</span><span>1</span></li>
+              <li><span>Lost</span><span>1</span></li>
+            </ul>
+          </div>
+
+          <div class="status-card" data-card="quotes">
+            <div class="status-card-head">
+              <p class="title">Quotes</p>
+              <p class="metric-label">Success</p>
+              <p class="metric">50%</p>
+            </div>
+            <div class="status-card-divider"></div>
+            <ul class="status-list">
+              <li><span>All</span><span>6</span></li>
+              <li><span>Draft</span><span>1</span></li>
+              <li><span>Sent</span><span>1</span></li>
+              <li><span>Approved</span><span>1</span></li>
+              <li><span>Declined</span><span>1</span></li>
+              <li><span>Expired</span><span>1</span></li>
+            </ul>
+          </div>
+
+          <div class="status-card" data-card="jobs">
+            <div class="status-card-head">
+              <p class="title">Jobs</p>
+              <p class="metric-label">Completion</p>
+              <p class="metric">90%</p>
+            </div>
+            <div class="status-card-divider"></div>
+            <ul class="status-list">
+              <li><span>All</span><span>6</span></li>
+              <li><span>Pending</span><span>1</span></li>
+              <li><span>Scheduled</span><span>1</span></li>
+              <li><span>In Progress</span><span>1</span></li>
+              <li><span>Completed</span><span>1</span></li>
+              <li><span>Cancelled</span><span>1</span></li>
+            </ul>
+          </div>
+
+          <div class="status-card" data-card="invoices">
+            <div class="status-card-head">
+              <p class="title">Invoices</p>
+              <p class="metric-label">Paid</p>
+              <p class="metric">70%</p>
+            </div>
+            <div class="status-card-divider"></div>
+            <ul class="status-list">
+              <li><span>All</span><span>6</span></li>
+              <li><span>Created</span><span>1</span></li>
+              <li><span>Sent</span><span>1</span></li>
+              <li><span>Paid</span><span>1</span></li>
+              <li><span>Overdue</span><span>1</span></li>
+              <li><span>Disputed</span><span>1</span></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== DISPATCH MAP  +  TASKS ===================== -->
+    <div class="two-col">
+
+      <!-- DISPATCH MAP (full) -->
+      <section class="block" id="dispatchFullBlock">
+        <div class="block-head"><h2>Dispatch map</h2></div>
+        <div class="block-body">
+          <div class="map-canvas">
+            <div class="pin" style="top:40px;left:60px;">
+              <div class="pin-label">Alex Stammer</div>
+              <div class="pin-dot available"></div>
+            </div>
+            <div class="pin" style="top:120px;left:220px;">
+              <div class="pin-label">Jordan Pike</div>
+              <div class="pin-dot onjob"></div>
+            </div>
+            <div class="pin" style="top:80px;left:380px;">
+              <div class="pin-label">Mac Devine</div>
+              <div class="pin-dot enroute"></div>
+            </div>
+            <div class="pin" style="top:200px;left:460px;">
+              <div class="pin-label">Jay May</div>
+              <div class="pin-dot available"></div>
+            </div>
+            <div class="pin" style="top:230px;left:150px;">
+              <div class="pin-label">Job #312 · Urgent</div>
+              <div class="pin-dot" style="background:var(--red-700);"></div>
+            </div>
+          </div>
+          <div class="map-legend">
+            <span><i class="legend-dot" style="background:var(--green-600);"></i>Available</span>
+            <span><i class="legend-dot" style="background:var(--primary);"></i>En route</span>
+            <span><i class="legend-dot" style="background:var(--amber-700);"></i>On job</span>
+            <span><i class="legend-dot" style="background:var(--red-700);"></i>Unassigned job</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- MY ROUTE (technician variant) -->
+      <section class="block hidden" id="dispatchMyRouteBlock">
+        <div class="block-head"><h2>My route today</h2></div>
+        <div class="block-body">
+          <ul class="myroute-list">
+            <li class="myroute-item">
+              <div class="myroute-step">1</div>
+              <div>
+                <p class="myroute-time">9:00 AM · 60 min</p>
+                <p class="myroute-title">Installation — John Smith</p>
+                <p class="myroute-addr">321 Yellow Lane, Springwood NSW</p>
+              </div>
+            </li>
+            <li class="myroute-item">
+              <div class="myroute-step">2</div>
+              <div>
+                <p class="myroute-time">11:30 AM · 45 min</p>
+                <p class="myroute-title">Repair — John Smith</p>
+                <p class="myroute-addr">321 Yellow Lane, Springwood NSW</p>
+              </div>
+            </li>
+            <li class="myroute-item">
+              <div class="myroute-step">3</div>
+              <div>
+                <p class="myroute-time">2:00 PM · 60 min</p>
+                <p class="myroute-title">Inspection — John Keller</p>
+                <p class="myroute-addr">364 Park Rd, Regents Park NSW</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TASKS -->
+      <section class="block" id="tasksBlock">
+        <div class="block-head">
+          <h2>Tasks</h2>
+          <div class="tabs" id="taskTabs">
+            <button class="tab-btn active" data-tab="my">My Tasks</button>
+            <button class="tab-btn" data-tab="all">All Tasks</button>
+          </div>
+        </div>
+        <div class="block-body">
+          <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Date</th><th>Priority</th><th>Assigned To</th><th>Milestone</th><th>Status</th></tr>
+            </thead>
+            <tbody id="tasksTableBody">
+              <tr data-assignee="Sam">
+                <td>Send quote revision</td><td>07/01/2026</td>
+                <td><span class="badge amber">Normal</span></td>
+                <td>Sam (Manager)</td><td>Quote #3</td>
+                <td><span class="badge blue">In Progress</span></td>
+              </tr>
+              <tr data-assignee="Sam">
+                <td>Review invoice dispute</td><td>06/30/2026</td>
+                <td><span class="badge red">Urgent</span></td>
+                <td>Sam (Manager)</td><td>Invoice #4321</td>
+                <td><span class="badge gray">Pending</span></td>
+              </tr>
+              <tr data-assignee="Priya">
+                <td>Schedule inspection</td><td>07/02/2026</td>
+                <td><span class="badge amber">Normal</span></td>
+                <td>Priya (Office Admin)</td><td>Job #312</td>
+                <td><span class="badge gray">Pending</span></td>
+              </tr>
+              <tr data-assignee="Alex">
+                <td>Follow up with lead</td><td>06/30/2026</td>
+                <td><span class="badge red">Urgent</span></td>
+                <td>Alex (Sales Rep)</td><td>Lead — Sarah Chen</td>
+                <td><span class="badge gray">Pending</span></td>
+              </tr>
+              <tr data-assignee="Jordan">
+                <td>Install solar panels</td><td>06/29/2026</td>
+                <td><span class="badge red">Urgent</span></td>
+                <td>Jordan (Technician)</td><td>Job #312 — Installation</td>
+                <td><span class="badge gray">Pending</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ===================== ACTIVITIES ===================== -->
+    <section class="block" id="activitiesBlock">
+      <div class="block-head"><h2>Activities</h2></div>
+      <div class="block-body">
+        <ul class="activity-list" id="activityList">
+          <li class="activity-item" data-scope="leads-quotes">
+            <div class="activity-dot"></div>
+            <div>
+              <p class="activity-text"><b>Sam Doe</b> changed Quote #1 status to <b>Approved</b></p>
+              <p class="activity-time">Today, 4:28 PM</p>
+            </div>
+          </li>
+          <li class="activity-item" data-scope="leads-quotes">
+            <div class="activity-dot"></div>
+            <div>
+              <p class="activity-text"><b>Alex Stammer</b> moved Lead <b>Sarah Chen</b> to Qualified</p>
+              <p class="activity-time">Today, 2:10 PM</p>
+            </div>
+          </li>
+          <li class="activity-item" data-scope="jobs">
+            <div class="activity-dot"></div>
+            <div>
+              <p class="activity-text"><b>Jordan Pike</b> uploaded a file to Job #312 (Installation)</p>
+              <p class="activity-time">Today, 1:45 PM</p>
+            </div>
+          </li>
+          <li class="activity-item" data-scope="jobs">
+            <div class="activity-dot"></div>
+            <div>
+              <p class="activity-text"><b>Mac Devine</b> completed milestone <b>Inspection</b> on Job #298</p>
+              <p class="activity-time">Today, 11:02 AM</p>
+            </div>
+          </li>
+          <li class="activity-item" data-scope="invoices">
+            <div class="activity-dot"></div>
+            <div>
+              <p class="activity-text">Invoice <b>#4321</b> marked as Paid</p>
+              <p class="activity-time">Yesterday, 5:50 PM</p>
+            </div>
+          </li>
+          <li class="activity-item" data-scope="customers">
+            <div class="activity-dot"></div>
+            <div>
+              <p class="activity-text"><b>Priya</b> updated customer record — Acme Solar Co.</p>
+              <p class="activity-time">Yesterday, 3:15 PM</p>
+            </div>
+          </li>
+        </ul>
+        <div class="empty-state hidden" id="activityEmpty">No activity to show for this role yet.</div>
+      </div>
+    </section>
+
+    <!-- ===================== SCHEDULE ===================== -->
+    <section class="block" id="scheduleBlock">
+      <div class="block-head">
+        <h2>Schedule</h2>
+      </div>
+      <div class="block-body">
+        <div class="filter-row">
+          <div class="tabs" id="scheduleTabs">
+            <button class="tab-btn" data-sched-tab="leads">Leads</button>
+            <button class="tab-btn" data-sched-tab="quotes">Quotes</button>
+            <button class="tab-btn active" data-sched-tab="jobs">Jobs</button>
+          </div>
+          <div class="range-pills">
+            <button class="range-pill active">1D</button>
+            <button class="range-pill">1W</button>
+            <button class="range-pill">1M</button>
+            <button class="range-pill">1Y</button>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+
+        <!-- LEADS TABLE -->
+        <table class="sched-table hidden" data-sched="leads">
+          <thead><tr><th>#</th><th>Customer</th><th>Date</th><th>Time</th><th>Address</th><th>Owner</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Sarah Chen</td><td>06/30/2026</td><td>10:00 AM</td><td>12 Hill St, Penrith NSW</td><td>Alex Stammer</td><td><span class="badge blue">Qualified</span></td></tr>
+            <tr><td>2</td><td>Tom Reyes</td><td>07/01/2026</td><td>1:00 PM</td><td>5 Bay Rd, Cronulla NSW</td><td>Alex Stammer</td><td><span class="badge gray">New</span></td></tr>
+          </tbody>
+        </table>
+
+        <!-- QUOTES TABLE -->
+        <table class="sched-table hidden" data-sched="quotes">
+          <thead><tr><th>#</th><th>Customer</th><th>Date</th><th>Time</th><th>Address</th><th>Salesperson</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>John Keller</td><td>06/29/2026</td><td>3:00 PM</td><td>364 Park Rd, Regents Park NSW</td><td>Sam Doe</td><td><span class="badge green">Approved</span></td></tr>
+            <tr><td>2</td><td>Tom Reyes</td><td>07/02/2026</td><td>11:00 AM</td><td>5 Bay Rd, Cronulla NSW</td><td>Alex Stammer</td><td><span class="badge gray">Draft</span></td></tr>
+          </tbody>
+        </table>
+
+        <!-- JOBS TABLE -->
+        <table class="sched-table" data-sched="jobs">
+          <thead><tr><th>#</th><th>Customer</th><th>Date</th><th>Time</th><th>Arrival</th><th>Address</th><th>Assigned To</th><th>Milestone</th></tr></thead>
+          <tbody id="jobsTableBody">
+            <tr data-assigned="Alex Stammer">
+              <td>1</td><td>John Smith</td><td>01/02/2024</td><td>9:00 AM</td><td>60 mins</td>
+              <td>321 Yellow Lane, Springwood NSW</td><td>Alex Stammer</td><td>Installation</td>
+            </tr>
+            <tr data-assigned="Alex Stammer">
+              <td>2</td><td>John Smith</td><td>01/02/2024</td><td>9:00 AM</td><td>60 mins</td>
+              <td>321 Yellow Lane, Springwood NSW</td><td>Alex Stammer</td><td>Repair</td>
+            </tr>
+            <tr data-assigned="Jordan Pike">
+              <td>3</td><td>John Keller</td><td>06/29/2026</td><td>2:00 PM</td><td>45 mins</td>
+              <td>364 Park Rd, Regents Park NSW</td><td>Jordan Pike</td><td>Inspection</td>
+            </tr>
+          </tbody>
+        </table>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+<script>
+  const ROLE_CONFIG = {
+    'admin': {
+      label:'Admin', name:'Admin', initial:'A',
+      desc:'Full visibility across all modules.',
+      cards:['leads','quotes','jobs','invoices'],
+      dispatch:'full',
+      taskTabs:['my','all'], taskDefault:'all', taskAssignee:'Sam',
+      activityScopes:['leads-quotes','jobs','invoices','customers'],
+      scheduleTabs:['leads','quotes','jobs'], scheduleDefault:'jobs',
+      jobsFilter:null
+    },
+    'manager': {
+      label:'Manager', name:'Sam', initial:'S',
+      desc:'Operational oversight across the team.',
+      cards:['leads','quotes','jobs','invoices'],
+      dispatch:'full',
+      taskTabs:['my','all'], taskDefault:'all', taskAssignee:'Sam',
+      activityScopes:['leads-quotes','jobs','invoices','customers'],
+      scheduleTabs:['leads','quotes','jobs'], scheduleDefault:'jobs',
+      jobsFilter:null
+    },
+    'office-admin': {
+      label:'Office Admin', name:'Priya', initial:'P',
+      desc:'Scheduling and invoicing coordination.',
+      cards:['leads','quotes','jobs','invoices'],
+      dispatch:'full',
+      taskTabs:['my','all'], taskDefault:'all', taskAssignee:'Priya',
+      activityScopes:['leads-quotes','jobs','invoices','customers'],
+      scheduleTabs:['leads','quotes','jobs'], scheduleDefault:'jobs',
+      jobsFilter:null
+    },
+    'sales-rep': {
+      label:'Sales Rep', name:'Alex', initial:'A',
+      desc:'Your leads and quotes pipeline.',
+      cards:['leads','quotes'],
+      dispatch:'hidden',
+      taskTabs:['my'], taskDefault:'my', taskAssignee:'Alex',
+      activityScopes:['leads-quotes'],
+      scheduleTabs:['leads','quotes'], scheduleDefault:'leads',
+      jobsFilter:null
+    },
+    'technician': {
+      label:'Technician', name:'Jordan', initial:'J',
+      desc:'Your jobs and tasks for today.',
+      cards:[],
+      dispatch:'myroute',
+      taskTabs:['my'], taskDefault:'my', taskAssignee:'Jordan',
+      activityScopes:['jobs'],
+      scheduleTabs:['jobs'], scheduleDefault:'jobs',
+      jobsFilter:'Jordan Pike'
+    }
+  };
+
+  function setRole(roleKey){
+    const cfg = ROLE_CONFIG[roleKey];
+
+    // role pills
+    document.querySelectorAll('.role-pill').forEach(p=>{
+      p.classList.toggle('active', p.dataset.role===roleKey);
+    });
+
+    // header text
+    document.getElementById('roleName').textContent = cfg.name;
+    document.getElementById('roleTag').textContent = cfg.label;
+    document.getElementById('roleDesc').textContent = cfg.desc;
+    document.getElementById('avatarInitial').textContent = cfg.initial;
+
+    // ---- Quick overview ----
+    const qoBlock = document.getElementById('quickOverviewBlock');
+    if(cfg.cards.length===0){
+      qoBlock.classList.add('hidden');
+    } else {
+      qoBlock.classList.remove('hidden');
+      document.querySelectorAll('#cardsRow .status-card').forEach(card=>{
+        card.classList.toggle('hidden', !cfg.cards.includes(card.dataset.card));
+      });
+      document.getElementById('cardsRow').classList.toggle('cols-2', cfg.cards.length===2);
+      document.getElementById('cardsRow').classList.toggle('cols-4', cfg.cards.length===4);
+    }
+
+    // ---- Dispatch ----
+    const dispatchFull = document.getElementById('dispatchFullBlock');
+    const dispatchMyRoute = document.getElementById('dispatchMyRouteBlock');
+    dispatchFull.classList.add('hidden');
+    dispatchMyRoute.classList.add('hidden');
+    if(cfg.dispatch==='full') dispatchFull.classList.remove('hidden');
+    if(cfg.dispatch==='myroute') dispatchMyRoute.classList.remove('hidden');
+
+    // ---- Tasks ----
+    const taskTabsEl = document.getElementById('taskTabs');
+    taskTabsEl.classList.toggle('hidden', cfg.taskTabs.length<2);
+    document.querySelectorAll('#taskTabs .tab-btn').forEach(btn=>{
+      btn.classList.toggle('active', btn.dataset.tab===cfg.taskDefault);
+    });
+    filterTasks(cfg.taskDefault, cfg.taskAssignee);
+
+    // ---- Activities ----
+    let anyVisible = false;
+    document.querySelectorAll('#activityList .activity-item').forEach(item=>{
+      const visible = cfg.activityScopes.includes(item.dataset.scope);
+      item.classList.toggle('hidden', !visible);
+      if(visible) anyVisible = true;
+    });
+    document.getElementById('activityEmpty').classList.toggle('hidden', anyVisible);
+
+    // ---- Schedule tabs ----
+    document.querySelectorAll('#scheduleTabs .tab-btn').forEach(btn=>{
+      const tabKey = btn.dataset.schedTab;
+      const allowed = cfg.scheduleTabs.includes(tabKey);
+      btn.classList.toggle('hidden', !allowed);
+      btn.classList.toggle('active', tabKey===cfg.scheduleDefault);
+    });
+    document.querySelectorAll('.sched-table').forEach(t=>{
+      t.classList.toggle('hidden', t.dataset.sched!==cfg.scheduleDefault);
+    });
+
+    // ---- Jobs table filter (technician = assigned only) ----
+    document.querySelectorAll('#jobsTableBody tr').forEach(tr=>{
+      if(cfg.jobsFilter){
+        tr.classList.toggle('hidden', tr.dataset.assigned!==cfg.jobsFilter);
+      } else {
+        tr.classList.remove('hidden');
+      }
+    });
+  }
+
+  function filterTasks(mode, assignee){
+    document.querySelectorAll('#tasksTableBody tr').forEach(tr=>{
+      if(mode==='all'){
+        tr.classList.remove('hidden');
+      } else {
+        tr.classList.toggle('hidden', tr.dataset.assignee!==assignee);
+      }
+    });
+  }
+
+  // role pill click
+  document.querySelectorAll('.role-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=> setRole(btn.dataset.role));
+  });
+
+  // task tabs click
+  document.querySelectorAll('#taskTabs .tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#taskTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const activeRole = document.querySelector('.role-pill.active').dataset.role;
+      filterTasks(btn.dataset.tab, ROLE_CONFIG[activeRole].taskAssignee);
+    });
+  });
+
+  // schedule tabs click
+  document.querySelectorAll('#scheduleTabs .tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(btn.classList.contains('hidden')) return;
+      document.querySelectorAll('#scheduleTabs .tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.sched-table').forEach(t=>{
+        t.classList.toggle('hidden', t.dataset.sched!==btn.dataset.schedTab);
+      });
+    });
+  });
+
+  // range pills (visual only, no filtering logic in this prototype)
+  document.querySelectorAll('.range-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.range-pill').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // init
+  setRole('admin');
+</script>
+</body>
+</html>
