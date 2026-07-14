@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Solarpreneur — Admin Settings (prototype)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary-25:#F5F8FF; --primary-50:#EFF4FF; --primary-100:#D1E0FF; --primary-500:#155EEF; --primary-600:#0F4FDB; --primary-700:#0040C1;
+    --gray-25:#FCFCFD; --gray-50:#F9FAFB; --gray-100:#F2F4F7; --gray-200:#EAECF0; --gray-300:#D0D5DD; --gray-400:#98A2B3;
+    --gray-500:#667085; --gray-600:#475467; --gray-700:#344054; --gray-800:#1D2939; --gray-900:#101828;
+    --success-50:#ECFDF3; --success-500:#12B76A; --success-700:#027A48;
+    --warning-50:#FFFAEB; --warning-500:#F79009; --warning-700:#B54708;
+    --error-50:#FEF3F2; --error-500:#F04438; --error-700:#B42318;
+    --purple-50:#F4F3FF; --purple-600:#6938EF; --purple-700:#5925DC;
+    --radius-sm:6px; --radius-md:8px; --radius-lg:12px;
+    --shadow-xs: 0 1px 2px rgba(16,24,40,0.05);
+    --shadow-sm: 0 1px 3px rgba(16,24,40,0.1), 0 1px 2px rgba(16,24,40,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:'Inter',system-ui,sans-serif; color:var(--gray-900); background:var(--gray-50); font-size:14px;}
+  a{color:inherit;}
+
+  /* ---------- App shell ---------- */
+  .app{display:flex; height:100vh; overflow:hidden;}
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{width:296px; min-width:296px; background:#fff; border-right:1px solid var(--gray-200); display:flex; flex-direction:column; overflow:hidden;}
+  .sidebar-header{padding:20px 20px 16px; border-bottom:1px solid var(--gray-200);}
+  .brand{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .brand-mark{width:30px; height:30px; border-radius:8px; background:var(--primary-500); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:14px; flex-shrink:0;}
+  .brand-name{font-weight:600; font-size:14px; color:var(--gray-900);}
+  .brand-sub{font-size:12px; color:var(--gray-500);}
+  .crumb{font-size:12px; color:var(--gray-500); display:flex; align-items:center; gap:6px;}
+  .crumb b{color:var(--gray-700); font-weight:600;}
+  .search-box{margin:14px 20px 6px; position:relative;}
+  .search-box input{width:100%; padding:8px 12px 8px 34px; border:1px solid var(--gray-300); border-radius:var(--radius-md); font-size:13px; font-family:inherit; outline:none; background:var(--gray-25);}
+  .search-box input:focus{border-color:var(--primary-500); box-shadow:0 0 0 4px var(--primary-50);}
+  .search-box svg{position:absolute; left:11px; top:9px; width:15px; height:15px; color:var(--gray-400);}
+
+  .nav-scroll{flex:1; overflow-y:auto; padding:8px 12px 24px;}
+  .nav-group{margin-top:4px; border-bottom:1px solid var(--gray-100); padding-bottom:4px;}
+  .nav-group:last-child{border-bottom:none;}
+
+  /* Level 1 — group header (Defaults, Settings, Templates...) */
+  .nav-group-header{display:flex; align-items:center; gap:9px; padding:9px 8px; border-radius:var(--radius-sm); cursor:pointer; user-select:none;}
+  .nav-group-header:hover{background:var(--gray-50);}
+  .nav-group-header .icon{width:17px; height:17px; color:var(--gray-500); flex-shrink:0;}
+  .nav-group-header .title{flex:1; font-size:13.5px; font-weight:600; color:var(--gray-900); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .nav-group-header .count{font-size:12px; font-weight:600; color:var(--gray-600); background:var(--gray-100); padding:2px 9px; border-radius:20px; flex-shrink:0;}
+  .nav-group-header .chevron{width:13px; height:13px; color:var(--gray-400); flex-shrink:0; transition:transform .15s ease;}
+  .nav-group.collapsed .chevron{transform:rotate(180deg);}
+  .nav-group.has-active .nav-group-header .title{color:var(--primary-700);}
+
+  /* Level 2 — items under a group */
+  .nav-group-items{padding:2px 0 6px 0; overflow:hidden;}
+  .nav-group.collapsed .nav-group-items{display:none;}
+
+  .nav-item{display:flex; align-items:center; gap:9px; padding:7px 8px 7px 33px; border-radius:var(--radius-sm); cursor:pointer; color:var(--gray-700); font-size:13.5px; font-weight:500; margin-bottom:1px; position:relative;}
+  .nav-item:hover{background:var(--gray-50);}
+  .nav-item.active{background:var(--primary-50); color:var(--primary-700);}
+  .nav-item.active .dot{background:var(--primary-500);}
+  .nav-item .dot{width:6px; height:6px; border-radius:50%; flex-shrink:0; background:var(--gray-300);}
+  .nav-item .dot.built{background:var(--success-500);}
+  .nav-item .label{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .nav-item .tag{font-size:10px; font-weight:700; padding:1px 6px; border-radius:20px; background:var(--gray-100); color:var(--gray-500); flex-shrink:0;}
+  .nav-item.active .tag{background:#fff;}
+
+  .sidebar-footer{padding:14px 20px; border-top:1px solid var(--gray-200); font-size:11.5px; color:var(--gray-400); line-height:1.5;}
+
+  /* ---------- Main ---------- */
+  .main{flex:1; overflow-y:auto; background:var(--gray-50);}
+  .topbar{position:sticky; top:0; z-index:5; background:#fff; border-bottom:1px solid var(--gray-200); padding:16px 40px; display:flex; align-items:center; justify-content:space-between;}
+  .topbar-title{font-size:18px; font-weight:600; color:var(--gray-900);}
+  .topbar-desc{font-size:13px; color:var(--gray-500); margin-top:2px;}
+  .source-pill{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--gray-500); background:var(--gray-100); padding:5px 10px; border-radius:20px;}
+
+  .content{max-width:860px; margin:0 auto; padding:32px 40px 120px;}
+
+  .panel{background:#fff; border:1px solid var(--gray-200); border-radius:var(--radius-lg); margin-bottom:20px; overflow:hidden;}
+  .panel-head{padding:18px 24px; border-bottom:1px solid var(--gray-200);}
+  .panel-head h3{margin:0 0 3px; font-size:15px; font-weight:600; color:var(--gray-900);}
+  .panel-head p{margin:0; font-size:13px; color:var(--gray-500);}
+  .panel-body{padding:22px 24px;}
+
+  .field-row{display:flex; align-items:flex-start; gap:24px; padding:16px 0; border-bottom:1px solid var(--gray-100);}
+  .field-row:last-child{border-bottom:none;}
+  .field-label{width:220px; flex-shrink:0; padding-top:8px;}
+  .field-label .name{font-size:13.5px; font-weight:500; color:var(--gray-700);}
+  .field-label .hint{font-size:12px; color:var(--gray-500); margin-top:3px; line-height:1.5;}
+  .field-control{flex:1; max-width:340px;}
+
+  select, input[type=text], input[type=number], input[type=date]{
+    width:100%; padding:8px 12px; border:1px solid var(--gray-300); border-radius:var(--radius-md);
+    font-family:inherit; font-size:13.5px; color:var(--gray-900); background:#fff; outline:none; appearance:none;
+  }
+  select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1L6 6L11 1' stroke='%23667085' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px;}
+  select:focus, input:focus{border-color:var(--primary-500); box-shadow:0 0 0 4px var(--primary-50);}
+
+  .segmented{display:inline-flex; border:1px solid var(--gray-300); border-radius:var(--radius-md); overflow:hidden;}
+  .segmented button{border:none; background:#fff; padding:8px 16px; font-family:inherit; font-size:13.5px; font-weight:500; color:var(--gray-600); cursor:pointer; border-right:1px solid var(--gray-300);}
+  .segmented button:last-child{border-right:none;}
+  .segmented button.active{background:var(--primary-50); color:var(--primary-700);}
+
+  .toggle{width:36px; height:20px; border-radius:20px; background:var(--gray-200); position:relative; cursor:pointer; flex-shrink:0; transition:background .15s;}
+  .toggle::after{content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:var(--shadow-xs); transition:left .15s;}
+  .toggle.on{background:var(--primary-500);}
+  .toggle.on::after{left:18px;}
+
+  .radio-list{display:flex; flex-direction:column; gap:8px;}
+  .radio-option{display:flex; align-items:flex-start; gap:11px; padding:11px 13px; border:1px solid var(--gray-300); border-radius:var(--radius-md); cursor:pointer;}
+  .radio-option:hover{border-color:var(--gray-400);}
+  .radio-option.selected{border-color:var(--primary-500); background:var(--primary-25);}
+  .radio-option .circle{width:16px; height:16px; border-radius:50%; border:1.5px solid var(--gray-300); flex-shrink:0; margin-top:1px; position:relative; background:#fff;}
+  .radio-option.selected .circle{border-color:var(--primary-500);}
+  .radio-option.selected .circle::after{content:""; position:absolute; inset:3px; border-radius:50%; background:var(--primary-500);}
+  .radio-option .rtext{font-size:13.5px; color:var(--gray-800); font-weight:500; line-height:1.4;}
+  .radio-option .rdesc{font-size:12px; color:var(--gray-500); margin-top:2px; line-height:1.5;}
+
+  .check-option{display:flex; align-items:flex-start; gap:11px; padding:11px 13px; border:1px solid var(--gray-300); border-radius:var(--radius-md); cursor:pointer;}
+  .check-option:hover{border-color:var(--gray-400);}
+  .check-option.checked{border-color:var(--primary-500); background:var(--primary-25);}
+  .check-option .box{width:16px; height:16px; border-radius:5px; border:1.5px solid var(--gray-300); flex-shrink:0; margin-top:1px; position:relative; background:#fff;}
+  .check-option.checked .box{border-color:var(--primary-500); background:var(--primary-500);}
+  .check-option.checked .box::after{content:""; position:absolute; left:4px; top:1px; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);}
+  .check-option .rtext{font-size:13.5px; color:var(--gray-800); font-weight:500;}
+
+  .chip-list{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+  .chip{display:inline-flex; align-items:center; gap:8px; padding:6px 8px 6px 14px; border-radius:20px; background:var(--gray-100); font-size:13px; font-weight:500; color:var(--gray-700);}
+  .chip button{border:none; background:var(--gray-300); color:#fff; width:16px; height:16px; border-radius:50%; cursor:pointer; font-size:11px; line-height:1; display:flex; align-items:center; justify-content:center; padding:0;}
+  .chip button:hover{background:var(--gray-400);}
+  .chip-add-row{display:flex; gap:8px;}
+  .chip-add-row input{flex:1;}
+
+  .inline-input-sm{width:100%; max-width:120px;}
+  .subtle-label{font-size:11.5px; font-weight:600; color:var(--gray-500); text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px 20px;}
+  .stat-row{display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--gray-100);}
+  .stat-row:last-child{border-bottom:none;}
+  .stat-row .name{font-size:13.5px; color:var(--gray-700); font-weight:500;}
+  .stat-row .count{font-size:13.5px; font-weight:600; color:var(--gray-900);}
+
+  .btn{display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:var(--radius-md); font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer; border:1px solid var(--gray-300); background:#fff; color:var(--gray-700);}
+  .btn:hover{background:var(--gray-50);}
+  .btn-primary{background:var(--primary-500); border-color:var(--primary-500); color:#fff;}
+  .btn-primary:hover{background:var(--primary-600);}
+  .btn-sm{padding:6px 10px; font-size:12.5px;}
+
+  .badge{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:3px 9px; border-radius:20px;}
+  .badge-hypo{background:var(--purple-50); color:var(--purple-600);}
+  .badge-warn{background:var(--warning-50); color:var(--warning-700);}
+  .badge-success{background:var(--success-50); color:var(--success-700);}
+  .badge-gray{background:var(--gray-100); color:var(--gray-500);}
+
+  .banner{display:flex; gap:10px; padding:12px 16px; border-radius:var(--radius-md); font-size:13px; line-height:1.5; margin-bottom:18px;}
+  .banner-warn{background:var(--warning-50); color:var(--warning-700); border:1px solid #FEDF89;}
+  .banner-info{background:var(--primary-50); color:var(--primary-700); border:1px solid var(--primary-100);}
+  .banner svg{flex-shrink:0; margin-top:1px;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{text-align:left; font-size:11.5px; font-weight:600; color:var(--gray-500); text-transform:uppercase; letter-spacing:0.02em; padding:10px 14px; border-bottom:1px solid var(--gray-200); background:var(--gray-25);}
+  td{padding:12px 14px; border-bottom:1px solid var(--gray-100); vertical-align:middle; color:var(--gray-700);}
+  tr:last-child td{border-bottom:none;}
+  .row-name{font-weight:500; color:var(--gray-900);}
+  .row-note{font-size:12px; color:var(--gray-500); margin-top:2px;}
+
+  .prefix-row{display:flex; align-items:center; gap:10px;}
+  .prefix-row input{width:100%;}
+  .prefix-preview{font-family:'SF Mono',Consolas,monospace; font-size:13px; background:var(--gray-100); color:var(--gray-700); padding:8px 12px; border-radius:var(--radius-md); white-space:nowrap;}
+
+  .pill-list{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;}
+  .pill{padding:6px 14px; border-radius:20px; border:1px solid var(--gray-300); font-size:13px; font-weight:500; color:var(--gray-600); cursor:pointer; background:#fff;}
+  .pill.active{background:var(--primary-500); border-color:var(--primary-500); color:#fff;}
+
+  .empty-state{text-align:center; padding:40px 20px; color:var(--gray-500);}
+  .empty-state svg{margin-bottom:10px; color:var(--gray-300);}
+  .empty-state p{margin:0; font-size:13.5px;}
+
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 20px;}
+  .form-field label{display:block; font-size:13px; font-weight:500; color:var(--gray-700); margin-bottom:6px;}
+  .checkbox-row{display:flex; align-items:center; gap:8px; padding-top:26px;}
+  .checkbox-row input{width:16px; height:16px; accent-color:var(--primary-500);}
+
+  .placeholder-wrap{display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 20px; text-align:center;}
+  .placeholder-icon{width:56px; height:56px; border-radius:16px; background:var(--gray-100); display:flex; align-items:center; justify-content:center; color:var(--gray-400); margin-bottom:18px;}
+  .placeholder-wrap h3{font-size:16px; margin:0 0 8px; color:var(--gray-900);}
+  .placeholder-wrap p{font-size:13.5px; color:var(--gray-500); max-width:420px; line-height:1.6; margin:0 0 16px;}
+
+  .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--gray-900); color:#fff; padding:12px 20px; border-radius:var(--radius-md); font-size:13.5px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow-sm); opacity:0; pointer-events:none; transition:all .2s;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .toast svg{color:var(--success-500);}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div>
+          <div class="brand-name">Solarpreneur</div>
+        </div>
+      </div>
+      <div class="crumb">Admin / <b id="crumb-current">Settings</b></div>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search Settings..." id="nav-search">
+    </div>
+    <nav class="nav-scroll" id="nav-scroll"></nav>
+    <div class="sidebar-footer">
+      🟢 = built and interactive · ⚪ = mapped from the structure, not yet built<br>
+      Data source: <i>Admin (Sample Only).xlsx</i> from Ahmed
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="page-title">General</div>
+        <div class="topbar-desc" id="page-desc">Core system settings</div>
+      </div>
+      <div class="source-pill" id="source-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        DEFAULTS &gt; General
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+  <span id="toast-text">Saved</span>
+</div>
+
+<script>
+/* =========================================================================
+   DATA — navigation assembled from the MENU STRUCTURE tab + actual content of the xlsx
+   ========================================================================= */
+const NAV = [
+  { group: "Defaults", items: [
+    { id:"general", label:"General", built:true },
+    { id:"lockdates", label:"Lock Dates", built:true },
+    { id:"quote-defaults", label:"Quote", built:true },
+    { id:"jobs-defaults", label:"Jobs", built:true },
+    { id:"email-defaults", label:"Email", built:true },
+    { id:"marketing-defaults", label:"Marketing", built:true },
+    { id:"menu-defaults", label:"Menu", built:true },
+    { id:"tasks-defaults", label:"Tasks", built:true },
+    { id:"payments-defaults", label:"Payments", built:true },
+    { id:"accounting-defaults", label:"Accounting", built:true },
+    { id:"taxrates-defaults", label:"Tax Rates", built:true },
+    { id:"invoice-defaults", label:"Invoice", built:true },
+    { id:"commissions-defaults", label:"Commissions", built:true },
+    { id:"employees-defaults", label:"Employees", built:true },
+    { id:"quotecart-defaults", label:"Quote Cart", built:true },
+    { id:"schedule-defaults", label:"Schedule", built:true },
+    { id:"stock-defaults", label:"Stock", built:true },
+    { id:"timesheets-defaults", label:"Timesheets", built:true },
+    { id:"leads-defaults", label:"Leads", built:true },
+    { id:"purchases-defaults", label:"Purchases", built:true },
+    { id:"renamefields-defaults", label:"Rename Fields", built:true },
+    { id:"transactionnumbers-defaults", label:"Transaction Numbers", built:true },
+    { id:"customfieldcounts-defaults", label:"Custom Fields (counts)", built:true },
+  ]},
+  { group: "Settings", items: [
+    { id:"autonumbering", label:"Auto-Numbering", built:true },
+    { id:"customfields", label:"Custom Fields", built:true },
+    { id:"catalog", label:"Catalog", built:true },
+    { id:"customers-settings", label:"Customers · Contact Type & Role", built:true },
+    { id:"leads-settings", label:"Leads · Status, Source, Owners…", built:true },
+    { id:"quotes-settings", label:"Quotes · Types, Validity, Mark Up…", built:true },
+    { id:"jobs-settings", label:"Jobs · Type, Priorities…", built:true },
+    { id:"operations", label:"Operations · Schedule Types", built:true },
+    { id:"purchasing", label:"Purchasing · PO Status", built:true },
+    { id:"stock-settings", label:"Stock · Locations, Allocation…", built:true },
+    { id:"resources", label:"Resources · Pay Rates, Leaves…", built:true },
+    { id:"timesheets-settings", label:"Timesheets", built:true },
+    { id:"stcs", label:"STCs", built:true },
+    { id:"import", label:"Import", built:true },
+    { id:"communication", label:"Communication", built:true },
+    { id:"forms", label:"Forms", built:true },
+  ]},
+  { group: "Templates", items: [
+    { id:"sms-templates", label:"SMS Templates", built:true },
+    { id:"email-templates", label:"Email Templates", built:true },
+    { id:"document-templates", label:"Document Templates", built:true },
+  ]},
+  { group: "Accounting", items: [
+    { id:"finance-providers", label:"Finance Providers", built:true },
+  ]},
+  { group: "Organisation", items: [
+    { id:"org-details", label:"Organisation Details", built:true },
+    { id:"org-branding", label:"Branding", built:true },
+    { id:"org-licenses", label:"Invoicing, Licenses & Records", built:true },
+  ]},
+  { group: "Franchisee", items: [
+    { id:"territory", label:"Territory Management", built:true },
+    { id:"franchisee-directory", label:"Franchisee Directory & Setup", built:true },
+  ]},
+  { group: "Portal", items: [
+    { id:"customer-portal", label:"Customer Portal", built:true },
+  ]},
+];
+
+const TIER_LABEL = { D:"Detailed in file", S:"Sparse in file", E:"Empty in file" };
+const TIER_BADGE = { D:"badge-success", S:"badge-warn", E:"badge-gray" };
+
+/* =========================================================================
+   RENDER NAV
+   ========================================================================= */
+const navScroll = document.getElementById('nav-scroll');
+
+// Which level-1 groups are currently expanded. "Defaults" open by default.
+const expandedGroups = new Set(["Defaults"]);
+
+const FOLDER_ICON = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>`;
+const CHEVRON_ICON = `<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>`;
+
+function renderNav(filter=""){
+  navScroll.innerHTML = "";
+  NAV.forEach(group => {
+    const items = group.items.filter(it => it.label.toLowerCase().includes(filter.toLowerCase()));
+    if(!items.length) return;
+
+    const hasActive = items.some(it => it.id === currentId);
+    const isExpanded = filter ? true : expandedGroups.has(group.group);
+
+    const g = document.createElement('div');
+    g.className = 'nav-group' + (isExpanded ? '' : ' collapsed') + (hasActive ? ' has-active' : '');
+
+    // Level 1 — group header
+    const header = document.createElement('div');
+    header.className = 'nav-group-header';
+    header.innerHTML = `${FOLDER_ICON}<span class="title">${group.group}</span><span class="count">${items.length}</span>${CHEVRON_ICON}`;
+    header.addEventListener('click', () => {
+      if(expandedGroups.has(group.group)) expandedGroups.delete(group.group);
+      else expandedGroups.add(group.group);
+      renderNav(document.getElementById('nav-search').value);
+    });
+    g.appendChild(header);
+
+    // Level 2 — items
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'nav-group-items';
+    items.forEach(it => {
+      const el = document.createElement('div');
+      el.className = 'nav-item' + (it.id === currentId ? ' active' : '');
+      el.dataset.id = it.id;
+      el.innerHTML = `<span class="dot ${it.built?'built':''}"></span><span class="label">${it.label}</span>` +
+        (!it.built ? `<span class="tag">${it.tier}</span>` : '');
+      el.addEventListener('click', () => navigateTo(it.id));
+      itemsWrap.appendChild(el);
+    });
+    g.appendChild(itemsWrap);
+
+    navScroll.appendChild(g);
+  });
+}
+
+document.getElementById('nav-search').addEventListener('input', e => renderNav(e.target.value));
+
+/* =========================================================================
+   HELPERS
+   ========================================================================= */
+function findNavItem(id){
+  for(const g of NAV){ const f = g.items.find(i=>i.id===id); if(f) return {...f, group:g.group}; }
+  return null;
+}
+
+function toast(text){
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = text;
+  t.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function hypoBadge(text){
+  return `<span class="badge badge-hypo">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>
+    ${text}</span>`;
+}
+
+/* =========================================================================
+   PAGE TEMPLATES — built pages
+   ========================================================================= */
+function pageGeneral(){
+  return `
+  <div class="panel">
+    <div class="panel-head"><h3>Regional & Format</h3><p>Core settings that affect the whole account.</p></div>
+    <div class="panel-body">
+      <div class="field-row">
+        <div class="field-label"><div class="name">Time Zone</div></div>
+        <div class="field-control">
+          <select><option>(UTC+10:00) Sydney, Melbourne</option><option>(UTC+8:00) Perth</option><option>(UTC+9:30) Adelaide</option><option>(UTC+0:00) London</option></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label"><div class="name">Date Format</div></div>
+        <div class="field-control">
+          <select><option>DD/MM/YYYY</option><option>MM/DD/YYYY</option><option>YYYY-MM-DD</option></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label"><div class="name">Time Format</div></div>
+        <div class="field-control">
+          <div class="segmented" id="seg-time">
+            <button class="active" data-v="24">24-hour</button>
+            <button data-v="12">12-hour (AM/PM)</button>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label"><div class="name">Currency Symbol</div></div>
+        <div class="field-control">
+          <select><option>$ — AUD</option><option>$ — USD</option><option>€ — EUR</option><option>£ — GBP</option></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-label"><div class="name">Default Contact Type</div>
+          <div class="hint">The contact type applied by default when creating a new Customer.</div></div>
+        <div class="field-control">
+          <div class="segmented" id="seg-contact">
+            <button class="active" data-v="individual">Individual</button>
+            <button data-v="company">Company</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex; justify-content:flex-end; gap:10px;">
+    <button class="btn">Cancel</button>
+    <button class="btn btn-primary" id="save-general">Save changes</button>
+  </div>`;
+}
+function afterGeneral(){
+  document.querySelectorAll('#seg-time button, #seg-contact button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+  document.getElementById('save-general').addEventListener('click', ()=>toast('Your changes have been saved.'));
+}
+
+const LOCK_ROWS = [
+  { name:"Main CRM", note:null },
+  { name:"Invoices", note:null },
+  { name:"Purchase Orders", note:null },
+  { name:"Quotes", note:null },
+  { name:"Time Sheet", note:"Blocks schedule edits until payroll has been processed." },
+  { name:"Leave", note:"__UNCLEAR__" },
+  { name:"STCs", note:null },
+];
+function pageLockDates(){
+  const rows = LOCK_ROWS.map((r,i)=>`
+    <tr>
+      <td class="row-name">${r.name}</td>
+      <td><div class="toggle" data-row="${i}"></div></td>
+      <td><input type="date" style="max-width:160px;" disabled id="lockdate-${i}"></td>
+      <td><a href="#" style="color:var(--primary-600); font-weight:500; text-decoration:none;">View log</a></td>
+      <td>${r.note === "__UNCLEAR__" ? hypoBadge('Purpose unclear — confirm with Ahmed') : (r.note ? `<div class="row-note">${r.note}</div>` : '')}</td>
+    </tr>`).join('');
+  return `
+  <div class="banner banner-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>A Lock Date prevents creating or editing records of this type before the specified date. Most commonly used to close an accounting period.</div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Lock Dates</h3><p>Lock record editing before a specific date, per module.</p></div>
+    <div class="panel-body" style="padding:0;">
+      <table>
+        <thead><tr><th>Module</th><th>Enabled</th><th>Locked Until</th><th>Change Log</th><th>Note</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function afterLockDates(){
+  document.querySelectorAll('.toggle[data-row]').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      t.classList.toggle('on');
+      const idx = t.dataset.row;
+      const dateInput = document.getElementById('lockdate-'+idx);
+      dateInput.disabled = !t.classList.contains('on');
+      toast(t.classList.contains('on') ? 'Module locked' : 'Lock removed');
+    });
+  });
+}
+
+const AUTONUM = [
+  {label:"Quote", prefix:"Q", num:"000001"},
+  {label:"Job", prefix:"J", num:"000001"},
+  {label:"Purchase Order", prefix:"PO", num:"000001"},
+  {label:"Invoice", prefix:"I", num:"000001"},
+  {label:"Payment", prefix:"PA", num:"000001"},
+];
+function pageAutoNumbering(){
+  const rows = AUTONUM.map((a,i)=>`
+    <div class="field-row">
+      <div class="field-label"><div class="name">${a.label}</div></div>
+      <div class="field-control">
+        <div class="prefix-row">
+          <div style="width:70px;"><input type="text" value="${a.prefix}" maxlength="4" id="prefix-${i}"></div>
+          <input type="number" value="${parseInt(a.num)}" min="1" id="num-${i}" style="max-width:130px;">
+          <span class="prefix-preview" id="preview-${i}">${a.prefix}-${a.num}</span>
+        </div>
+      </div>
+    </div>`).join('');
+  return `
+  <div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Choose your starting numbers now — they'll be harder to change once records exist.</div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Auto-Numbering</h3><p>Number format for Quote, Job, Purchase Order, Invoice, and Payment.</p></div>
+    <div class="panel-body">${rows}</div>
+  </div>
+  <div style="display:flex; justify-content:flex-end; gap:10px;">
+    <button class="btn">Cancel</button>
+    <button class="btn btn-primary" id="save-autonum">Save changes</button>
+  </div>`;
+}
+function afterAutoNumbering(){
+  AUTONUM.forEach((a,i)=>{
+    const p = document.getElementById('prefix-'+i), n = document.getElementById('num-'+i), prev = document.getElementById('preview-'+i);
+    const update = () => {
+      const numStr = String(Math.max(1, parseInt(n.value||1))).padStart(6,'0');
+      prev.textContent = `${p.value || '—'}-${numStr}`;
+    };
+    p.addEventListener('input', update);
+    n.addEventListener('input', update);
+  });
+  document.getElementById('save-autonum').addEventListener('click', ()=>toast('Numbering format saved.'));
+}
+
+const CF_ENTITIES = ["Customer","Property","Quote","Job","Invoice"];
+let cfSelected = "Customer";
+let customFields = []; // {entity, name, type, showOnProfile}
+function pageCustomFields(){
+  const pills = CF_ENTITIES.map(e=>`<div class="pill ${e===cfSelected?'active':''}" data-e="${e}">${e}</div>`).join('');
+  const filtered = customFields.filter(f=>f.entity===cfSelected);
+  const list = filtered.length ? `
+    <table>
+      <thead><tr><th>Field Name</th><th>Type</th><th>Show on Profile</th><th></th></tr></thead>
+      <tbody>${filtered.map((f,i)=>`
+        <tr>
+          <td class="row-name">${f.name}</td>
+          <td>${f.type}</td>
+          <td>${f.showOnProfile ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-gray">No</span>'}</td>
+          <td style="text-align:right;"><button class="btn btn-sm" data-del="${i}">Delete</button></td>
+        </tr>`).join('')}</tbody>
+    </table>` : `
+    <div class="empty-state">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+      <p>No custom fields yet for “${cfSelected}”. This section is empty in Ahmed's file — add the first field below.</p>
+    </div>`;
+
+  return `
+  <div class="panel">
+    <div class="panel-head"><h3>Custom Fields</h3><p>Select an entity to see its custom fields.</p></div>
+    <div class="panel-body">
+      <div class="pill-list">${pills}</div>
+      <div id="cf-list">${list}</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>+ New Custom Field</h3><p>${hypoBadge("Behavior of 'Field Value' per type is a hypothesis — not detailed in the file")}</p></div>
+    <div class="panel-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Applies to</label>
+          <select id="cf-entity">${CF_ENTITIES.map(e=>`<option ${e===cfSelected?'selected':''}>${e}</option>`).join('')}</select>
+        </div>
+        <div class="form-field">
+          <label>Custom Field Name</label>
+          <input type="text" id="cf-name" placeholder="e.g. Roof Pitch">
+        </div>
+        <div class="form-field">
+          <label>Field Type</label>
+          <select id="cf-type">
+            <option>Text</option><option>Numeric</option><option>True/False</option><option>Area (Length x Width)</option><option>Dropdown</option>
+          </select>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="cf-show">
+          <label for="cf-show" style="margin:0;">Show on Profile</label>
+        </div>
+      </div>
+      <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+        <button class="btn btn-primary" id="cf-add">Add field</button>
+      </div>
+    </div>
+  </div>`;
+}
+function afterCustomFields(){
+  document.querySelectorAll('.pill[data-e]').forEach(p=>{
+    p.addEventListener('click', ()=>{ cfSelected = p.dataset.e; render(); });
+  });
+  document.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const filtered = customFields.filter(f=>f.entity===cfSelected);
+      const target = filtered[parseInt(b.dataset.del)];
+      customFields = customFields.filter(f=>f!==target);
+      render();
+      toast('Field deleted');
+    });
+  });
+  const addBtn = document.getElementById('cf-add');
+  addBtn.addEventListener('click', ()=>{
+    const name = document.getElementById('cf-name').value.trim();
+    if(!name){ toast('Enter a field name'); return; }
+    customFields.push({
+      entity: document.getElementById('cf-entity').value,
+      name,
+      type: document.getElementById('cf-type').value,
+      showOnProfile: document.getElementById('cf-show').checked,
+    });
+    cfSelected = document.getElementById('cf-entity').value;
+    render();
+    toast('Field added');
+  });
+}
+
+/* =========================================================================
+   SHARED HELPERS — used by every Defaults sub-page below
+   ========================================================================= */
+function panel(title, desc, body){
+  return `<div class="panel"><div class="panel-head"><h3>${title}</h3>${desc?`<p>${desc}</p>`:''}</div><div class="panel-body">${body}</div></div>`;
+}
+function fieldRow(label, hint, controlHtml){
+  return `<div class="field-row"><div class="field-label"><div class="name">${label}</div>${hint?`<div class="hint">${hint}</div>`:''}</div><div class="field-control">${controlHtml}</div></div>`;
+}
+function radioList(name, options, selectedIndex){
+  return `<div class="radio-list" data-radio-group="${name}">` + options.map((o,i)=>`
+    <div class="radio-option ${i===selectedIndex?'selected':''}" data-index="${i}">
+      <div class="circle"></div>
+      <div><div class="rtext">${o.text}</div>${o.desc?`<div class="rdesc">${o.desc}</div>`:''}</div>
+    </div>`).join('') + `</div>`;
+}
+function checkList(name, options, checkedIndexes){
+  return `<div class="radio-list" data-check-group="${name}">` + options.map((o,i)=>`
+    <div class="check-option ${checkedIndexes.includes(i)?'checked':''}" data-index="${i}">
+      <div class="box"></div>
+      <div><div class="rtext">${o.text}</div>${o.desc?`<div class="rdesc">${o.desc}</div>`:''}</div>
+    </div>`).join('') + `</div>`;
+}
+function saveBar(id){
+  return `<div style="display:flex; justify-content:flex-end; gap:10px;">
+    <button class="btn">Cancel</button>
+    <button class="btn btn-primary" onclick="toast('Your changes have been saved.')">Save changes</button>
+  </div>`;
+}
+function simpleTable(headers, rows){
+  return `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+
+/* ---- Generic named lists (Settings sub-pages) — simple add/remove chip lists ---- */
+const LISTS = {
+  units: ["Job","H","Watt","kW","Panel","[kW Tier]","Item"],
+  contactTypes: ["Individual","Company","Government","Real Estate"],
+  contactRoles: ["Owner","Tenant","Property Manager","Decision Maker"],
+  archivedReasons: ["Lost Sale","Uncontactable","Duplicate Lead","Not Interested","Disqualified","Inactive Lead","Marketing Franchisee","Bad Timing","Not Suitable for Install"],
+  leadSourceOnline: ["Website Enquiries","Referrals","Social Media","Email Campaigns","Paid Digital Ads","SEO"],
+  leadSourceOffline: ["Local Advertising","Trade Shows & Events","Partner/Dealer Networks","Direct Mail","Cold Calls","Webinars & Workshops","Walk-ins","Word of Mouth","Affiliate Programs"],
+  leadSourcePurchased: ["Third-party Lead Providers"],
+  quoteProductItems: ["Solar Panel","Inverter","Balance of System","Monitoring","Miscellaneous"],
+  quoteServiceItems: ["Installation","Travel","Site Inspection","Existing System"],
+  quoteIncentiveItems: ["Finance","Rebates","Commissions","Discounts"],
+  jobHoldReasons: ["Customer Building","Finance Not Ready"],
+  jobCancelReasons: ["Customer Requested Cancellation","Cancellation Due to Technical Issues","Cancellation Due to External Factors","Refund Processed","Cancellation Feedback Noted"],
+  jobPriorities: ["Low","Medium","High","Urgent"],
+  poStatus: ["Ordered","Picked Up","Dispatched","Received","Partially Received","Pending","Pre-Paid","Cancelled"],
+  payRates: ["Pay Rate","Employment Cost","Overhead","Overtime 1.5X","Public Holiday 2X"],
+  leaves: ["Annual Leave","Sick Leave"],
+  companyTypes: ["Freight","Supplier","Installer","Energy Retailer","Finance","STC Buyer","STC Trading Platform","Solar Retailer","Franchisee"],
+  tradeTypes: ["Energy Retailer","STC Buyer","STC Trading Platform"],
+  traderPortals: ["CER","Greenbot","Greendeal"],
+  financeProviders: ["Brighte","Plenti","Zip","Solaris Finance","SocietyOne","Solar Leasing / PPAs","Clean Energy Finance Corporation (CEFC)","Green Loans Finance Providers","Community Solar Programs","Energy Retailer Finance","Bank Loan","Other"],
+  franchiseeTypes: ["Franchisee (Small)","Franchisee (Medium)","Franchisee (Large)","Other"],
+};
+function genericChipList(kind, addLabel="Add new..."){
+  const items = LISTS[kind];
+  return `<div class="chip-list">${items.map((t,i)=>`<div class="chip">${t}<button data-list-remove="${kind}" data-index="${i}">&times;</button></div>`).join('')}</div>
+  <div class="chip-add-row"><input type="text" placeholder="${addLabel}" id="add-list-${kind}"><button class="btn btn-sm" data-list-add="${kind}">Add</button></div>`;
+}
+
+/* ---- Global delegated interactivity: radio-lists, check-lists, generic toggles, generic lists ---- */
+document.getElementById('content').addEventListener('click', (e) => {
+  const radioOpt = e.target.closest('.radio-option');
+  if(radioOpt){
+    const group = radioOpt.closest('[data-radio-group]');
+    group.querySelectorAll('.radio-option').forEach(o=>o.classList.remove('selected'));
+    radioOpt.classList.add('selected');
+    toast('Saved');
+    return;
+  }
+  const checkOpt = e.target.closest('.check-option');
+  if(checkOpt){
+    checkOpt.classList.toggle('checked');
+    toast('Saved');
+    return;
+  }
+  const genToggle = e.target.closest('.toggle[data-generic]');
+  if(genToggle){
+    genToggle.classList.toggle('on');
+    toast('Saved');
+    return;
+  }
+  const listRemove = e.target.closest('[data-list-remove]');
+  if(listRemove){
+    const kind = listRemove.dataset.listRemove;
+    LISTS[kind].splice(parseInt(listRemove.dataset.index), 1);
+    render();
+    toast('Removed');
+    return;
+  }
+  const listAdd = e.target.closest('[data-list-add]');
+  if(listAdd){
+    const kind = listAdd.dataset.listAdd;
+    const input = document.getElementById('add-list-'+kind);
+    const val = input.value.trim();
+    if(!val) return;
+    LISTS[kind].push(val);
+    render();
+    toast('Added');
+    return;
+  }
+});
+
+/* =========================================================================
+   DEFAULTS › Quote
+   ========================================================================= */
+function pageQuoteDefaults(){
+  return panel("Quote", "Defaults applied to every new quote.",
+    fieldRow("Default Quote Type", null, `<select><option>Standard Quote</option><option>Finance Quote</option><option>Insurance Quote</option></select>`) +
+    fieldRow("Lapsed Time Since Created", "Moves a quote to the 'Follow Up' category after this many days without being sold.",
+      `<div style="display:flex; align-items:center; gap:10px;"><input type="number" value="14" min="1" style="max-width:100px;"><span style="color:var(--gray-500); font-size:13px;">days</span></div>`)
+  ) + saveBar();
+}
+
+/* =========================================================================
+   DEFAULTS › Jobs
+   ========================================================================= */
+function pageJobsDefaults(){
+  return panel("Jobs", "Default applied when a new job is created.",
+    fieldRow("Default Job Type", null, `<select><option>Solar Installation</option><option>Battery Installation</option><option>Service &amp; Repair</option><option>Inspection</option></select>`)
+  ) + saveBar();
+}
+
+/* =========================================================================
+   DEFAULTS › Email
+   ========================================================================= */
+const EMAIL_ROWS = ["Quotes","Jobs","Purchase Orders","Invoices","Payments","Statements","Tasks","Back-Up"];
+function pageEmailDefaults(){
+  const rows = EMAIL_ROWS.map((r,i)=>`
+    <tr>
+      <td class="row-name">${r}</td>
+      <td style="text-align:center;"><div class="toggle" data-generic></div></td>
+      <td style="text-align:center;"><div class="toggle" data-generic></div></td>
+      <td><input type="text" placeholder="name@company.com" id="email-from-${i}" style="min-width:200px;"></td>
+      <td><button class="btn btn-sm" onclick="toast('Test email sent to ' + (document.getElementById('email-from-${i}').value || '—'))">Send Test Email</button></td>
+    </tr>`).join('');
+  return `
+  <div class="banner banner-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Choose which address each system email sends from — the mail server's default, the logged-in user's own address, or a custom "Send From" address per document type.</div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Email</h3><p>Send-from configuration per document type.</p></div>
+    <div class="panel-body" style="padding:0;">
+      <table><thead><tr><th>Item</th><th style="text-align:center;">Send From Server</th><th style="text-align:center;">Send From User</th><th>Send From (custom)</th><th></th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>
+  </div>`;
+}
+
+/* =========================================================================
+   DEFAULTS › Marketing
+   ========================================================================= */
+function pageMarketingDefaults(){
+  return `
+  <div class="banner banner-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Sample campaign names below — the real list will come from the Marketing module once it's built.</div>
+  </div>` +
+  panel("Marketing", "Default campaign applied to new leads when no source campaign is specified.",
+    fieldRow("Default Campaign", null, `<select><option>Spring Solar Promo 2026</option><option>Referral Program</option><option>Google Ads — Solar</option><option>Facebook — Battery Bundle</option></select>`)
+  ) + saveBar();
+}
+
+/* =========================================================================
+   DEFAULTS › Menu
+   ========================================================================= */
+const MENU_COLORS = [
+  {name:"Blue", hex:"#155EEF"},{name:"Green", hex:"#12B76A"},{name:"Purple", hex:"#6938EF"},
+  {name:"Orange", hex:"#F79009"},{name:"Red", hex:"#F04438"},{name:"Teal", hex:"#0E9384"},
+];
+let menuColorSelected = 0;
+function pageMenuDefaults(){
+  const swatches = MENU_COLORS.map((c,i)=>`
+    <div class="menu-swatch ${i===menuColorSelected?'selected':''}" data-color-index="${i}"
+      style="width:32px; height:32px; border-radius:50%; background:${c.hex}; cursor:pointer; border:2px solid ${i===menuColorSelected?'var(--gray-900)':'transparent'}; box-shadow:0 0 0 2px #fff, 0 0 0 3px ${i===menuColorSelected?c.hex:'transparent'};" title="${c.name}"></div>`).join('');
+  return panel("Menu", "Appearance of the left navigation menu.",
+    fieldRow("Size", null, `<div class="segmented" data-segmented><button class="active" data-v="small">Small</button><button data-v="medium">Medium</button><button data-v="large">Large</button></div>`) +
+    fieldRow("Color", null, `<div id="menu-swatches" style="display:flex; gap:12px;">${swatches}</div>`)
+  ) + saveBar();
+}
+function afterMenuDefaults(){
+  document.querySelectorAll('[data-segmented] button').forEach(b=>{
+    b.addEventListener('click', ()=>{ b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); toast('Saved'); });
+  });
+  document.querySelectorAll('.menu-swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{ menuColorSelected = parseInt(sw.dataset.colorIndex); render(); toast('Saved'); });
+  });
+}
+
+/* =========================================================================
+   DEFAULTS › Tasks
+   ========================================================================= */
+function pageTasksDefaults(){
+  return panel("Tasks", "Default sender for task notification emails.",
+    fieldRow("Send Task From User Email", "When on, task notifications send from the assigned user's own email instead of the system address.",
+      `<div class="toggle" data-generic></div>`)
+  ) + saveBar();
+}
+
+/* =========================================================================
+   DEFAULTS › Payments
+   ========================================================================= */
+let paymentMethods = ["Deposit","Progress Payment","Balance","Goodwill Credit","Write Off"];
+let paymentTerms = ["COD","After Installation","After Connection","Last Day of the Month","30 Days from Invoice"];
+function chipListHtml(items, kind){
+  return `<div class="chip-list">${items.map((t,i)=>`<div class="chip">${t}<button data-remove="${kind}" data-index="${i}">&times;</button></div>`).join('')}</div>
+  <div class="chip-add-row"><input type="text" placeholder="Add new..." id="add-${kind}"><button class="btn btn-sm" data-add="${kind}">Add</button></div>`;
+}
+function pagePaymentsDefaults(){
+  return panel("Payments", "Configure the payment methods, terms, and gateway used across Quotes, Jobs, and Invoices.",
+    `<div class="subtle-label">Payment Methods</div>` + chipListHtml(paymentMethods,"method") +
+    `<div style="height:22px;"></div><div class="subtle-label">Payment Terms</div>` + chipListHtml(paymentTerms,"term") +
+    `<div style="height:22px;"></div>` +
+    fieldRow("Payment Gateway", null, `<select><option>Stripe</option><option>PayPal</option><option>EzyFinance</option><option>None</option></select>`)
+  );
+}
+function afterPaymentsDefaults(){
+  document.querySelectorAll('[data-remove]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const kind = b.dataset.remove, idx = parseInt(b.dataset.index);
+      if(kind==="method") paymentMethods.splice(idx,1); else paymentTerms.splice(idx,1);
+      render(); toast('Removed');
+    });
+  });
+  document.querySelectorAll('[data-add]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const kind = b.dataset.add;
+      const input = document.getElementById('add-'+kind);
+      const val = input.value.trim();
+      if(!val) return;
+      if(kind==="method") paymentMethods.push(val); else paymentTerms.push(val);
+      render(); toast('Added');
+    });
+  });
+}
+
+/* =========================================================================
+   DEFAULTS › Accounting
+   ========================================================================= */
+function pageAccountingDefaults(){
+  return panel("Accounting", "How totals are rounded on printed and sent documents.",
+    fieldRow("Cash Rounding", "Increments", `<select><option>No rounding</option><option>Nearest $0.05</option><option>Nearest $0.10</option><option>Nearest $1.00</option></select>`)
+  ) + saveBar();
+}
+
+/* =========================================================================
+   DEFAULTS › Tax Rates
+   ========================================================================= */
+let taxRates = [{name:"GST", rate:10}];
+function pageTaxRatesDefaults(){
+  const rows = taxRates.map((t,i)=>`
+    <tr><td class="row-name">${t.name}</td><td>${t.rate}%</td>
+    <td style="text-align:right;"><button class="btn btn-sm" data-del-tax="${i}">Delete</button></td></tr>`).join('');
+  return panel("Tax Rates", "Tax rates available across Quotes, Jobs, and Invoices.",
+    `<table><thead><tr><th>Tax Name</th><th>Rate</th><th></th></tr></thead><tbody id="tax-rows">${rows}</tbody></table>
+    <div style="display:flex; gap:10px; margin-top:14px;">
+      <input type="text" placeholder="Tax name" id="tax-name" style="max-width:180px;">
+      <input type="number" placeholder="Rate %" id="tax-rate" style="max-width:110px;">
+      <button class="btn btn-sm" id="tax-add">Add Tax Rate</button>
+    </div>
+    <div style="height:22px;"></div>` +
+    fieldRow("Default price display", null, `<div class="segmented" data-segmented><button class="active" data-v="excl">Excluding Tax</button><button data-v="incl">Including Tax</button></div>`)
+  );
+}
+function afterTaxRatesDefaults(){
+  document.querySelectorAll('[data-segmented] button').forEach(b=>{
+    b.addEventListener('click', ()=>{ b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); toast('Saved'); });
+  });
+  document.querySelectorAll('[data-del-tax]').forEach(b=>{
+    b.addEventListener('click', ()=>{ taxRates.splice(parseInt(b.dataset.delTax),1); render(); toast('Tax rate removed'); });
+  });
+  document.getElementById('tax-add').addEventListener('click', ()=>{
+    const name = document.getElementById('tax-name').value.trim();
+    const rate = parseFloat(document.getElementById('tax-rate').value);
+    if(!name || isNaN(rate)){ toast('Enter a name and a rate'); return; }
+    taxRates.push({name, rate});
+    render(); toast('Tax rate added');
+  });
+}
+
+/* =========================================================================
+   DEFAULTS › Invoice
+   ========================================================================= */
+function pageInvoiceDefaults(){
+  return panel("Invoice", "When an invoice is automatically generated.",
+    radioList("invoice-trigger", [
+      {text:"Converting a lead from quote to job"},
+      {text:"Installation of the job"},
+      {text:"Completion of the job"},
+    ], 2)
+  );
+}
+
+/* =========================================================================
+   DEFAULTS › Commissions
+   ========================================================================= */
+function pageCommissionsDefaults(){
+  return panel("Commissions", "The amount commissions are calculated on.",
+    radioList("commission-basis", [
+      {text:"Quote Amount"},
+      {text:"Invoice Amount"},
+    ], 0)
+  );
+}
+
+/* =========================================================================
+   DEFAULTS › Employees
+   ========================================================================= */
+function pageEmployeesDefaults(){
+  return `<div class="banner banner-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Options below pull from Settings → Resources → Allowances once that list exists.</div>
+  </div>` +
+  panel("Employees", "Default allowance applied to a new employee record.",
+    fieldRow("Default Allowance", null, `<select><option>Travel Allowance</option><option>Meal Allowance</option><option>Tool Allowance</option><option>None</option></select>`)
+  ) + saveBar();
+}
+
+/* =========================================================================
+   DEFAULTS › Quote Cart
+   ========================================================================= */
+function pageQuoteCartDefaults(){
+  return panel("Quote Cart", "Rate card applied by default in the Quote Cart.",
+    fieldRow("Default Rate Card For Quote Cart", null, `<select><option>Residential Standard</option><option>Commercial Standard</option><option>Solar + Battery Bundle</option></select>`)
+  ) + saveBar();
+}
+
+/* =========================================================================
+   DEFAULTS › Schedule
+   ========================================================================= */
+function pageScheduleDefaults(){
+  return panel("Schedule", "Default calendar view when opening the Schedule.",
+    fieldRow("Default Schedule View", null, `<div class="segmented" data-segmented><button class="active" data-v="day">Day</button><button data-v="week">Week</button><button data-v="month">Month</button></div>`)
+  ) + saveBar();
+}
+function afterScheduleDefaults(){
+  document.querySelectorAll('[data-segmented] button').forEach(b=>{
+    b.addEventListener('click', ()=>{ b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); toast('Saved'); });
+  });
+}
+
+/* =========================================================================
+   DEFAULTS › Stock
+   ========================================================================= */
+function pageStockDefaults(){
+  return panel("Stock", "Location, deduction trigger, and costing method.",
+    fieldRow("Default Stock Location", null, `<select><option>Main Warehouse</option><option>Truck 1</option><option>Truck 2</option><option>Supplier Direct</option></select>`) +
+    fieldRow("Stock Deduction When", null, radioList("stock-deduction", [
+      {text:"Schedule is 'Confirmed'"},{text:"Stock is 'Installed'"},{text:"Job is 'Installed'"},
+    ], 1)) +
+    fieldRow("Stock Take Frequency", null, `<select><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Quarterly</option><option>Annually</option><option>Custom</option></select>`)
+  ) +
+  panel("Costing Method", "Select your preferred costing method. This affects how your product costs are calculated.",
+    radioList("costing-method", [
+      {text:"Moving average"},{text:"Manual"},{text:"First in, first out (FIFO)"},{text:"Last in, first out (LIFO)"},
+    ], 0)
+  );
+}
+
+/* =========================================================================
+   DEFAULTS › Timesheets
+   ========================================================================= */
+function pageTimesheetsDefaults(){
+  return panel("Timesheets", "How and when timesheets are generated.",
+    fieldRow("Start Day", null, `<select><option>Monday</option><option>Sunday</option></select>`) +
+    fieldRow("Timesheet Creation", "A timesheet is generated automatically when...", checkList("ts-creation", [
+      {text:"Job is Confirmed", desc:"Generates a timesheet when a scheduled job is marked confirmed."},
+      {text:"Job is Installed", desc:"Generates a timesheet when a confirmed job is marked installed."},
+    ], [0,1])) +
+    fieldRow("Timesheet Type", null, radioList("ts-type", [
+      {text:"Actual Hours", desc:"Based on actual timesheet entries."},
+      {text:"Fixed Hours", desc:"Based on the fixed hours configured below."},
+    ], 0))
+  ) +
+  `<div class="panel" id="fixed-hours-panel" style="display:none;">
+    <div class="panel-head"><h3>Fixed Hours</h3><p>Based on Start and End Day, less the standard lunch break.</p></div>
+    <div class="panel-body">
+      ${fieldRow("If Fixed Hours &gt;", null, `<input type="number" value="8" style="max-width:100px;">`)}
+      ${fieldRow("Start Time", null, `<input type="text" value="07:00 AM">`)}
+      ${fieldRow("End Time", null, `<input type="text" value="03:30 PM">`)}
+      ${fieldRow("Break Time (Hrs)", null, `<input type="number" value="0.5" step="0.25" style="max-width:100px;">`)}
+      ${fieldRow("Calculated Hours", null, `<input type="text" value="8.0 hrs" disabled style="background:var(--gray-50); color:var(--gray-500);">`)}
+    </div>
+  </div>` +
+  panel("Overlap & Scheduling", null,
+    fieldRow("Allow Timesheet to Overlap", null, `<div class="toggle" data-generic></div>`) +
+    fieldRow("Enable scheduling outside of these times", null, `<div class="toggle" data-generic></div>`)
+  );
+}
+function afterTimesheetsDefaults(){
+  const group = document.querySelector('[data-radio-group="ts-type"]');
+  const fixedPanel = document.getElementById('fixed-hours-panel');
+  fixedPanel.style.display = 'none'; // Actual Hours selected by default
+  group.querySelectorAll('.radio-option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      fixedPanel.style.display = opt.dataset.index === '1' ? 'block' : 'none';
+    });
+  });
+}
+
+/* =========================================================================
+   DEFAULTS › Leads
+   ========================================================================= */
+function pageLeadsDefaults(){
+  return panel("Leads", "Default status behaviour and lead source.",
+    fieldRow("Lead Status", null, radioList("lead-status", [
+      {text:"Change Automatically", desc:"Status updates based on system events (e.g. quote sent, quote won)."},
+      {text:"Change Manually", desc:"A user must update the status by hand."},
+    ], 0)) +
+    fieldRow("Lead Source · Default", null, `<select><option>Google Ads</option><option>Referral</option><option>Website</option><option>Trade Show</option><option>Cold Call</option><option>Facebook</option></select>`)
+  );
+}
+
+/* =========================================================================
+   DEFAULTS › Purchases
+   ========================================================================= */
+function pagePurchasesDefaults(){
+  return panel("Purchases", "Defaults applied to new Purchase Orders.",
+    fieldRow("Purchase Order Ship To · Default Location", null, `<select><option>Main Warehouse</option><option>Truck 1</option><option>Truck 2</option></select>`) +
+    fieldRow("Allow purchase order to be combined", null, `<div class="toggle" data-generic></div>`) +
+    fieldRow("Purchase Orders require approval", null, `<div class="toggle on" data-generic></div>`)
+  );
+}
+
+/* =========================================================================
+   DEFAULTS › Rename Fields
+   ========================================================================= */
+const RENAME_FIELDS = ["Sales Reps","Add sublocation","Billing Address","Carrier","Contact","Contact Name","Customer"];
+function pageRenameFieldsDefaults(){
+  const rows = RENAME_FIELDS.map((f,i)=>`
+    <tr><td class="row-name">${f}</td><td><input type="text" placeholder="Custom text (optional)" id="rename-${i}"></td></tr>`).join('');
+  return `<div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Some of these terms ("Carrier", "Add sublocation") read like they're from Ahmed's old stock/inventory system and may not map to Solarpreneur's fields. Confirm relevance before building this for real.</div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Rename Fields</h3><p>Customize the text shown on screen and on printed documents.</p></div>
+    <div class="panel-body" style="padding:0;">
+      <table><thead><tr><th>Default text</th><th>Custom text</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>
+  </div>` + saveBar();
+}
+
+/* =========================================================================
+   DEFAULTS › Transaction Numbers
+   ========================================================================= */
+const TXN_NUMBERS = [
+  {label:"Sales order", prefix:"SO", num:19},
+  {label:"Sales quote", prefix:"SQ", num:1},
+  {label:"Purchase order", prefix:"PO", num:29},
+  {label:"Purchase quote", prefix:"PQ", num:2},
+  {label:"Stock count", prefix:"SC", num:4},
+  {label:"Stock adjustment", prefix:"SA", num:64},
+  {label:"Stock transfer", prefix:"ST", num:14},
+];
+function pageTransactionNumbersDefaults(){
+  const rows = TXN_NUMBERS.map((t,i)=>`
+    <div class="field-row">
+      <div class="field-label"><div class="name">${t.label}</div></div>
+      <div class="field-control">
+        <div class="prefix-row">
+          <div style="width:70px;"><input type="text" value="${t.prefix}" maxlength="4" id="txn-prefix-${i}"></div>
+          <input type="number" value="${t.num}" min="1" id="txn-num-${i}" style="max-width:130px;">
+          <span class="prefix-preview" id="txn-preview-${i}">${t.prefix}-${String(t.num).padStart(6,'0')}</span>
+        </div>
+      </div>
+    </div>`).join('');
+  return `<div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>This looks like it may overlap with Settings → Auto-Numbering (Quote / Job / Invoice). Possibly a leftover from the old inventory system — confirm with Ahmed whether both numbering tables are needed.</div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Transaction Numbers</h3><p>Choose how you name your transactions.</p></div>
+    <div class="panel-body">${rows}</div>
+  </div>` + saveBar();
+}
+function afterTransactionNumbersDefaults(){
+  TXN_NUMBERS.forEach((t,i)=>{
+    const p = document.getElementById('txn-prefix-'+i), n = document.getElementById('txn-num-'+i), prev = document.getElementById('txn-preview-'+i);
+    const update = () => { prev.textContent = `${p.value || '—'}-${String(Math.max(1,parseInt(n.value||1))).padStart(6,'0')}`; };
+    p.addEventListener('input', update);
+    n.addEventListener('input', update);
+  });
+}
+
+/* =========================================================================
+   DEFAULTS › Custom Fields (counts)
+   ========================================================================= */
+const CF_COUNTS = [
+  {name:"Sales order", count:0},{name:"Purchase order", count:3},{name:"Manufacture order", count:0},
+  {name:"Product", count:9},{name:"Customer", count:0},{name:"Vendor", count:0},
+  {name:"Stock transfer", count:0},{name:"Stock adjustment", count:0},
+];
+function pageCustomFieldCountsDefaults(){
+  const rows = CF_COUNTS.map(c=>`<div class="stat-row"><div class="name">${c.name}</div><div class="count">${c.count} field${c.count===1?'':'s'}</div></div>`).join('');
+  return `<div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Read-only in the old file — a per-entity count of custom fields. Entity names (Sales order, Vendor, Manufacture order) are inventory/ERP terms, not a 1:1 match to Solarpreneur entities. Not the same as Settings → Custom Fields, which is the customer-facing feature we already built.</div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>Custom Fields — counts (legacy)</h3><p>Reference only, from Ahmed's previous system.</p></div>
+    <div class="panel-body">${rows}</div>
+  </div>`;
+}
+
+/* =========================================================================
+   SETTINGS › Catalog
+   ========================================================================= */
+function pageCatalog(){
+  return panel("Unit of Measurement", "Units available when defining cost types and line items.",
+    genericChipList("units")
+  ) +
+  panel("Cost Types", "Pricing logic used across Quotes, Jobs, and the Catalog.",
+    simpleTable(["Cost Type","Unit","Description"], [
+      ["Flat Rate","Job","A simple fixed cost for a product or service, irrespective of quantity."],
+      ["Hourly","H","For services priced based on the number of hours worked."],
+      ["Price Per Watt","Watt","A fixed price for each watt of solar power capacity."],
+      ["Price Per kW","kW","A fixed price for each kilowatt of solar power capacity."],
+      ["Price Per Panel","Panel","A fixed price for each panel."],
+      ["kW Tier","[kW Tier]","Tiered pricing based on system size."],
+    ]) +
+    `<div style="margin-top:16px;"><button class="btn btn-sm" id="add-costtype-btn">+ Add Cost Type</button></div>
+    <div id="add-costtype-form" style="display:none; margin-top:14px;">
+      <div class="form-grid">
+        <div class="form-field"><label>Cost Type Name</label><input type="text" placeholder="e.g. Price Per Battery kWh"></div>
+        <div class="form-field"><label>Unit</label><select>${LISTS.units.map(u=>`<option>${u}</option>`).join('')}</select></div>
+        <div class="form-field" style="grid-column:1/-1;"><label>Description</label><input type="text" placeholder="Short description shown to the team"></div>
+        <div class="form-field" style="grid-column:1/-1;"><label>Logic</label><input type="text" placeholder="e.g. Total Cost = Rate × Quantity"></div>
+      </div>
+      <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Cost type added')">Add</button></div>
+    </div>`
+  );
+}
+function afterCatalog(){
+  document.getElementById('add-costtype-btn').addEventListener('click', ()=>{
+    const form = document.getElementById('add-costtype-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  });
+}
+
+/* =========================================================================
+   SETTINGS › Customers
+   ========================================================================= */
+function pageCustomersSettings(){
+  return panel("Contact Types", "Types available when creating a new Customer contact.", genericChipList("contactTypes")) +
+  panel("Contact Role", "Roles available for a contact on a Customer record.", genericChipList("contactRoles"));
+}
+
+/* =========================================================================
+   SETTINGS › Leads
+   ========================================================================= */
+function pageLeadsSettings(){
+  return `
+  <div class="panel"><div class="panel-head"><h3>Lead Status Type</h3><p>Separate status workflows can exist per business line.</p></div>
+  <div class="panel-body"><div class="pill-list">
+    <div class="pill active" data-lead-type="SOLAR">SOLAR</div>
+    <div class="pill" data-lead-type="HVAC">HVAC</div>
+  </div></div></div>` +
+
+  panel("Lead Status Workflow", "Each status changes automatically once its trigger action happens.",
+    simpleTable(["Lead Status","Triggered By"], [
+      ["New Lead","A lead has been created"],
+      ["Qualified Lead","'Qualify Lead' toggle turned ON"],
+      ["Consultation","Lead assigned to an owner"],
+      ["Quote","A quote has been created"],
+      ["Follow Up","Lapsed time since Proposal Sent reached"],
+      ["Sale Pending","A quote has been accepted"],
+      ["Archived","Manual"],
+    ]) + `<div class="subtle-label" style="margin-top:18px;">Workflow (post-sale)</div>` +
+    simpleTable(["Lead Status","Triggered By"], [
+      ["Order Validation","A job has been converted from Quote to Invoice"],
+      ["Install Pending","Received Permission to Connect"],
+      ["Install Scheduled","Installation date has been scheduled"],
+      ["Install In Progress","Installation start date has arrived"],
+      ["Installed","'System Installed' toggle turned ON"],
+      ["Completed","'System Connected' toggle turned ON"],
+      ["On Hold","Manual"],
+      ["Cancelled","Manual"],
+    ])
+  ) +
+
+  panel("Archived Reasons", "Shown when a lead is manually archived.", genericChipList("archivedReasons")) +
+
+  panel("Lead Source", "Grouped by category. New sources inherit a quality score and automated assignment rule.",
+    `<div class="subtle-label">Online</div>` + genericChipList("leadSourceOnline") +
+    `<div style="height:14px;"></div><div class="subtle-label">Offline</div>` + genericChipList("leadSourceOffline") +
+    `<div style="height:14px;"></div><div class="subtle-label">Purchased Leads</div>` + genericChipList("leadSourcePurchased") +
+    `<div style="height:18px;"></div>
+    <div class="form-grid">
+      <div class="form-field"><label>Name</label><input type="text" placeholder="e.g. LinkedIn Ads"></div>
+      <div class="form-field"><label>Category</label><select><option>Online</option><option>Offline</option><option>Purchased Leads</option></select></div>
+      <div class="form-field"><label>Lead Quality Score</label><select><option>1 — Hot Lead, &gt;75%</option><option>2 — Good Lead, &gt;50%</option><option>3 — Average, &gt;25%</option><option>4 — Low, &lt;25%</option><option>5 — Poorest Quality, &lt;10%</option></select></div>
+      <div class="form-field"><label>Automated Assignment</label><div class="toggle" data-generic></div></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Lead source added')">Add Lead Source</button></div>`
+  ) +
+
+  panel("Lead Owners", "Roles available for assigning a lead, and where each role can view it.",
+    simpleTable(["Assignment Name","Role","Page View"], [
+      ["Lead Owner","Sales Rep, Sales Assistant","Lead Summary, Customer Detail"],
+      ["Sales Assistant","Sales Assistant","Lead Summary, Customer Detail"],
+      ["Site Inspector","Installer","Lead Summary, Customer Detail"],
+      ["Account Manager","Scheduler, Office Manager","Lead Summary, Customer Detail"],
+      ["Installer","Installer","Lead Summary, Customer Detail"],
+      ["Follow Up","Sales Rep, Sales Assistant","Lead Summary, Customer Detail"],
+      ["Service Manager","Installer, Designer, Engineer","Lead Summary, Customer Detail"],
+      ["Franchise Manager","Admin","Lead Summary, Customer Detail"],
+    ])
+  ) +
+
+  panel("Lead Assignment by Territory", "Auto-assigns new leads to an owner based on postcode.",
+    simpleTable(["Assignment Name","Role","Territory","Postcode Range"], [
+      ["Franchisee Manager","John Smith","Cumberland","2140 – 2180"],
+      ["Account Manager","Alex Smith","Blacktown","2180 – 2200"],
+    ]) +
+    `<div style="margin-top:16px;" class="form-grid">
+      <div class="form-field"><label>User</label><input type="text" placeholder="e.g. Sam Doe"></div>
+      <div class="form-field"><label>Territory Name</label><input type="text" placeholder="e.g. Northern Beaches"></div>
+      <div class="form-field"><label>Postcode From</label><input type="number" placeholder="2000"></div>
+      <div class="form-field"><label>Postcode To</label><input type="number" placeholder="2099"></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Territory assignment added')">Add Assignment</button></div>`
+  ) +
+
+  `<div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Lead Form field customisation is still on hold — Ahmed asked us not to design this flow until he gives direction. What's below is a read-only view of the sample file, not a working builder.</div>
+  </div>
+  <div class="panel"><div class="panel-head"><h3>Lead Form Fields (reference only)</h3><p>Source: Leads › Forms.</p></div>
+  <div class="panel-body">` +
+    simpleTable(["Field","Mandatory for Qualification"], [
+      ["Lead Source","Yes"],["Campaign","—"],["Generated By","—"],["Audience","—"],["Goal","—"],["Budget","—"],
+    ]) +
+  `</div></div>`;
+}
+function afterLeadsSettings(){
+  document.querySelectorAll('[data-lead-type]').forEach(p=>{
+    p.addEventListener('click', ()=>{
+      document.querySelectorAll('[data-lead-type]').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      toast('Switched to ' + p.dataset.leadType + ' workflow');
+    });
+  });
+}
+
+/* =========================================================================
+   SETTINGS › Quotes
+   ========================================================================= */
+function pageQuotesSettings(){
+  return panel("Quote Types by Job Type", "Each job type can use a different quote template, validity period, and travel rule.",
+    simpleTable(["Job Type","Quote Template","Default Validity","Calculation Method"], [
+      ["New Solar System","—","—","—"],
+      ["Upgrade To Existing","—","—","—"],
+      ["Battery Install","—","—","—"],
+      ["New Service Job","—","—","—"],
+      ["Wholesale","—","—","—"],
+      ["Installation Job","—","—","—"],
+    ]) +
+    `<div style="margin-top:16px;" class="form-grid">
+      <div class="form-field"><label>Job Type</label><select><option>New Solar System</option><option>Upgrade To Existing</option><option>Battery Install</option><option>New Service Job</option><option>Wholesale</option></select></div>
+      <div class="form-field"><label>Quote Template</label><select><option>Standard Quote</option><option>Finance Quote</option></select></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Quote type added')">Add</button></div>`
+  ) +
+
+  panel("Validity", null,
+    fieldRow("Default Validity Period", null, `<div style="display:flex; align-items:center; gap:10px;"><input type="number" value="30" style="max-width:100px;"><span style="color:var(--gray-500); font-size:13px;">days</span></div>`) +
+    fieldRow("Set Expiration Date Option", null, `<div class="toggle on" data-generic></div>`)
+  ) +
+
+  panel("Mark Up", "How the final quoted price is calculated from cost price.",
+    radioList("markup-method", [
+      {text:"Individual Item Markup", desc:"Apply a markup to each item's cost price, then sum to get the total."},
+      {text:"System Default Markup", desc:"Apply one markup to the combined cost of all items."},
+      {text:"Custom Job Markup", desc:"Let the user set their own markup per job while quoting."},
+    ], 1) +
+    `<div id="markup-conditional" style="margin-top:16px;">` +
+      fieldRow("System Default Mark Up", null, `<div style="display:flex; align-items:center; gap:8px;"><input type="number" value="20" style="max-width:100px;"><span style="color:var(--gray-500);">%</span></div>`) +
+    `</div>`
+  ) +
+
+  panel("Travel", null,
+    fieldRow("Base Location", null, `<select><option>Main Warehouse — Sydney</option><option>Truck 1</option></select>`) +
+    fieldRow("Postcode Range (default)", null, `<div style="display:flex; gap:8px; align-items:center;"><input type="number" value="2000" style="max-width:100px;">–<input type="number" value="2999" style="max-width:100px;"></div>`) +
+    fieldRow("Outside Postcode Range", "What happens when a job address falls outside the range above.", `<select><option>Restriction — block service area</option><option>Warning — flag but allow</option><option>Travel Charge — add an extra fee</option></select>`) +
+    fieldRow("Travel Charge Calculation", null, `<div class="segmented" data-segmented><button class="active" data-v="hr">Per Hour</button><button data-v="km">Per kM</button></div>`) +
+    fieldRow("Travel Charge", null, `<div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--gray-500);">$</span><input type="number" value="90" style="max-width:100px;"></div>`) +
+    fieldRow("Minimum Hourly Allowance", null, `<input type="number" value="1" style="max-width:100px;">`) +
+    fieldRow("Show distance or time on quote", null, `<div class="toggle on" data-generic></div>`)
+  ) +
+
+  panel("Incentives, Finance & Discounts", null,
+    fieldRow("Commission", "Pulled from the Sales rate card.", `<select><option>Sales Team General</option><option>Installer 1</option></select>`) +
+    fieldRow("Finance Type", null, `<select><option>EzyFinance</option><option>Brighte</option><option>None</option></select>`) +
+    fieldRow("Maximum Allowable Discount", null, `<div style="display:flex; align-items:center; gap:8px;"><input type="number" value="10" style="max-width:100px;"><span style="color:var(--gray-500);">%</span></div>`) +
+    fieldRow("Display Discount Amount", null, `<div class="toggle" data-generic></div>`)
+  ) +
+
+  panel("Quote Items", "Items available to add to a quote, grouped by type.",
+    `<div class="subtle-label">Product Items</div>` + genericChipList("quoteProductItems") +
+    `<div style="height:14px;"></div><div class="subtle-label">Service Items</div>` + genericChipList("quoteServiceItems") +
+    `<div style="height:14px;"></div><div class="subtle-label">Incentive Items</div>` + genericChipList("quoteIncentiveItems")
+  ) +
+
+  panel("Attachments", "File types that can be required on a quote.",
+    simpleTable(["File Type","Mandatory"], [["Site Photos","Yes"],["Energy Bill","Yes"],["Roof Plan","No"]])
+  ) +
+
+  `<div class="panel"><div class="panel-head"><h3>Pricing logic (reference)</h3><p>How the system calculates the final price. Read-only — this is business logic, not a setting.</p></div>
+  <div class="panel-body" style="font-size:13px; color:var(--gray-600); line-height:1.9;">
+    Selling Price = Cost Price × (1 + Markup %)<br>
+    Final Price (incl. GST) = Selling Price × (1 + GST %)<br>
+    STC Discount = Number of STCs × STC Price — subtracted from the final price where applicable<br>
+    <span style="color:var(--gray-400);">Worked example from the file: cost $5,300 → quoted $6,360 → incl. GST $6,996 → less $2,808 STC discount → $4,188 final.</span>
+  </div></div>`;
+}
+function afterQuotesSettings(){
+  const group = document.querySelector('[data-radio-group="markup-method"]');
+  const conditional = document.getElementById('markup-conditional');
+  group.querySelectorAll('.radio-option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(opt.dataset.index === '1'){
+        conditional.innerHTML = fieldRow("System Default Mark Up", null, `<div style="display:flex; align-items:center; gap:8px;"><input type="number" value="20" style="max-width:100px;"><span style="color:var(--gray-500);">%</span></div>`);
+      } else if(opt.dataset.index === '2'){
+        conditional.innerHTML = fieldRow("Min Markup %", null, `<input type="number" value="10" style="max-width:100px;">`) +
+          fieldRow("Max Markup %", null, `<input type="number" value="35" style="max-width:100px;">`);
+      } else {
+        conditional.innerHTML = `<div style="font-size:12.5px; color:var(--gray-500);">No extra fields — the markup is set individually on each line item.</div>`;
+      }
+    });
+  });
+  document.querySelectorAll('[data-segmented] button').forEach(b=>{
+    b.addEventListener('click', ()=>{ b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); toast('Saved'); });
+  });
+}
+
+/* =========================================================================
+   SETTINGS › Jobs
+   ========================================================================= */
+function pageJobsSettings(){
+  return panel("Job Status Reasons", "Suggested notes shown when a job is put On Hold or Cancelled.",
+    `<div class="subtle-label">On Hold</div>` + genericChipList("jobHoldReasons") +
+    `<div style="height:14px;"></div><div class="subtle-label">Cancelled</div>` + genericChipList("jobCancelReasons")
+  ) +
+  panel("Job Types", null,
+    simpleTable(["Job Type","Role Group","Status"], [
+      ["New Solar System","Installation","Active"],
+      ["Upgrade To Existing","Installation","Active"],
+      ["Battery Install","Battery Installation","Active"],
+      ["New Service Job","Service","Active"],
+      ["Wholesale","Purchases","Active"],
+      ["Installation Sub-Contracting Job","Contracting","Active"],
+    ]) +
+    `<div style="margin-top:16px;" class="form-grid">
+      <div class="form-field"><label>Job Type Name</label><input type="text" placeholder="e.g. Roof Repair"></div>
+      <div class="form-field"><label>Role Group</label><select><option>Installation</option><option>Service</option><option>Contracting</option><option>Purchases</option></select></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Job type added')">Add Job Type</button></div>`
+  ) +
+  panel("Job Priorities", null, genericChipList("jobPriorities")) +
+  panel("Job Assignment by Territory", "Auto-assigns new jobs to an owner based on postcode — same rule set as Leads.",
+    simpleTable(["Assignment Name","Role","Territory","Postcode Range"], [
+      ["Franchisee Manager","John Smith","Cumberland","2140 – 2180"],
+      ["Account Manager","Alex Smith","Blacktown","2180 – 2200"],
+    ])
+  );
+}
+
+/* =========================================================================
+   SETTINGS › Operations (Schedule)
+   ========================================================================= */
+function pageOperations(){
+  return `<div class="banner banner-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Schedule types define separate calendars (Sales Appointments, Installs, Service, etc.), each with its own working hours, role group, and access list.</div>
+  </div>` +
+  panel("Schedule Types", null,
+    simpleTable(["Schedule Name","Type","State","Role Group"], [
+      ["Appointments","Sales","NSW","Sales"],
+      ["Training","Sales","NSW","Sales"],
+      ["Solar NSW","Jobs","NSW","Installation"],
+      ["Solar Central Coast","Jobs","NSW","Installation"],
+      ["Solar VIC","Jobs","VIC","Installation"],
+      ["Maintenance","Jobs","—","Installation"],
+    ]) +
+    `<div style="margin-top:16px;" class="form-grid">
+      <div class="form-field"><label>Schedule Type</label><select><option>Sales</option><option>Jobs</option></select></div>
+      <div class="form-field"><label>Schedule Name</label><input type="text" placeholder="e.g. Battery Installs"></div>
+      <div class="form-field"><label>State</label><select><option>NSW</option><option>VIC</option><option>QLD</option><option>WA</option><option>SA</option></select></div>
+      <div class="form-field"><label>Role Group</label><select><option>Sales</option><option>Installation</option><option>Service</option></select></div>
+      <div class="form-field"><label>Start Time</label><input type="text" value="07:00 AM"></div>
+      <div class="form-field"><label>End Time</label><input type="text" value="05:00 PM"></div>
+      <div class="form-field"><label>Time Increments</label><select><option>15 minutes</option><option>30 minutes</option><option>60 minutes</option></select></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Schedule type added')">Add Schedule Type</button></div>`
+  );
+}
+
+/* =========================================================================
+   SETTINGS › Purchasing
+   ========================================================================= */
+function pagePurchasing(){
+  return panel("Purchase Order Status", null, genericChipList("poStatus"));
+}
+
+/* =========================================================================
+   SETTINGS › Stock
+   ========================================================================= */
+function pageStockSettings(){
+  return panel("Stock Locations", null,
+    simpleTable(["Location Name","Type","Default","Active"], [["Warehouse 1","Warehouse","Yes","Yes"]]) +
+    `<div style="margin-top:16px;" class="form-grid">
+      <div class="form-field"><label>Location Name</label><input type="text" placeholder="e.g. Truck 3"></div>
+      <div class="form-field"><label>Location Type</label><select><option>Warehouse</option><option>Job Site</option><option>Truck</option><option>Contractor Truck</option></select></div>
+      <div class="form-field"><label>Assigned To</label><input type="text" placeholder="Employee or contractor"></div>
+      <div class="checkbox-row"><input type="checkbox" id="stock-default-cb"><label for="stock-default-cb" style="margin:0;">Set as default from-location</label></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Stock location added')">Add Location</button></div>`
+  ) +
+  panel("Stock Allocation", null,
+    fieldRow("Allocation Rule", "e.g. only allocate within the technician's own state, or allow from any location.", `<select><option>Allocate from any location</option><option>Only allocate within the state</option><option>Only allocate within the territory</option></select>`) +
+    fieldRow("Transfer Rule", "Require approval when moving stock to this location?", `<div class="toggle on" data-generic></div>`)
+  ) +
+  panel("Rules", null,
+    checkList("stock-rules", [
+      {text:"Allow over-allocation of stock with a stock adjustment"},
+      {text:"Only allow stock on hand to be assigned"},
+    ], [1])
+  ) +
+  panel("Transfers", null,
+    fieldRow("Jobs (default transfer type)", null, `<select><option>Jobs</option></select>`) +
+    fieldRow("Auto Receive", "Transfers of this type are automatically marked as received as soon as they're created.", `<div class="toggle" data-generic></div>`)
+  ) +
+  panel("Picklist", "How a completed pick is closed off.",
+    radioList("picklist-close", [
+      {text:"Manual Close", desc:"A user manually closes the picklist once items are picked."},
+      {text:"Transaction Based Close", desc:"The picklist closes automatically based on a linked transaction."},
+    ], 0)
+  ) +
+  panel("Picking Rules (serialised products)", "When must the serial number be specified?",
+    radioList("serial-timing", [
+      {text:"Upon picking the item"},
+      {text:"Upon consuming the item, before completing the job"},
+    ], 0)
+  );
+}
+
+/* =========================================================================
+   SETTINGS › Resources
+   ========================================================================= */
+function pageResources(){
+  return panel("Pay Rates", null, genericChipList("payRates")) +
+  panel("Leaves", null, genericChipList("leaves")) +
+  panel("Allowances", null,
+    simpleTable(["Allowance Name","Default Amount"], [["Meal","$0.00"],["Travel","$0.00"]]) +
+    `<div style="margin-top:16px; display:flex; gap:8px;"><input type="text" placeholder="Allowance name" style="max-width:200px;"><input type="number" placeholder="Default $" style="max-width:120px;"><button class="btn btn-sm" onclick="toast('Allowance added')">Add</button></div>`
+  ) +
+  panel("Company Type", "Types used to categorise businesses in Solarpreneur's contact records.", genericChipList("companyTypes")) +
+  panel("License Type", "Licenses that can be attached to an employee, contractor, or company.",
+    `<div class="form-grid">
+      <div class="form-field"><label>License Type Name</label><input type="text" placeholder="e.g. Electrical License"></div>
+      <div class="form-field"><label>Issuing Authority</label><input type="text" placeholder="e.g. NSW Fair Trading"></div>
+      <div class="form-field"><label>Entity</label><select><option>Employee</option><option>Contractor</option><option>Company</option><option>Organisation</option></select></div>
+      <div class="checkbox-row"><input type="checkbox" checked id="license-mandatory-cb"><label for="license-mandatory-cb" style="margin:0;">Mandatory</label></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('License type added')">Add License Type</button></div>`
+  ) +
+  panel("Rate Cards", "Used to price labour, installation, and sales commissions.",
+    simpleTable(["Rate Card Name","Type","Description"], [
+      ["Sales Team General","Sales","Sales team commission structure"],
+      ["Installer 1","Installation","Installer 1 rate card"],
+    ]) +
+    `<div style="margin-top:16px;">
+      <div class="form-grid">
+        <div class="form-field"><label>Rate Card Name</label><input type="text" placeholder="e.g. Installer 2"></div>
+        <div class="form-field"><label>Rate Card Type</label><select><option>Sales</option><option>Installation</option></select></div>
+      </div>
+      <div class="two-col" style="margin-top:16px;">
+        <div><div class="subtle-label">Base Cost</div>
+          <div class="form-grid">
+            <div class="form-field"><label>Type</label><select><option>Flat Rate</option><option>Price Per kW</option></select></div>
+            <div class="form-field"><label>Rate</label><input type="number" placeholder="1500"></div>
+          </div>
+        </div>
+        <div><div class="subtle-label">Additional Cost (after threshold)</div>
+          <div class="form-grid">
+            <div class="form-field"><label>Type</label><select><option>Price Per Panel</option><option>Hourly</option></select></div>
+            <div class="form-field"><label>Rate</label><input type="number" placeholder="50"></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Rate card added')">Add Rate Card</button></div>
+    </div>`
+  );
+}
+
+/* =========================================================================
+   SETTINGS › Timesheets (empty in the source file)
+   ========================================================================= */
+function pageTimesheetsSettings(){
+  return `<div class="placeholder-wrap">
+    <div class="placeholder-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    </div>
+    <h3>Nothing here in Ahmed's file</h3>
+    <p>This tab exists in the admin menu but is completely empty in the sample xlsx. Timesheet behaviour is already covered under <b>Defaults → Timesheets</b> — this may just be a duplicate placeholder from the old system.</p>
+  </div>`;
+}
+
+/* =========================================================================
+   SETTINGS › STCs
+   ========================================================================= */
+function pageSTCs(){
+  return panel("STC Price", null,
+    fieldRow("Current STC Price", null, `<div style="display:flex; align-items:center; gap:8px;"><span style="color:var(--gray-500);">$</span><input type="number" value="39.00" step="0.5" style="max-width:120px;"></div>`) +
+    fieldRow("Effective Date", null, `<input type="date">`)
+  ) +
+  panel("Deeming Periods", "Bulk-update the deeming period for a set of invoices.",
+    `<div style="display:flex; gap:10px; margin-bottom:14px;">
+      <input type="text" placeholder="Search Customer ID or Invoice ID" style="flex:1;">
+      <select style="max-width:150px;"><option>All States</option><option>NSW</option><option>VIC</option><option>QLD</option></select>
+    </div>
+    <table><thead><tr><th></th><th>Invoice ID</th><th>Customer Name</th><th>State</th><th>Deeming Period</th></tr></thead>
+    <tbody>
+      <tr><td><input type="checkbox"></td><td>INV-1042</td><td>John Keller</td><td>NSW</td><td>10 years</td></tr>
+      <tr><td><input type="checkbox"></td><td>INV-1051</td><td>Alex Turner</td><td>VIC</td><td>10 years</td></tr>
+    </tbody></table>
+    <div style="margin-top:14px; display:flex; gap:10px; align-items:center;">
+      <select style="max-width:160px;"><option>7 years</option><option>10 years</option><option>15 years</option></select>
+      <button class="btn btn-sm" onclick="toast('Deeming period updated for selected rows')">Bulk Update Deeming Period</button>
+    </div>`
+  ) +
+  panel("Trade Type", null, genericChipList("tradeTypes")) +
+  panel("Trader Portal", null, genericChipList("traderPortals"));
+}
+
+/* =========================================================================
+   SETTINGS › Import
+   ========================================================================= */
+function pageImport(){
+  return `<div class="panel"><div class="panel-head"><h3>Import Data</h3><p>Bring existing records in from a CSV file.</p></div>
+  <div class="panel-body"><div class="two-col">` +
+    ["Import Users","Import Contacts","Import Leads","Import Suppliers"].map(t=>`
+      <div style="border:1px solid var(--gray-200); border-radius:8px; padding:16px; cursor:pointer;" onclick="toast('${t} — choose a CSV file to continue')">
+        <div style="font-weight:600; font-size:13.5px; color:var(--gray-900); margin-bottom:4px;">${t}</div>
+        <div style="font-size:12px; color:var(--gray-500);">Upload a CSV file matching the sample template</div>
+      </div>`).join('') +
+  `</div></div></div>
+  <div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Use a dedicated inbox for automatic supplier invoice import — every email in it is permanently deleted after each import run and can't be recovered.</div>
+  </div>
+  <div class="panel"><div class="panel-head"><h3>Supplier Invoice Importing</h3><p>Automatically import supplier invoices received by email.</p></div>
+  <div class="panel-body">` +
+    fieldRow("Enable automatic import", null, `<div class="toggle" data-generic></div>`) +
+    fieldRow("Dedicated import email", null, `<input type="text" placeholder="invoices-import@yourcompany.com">`) +
+  `</div></div>`;
+}
+
+/* =========================================================================
+   SETTINGS › Communication
+   ========================================================================= */
+function pageCommunicationSettings(){
+  return `<div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Ahmed's file only lists these four category names — no detail on triggers, channels, or content. The toggles below are a placeholder structure; confirm intended behaviour with Ahmed before building this for real.</div>
+  </div>` +
+  panel("Communication Types", null,
+    fieldRow("Follow Ups", null, `<div class="toggle on" data-generic></div>`) +
+    fieldRow("Notifications", null, `<div class="toggle on" data-generic></div>`) +
+    fieldRow("Confirmations", null, `<div class="toggle on" data-generic></div>`) +
+    fieldRow("Reminders", null, `<div class="toggle" data-generic></div>`)
+  );
+}
+
+/* =========================================================================
+   SETTINGS › Forms
+   ========================================================================= */
+function pageFormsSettings(){
+  return panel("Forms", "Pre-configured documents sent to energy retailers (e.g. Permission to Connect).",
+    simpleTable(["Form Name","Email Template","Document Template"], [
+      ["Energy Australia Email","—","—"],
+      ["Endevour Energy Email","—","—"],
+      ["Endevour Energy Above 5kW Email","—","—"],
+      ["Essential Energy Email","—","—"],
+    ]) +
+    `<div style="margin-top:16px;" class="form-grid">
+      <div class="form-field"><label>Form Name</label><input type="text" placeholder="e.g. Ausgrid Email"></div>
+      <div class="form-field"><label>Job Type</label><select><option>New Solar System</option><option>Battery Install</option></select></div>
+      <div class="form-field"><label>Document Template</label><select><option>Permission to Connect</option><option>Compliance Certificate</option></select></div>
+      <div class="form-field"><label>Email Template</label><select><option>Retailer Notification</option></select></div>
+      <div class="form-field" style="grid-column:1/-1;"><label>Email Recipients</label><input type="text" placeholder="retailer@energyco.com"></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Form added')">Add Form</button></div>
+    <div style="margin-top:16px;">` + hypoBadge('Field-mapping / conditional logic per form (e.g. only show for NMI starting with 431) — likely needs a dev-only rules builder, not a simple field') + `</div>`
+  );
+}
+
+/* =========================================================================
+   TEMPLATES › SMS Templates
+   ========================================================================= */
+function pageSmsTemplates(){
+  return `<div class="panel"><div class="panel-head"><h3>SMS Templates</h3><p>No templates created yet in Ahmed's file — just the empty structure below.</p></div>
+  <div class="panel-body">
+    <div class="empty-state">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      <p>No SMS templates yet.</p>
+    </div>
+  </div></div>` +
+  panel("Create Template", null,
+    fieldRow("Template Name", null, `<input type="text" placeholder="e.g. Appointment Reminder">`) +
+    fieldRow("Type", null, `<select><option>Appointment Reminder</option><option>Quote Follow Up</option><option>Job Confirmation</option><option>Payment Reminder</option></select>`) +
+    fieldRow("Template Content", "Supports placeholders like {first_name}, {job_date}, {company_name}.", `<textarea rows="3" style="width:100%; padding:8px 12px; border:1px solid var(--gray-300); border-radius:8px; font-family:inherit; font-size:13.5px;" placeholder="Hi {first_name}, this is a reminder about your appointment on {job_date}."></textarea>`)
+  ) + `<div style="display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Template saved')">Save Template</button></div>`;
+}
+
+/* =========================================================================
+   TEMPLATES › Email Templates
+   ========================================================================= */
+function pageEmailTemplates(){
+  return `<div class="panel"><div class="panel-head"><h3>Email Templates</h3><p>No templates created yet in Ahmed's file — just the empty structure below.</p></div>
+  <div class="panel-body">
+    <div class="empty-state">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      <p>No email templates yet.</p>
+    </div>
+  </div></div>` +
+  panel("Create Template", null,
+    fieldRow("Email Document Type", null, `<select><option>Proposal</option><option>Invoice</option><option>Payment Reminder</option><option>Job Confirmation</option></select>`) +
+    fieldRow("Email Subject", null, `<input type="text" placeholder="Your quote from {company_name} is ready">`) +
+    fieldRow("Email Layout", null, `<textarea rows="4" style="width:100%; padding:8px 12px; border:1px solid var(--gray-300); border-radius:8px; font-family:inherit; font-size:13.5px;" placeholder="Hi {first_name}, ..."></textarea>`) +
+    fieldRow("Signature", "Pulled automatically from the sending user's email settings.", `<input type="text" value="Auto — from User Email Setting" disabled style="background:var(--gray-50); color:var(--gray-500);">`) +
+    fieldRow("Insert Placeholder", null, `<select><option>First Name</option><option>Last Name</option><option>Quote Number</option><option>Job Number</option><option>Company Name</option></select>`)
+  ) +
+  panel("Assign Files", "Attach a file automatically whenever this template sends.",
+    fieldRow("Select Source of File", null, `<select><option>File Management System</option><option>Source Tag &amp; Mapping Configuration</option><option>Manual Upload Required</option></select>`) +
+    fieldRow("Mandatory", "Block sending until this file is attached.", `<div class="toggle" data-generic></div>`) +
+    fieldRow("Prompt Alert", "Shown if the file is missing or unavailable.", `<input type="text" placeholder="e.g. Please upload the Solar Design before sending.">`)
+  ) +
+  panel("Files List", "Files currently assigned across email templates.",
+    `<table><thead><tr><th>File</th><th>Email Type</th><th>Source</th><th>Status</th><th>Mandatory</th></tr></thead>
+    <tbody>
+      <tr><td class="row-name">Proposal</td><td>Quote</td><td>Email Document Type</td><td><span class="badge badge-success">Fetched</span></td><td>—</td></tr>
+      <tr><td class="row-name">Company Brochure</td><td>Proposal</td><td>File Management System</td><td><span class="badge badge-success">Fetched</span></td><td>—</td></tr>
+      <tr><td class="row-name">#Inverterspecsheet</td><td>Proposal</td><td>Source Tag &amp; Mapping</td><td><span class="badge badge-success">Fetched</span></td><td>—</td></tr>
+      <tr><td class="row-name">Solar Design</td><td>Proposal</td><td>Manual Upload</td><td><span class="badge badge-warn">Manual</span></td><td><span class="badge badge-success">Yes</span><div class="row-note">Must upload before sending email</div></td></tr>
+    </tbody></table>`
+  );
+}
+
+/* =========================================================================
+   TEMPLATES › Document Templates
+   ========================================================================= */
+function pageDocumentTemplates(){
+  return `<div class="panel"><div class="panel-head"><h3>Document Templates</h3><p>No templates created yet in Ahmed's file — just the empty structure below.</p></div>
+  <div class="panel-body">
+    <div class="empty-state">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <p>No document templates yet.</p>
+    </div>
+  </div></div>` +
+  panel("Add Document Template", null,
+    fieldRow("Document Name", null, `<input type="text" placeholder="e.g. Standard Solar Proposal">`) +
+    fieldRow("Document Type", null, `<select><option>Proposal</option><option>Contract</option><option>Compliance Certificate</option><option>Permission to Connect</option></select>`) +
+    fieldRow("Upload Image", null, `<button class="btn btn-sm" onclick="toast('Choose a file to upload')">Choose File</button>`)
+  ) + `<div style="display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Document template added')">Add Template</button></div>`;
+}
+
+/* =========================================================================
+   ACCOUNTING › Finance Providers
+   ========================================================================= */
+function pageFinanceProviders(){
+  return `<div class="banner banner-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>The "Accounting Software" integration tab (Xero/MYOB-style) was completely empty in Ahmed's file. What follows is the actual accounting-related content that was in there: finance providers for customer-facing solar finance.</div>
+  </div>` +
+  panel("Finance Providers", "Available on the Quote finance selector.", genericChipList("financeProviders")) +
+  panel("Setup Finance Franchisee", null,
+    fieldRow("Finance Franchisee", null, `<select><option>Sydney Solar Franchisee</option><option>Melbourne Solar Franchisee</option></select>`) +
+    fieldRow("Finance Type", null, `<select>${LISTS.financeProviders.map(p=>`<option>${p}</option>`).join('')}</select>`)
+  ) +
+  panel("Finance Structure", "Franchisee fee by finance amount and term.",
+    simpleTable(["Amount Threshold","Duration (Term)","Franchisee Fee"], [
+      ["Up to $10,000","12 months","2.5%"],
+      ["$10,000 – $30,000","24 months","3.0%"],
+    ]) +
+    `<div style="margin-top:16px; display:flex; gap:8px;">
+      <input type="text" placeholder="Amount threshold" style="max-width:160px;">
+      <input type="text" placeholder="Duration" style="max-width:120px;">
+      <input type="text" placeholder="Franchisee fee %" style="max-width:140px;">
+      <button class="btn btn-sm" onclick="toast('Row added')">Add +</button>
+    </div>`
+  );
+}
+
+/* =========================================================================
+   ORGANISATION › Organisation Details
+   ========================================================================= */
+function pageOrgDetails(){
+  return panel("Organisations", "Solarpreneur supports more than one legal entity — useful for franchise groups.",
+    simpleTable(["Legal Name","Trading Name","ABN","Default"], [
+      ["Solarpreneur Pty Ltd","Solarpreneur Solar & Battery","51 824 753 556","<span class=\"badge badge-success\">Default</span>"],
+    ]) +
+    `<div style="margin-top:16px;"><button class="btn btn-sm" onclick="toast('New organisation added')">+ Add Organisation</button></div>`
+  ) +
+  panel("Organisation Details", null,
+    fieldRow("Legal Name", null, `<input type="text" value="Solarpreneur Pty Ltd">`) +
+    fieldRow("Trading Name", null, `<input type="text" value="Solarpreneur Solar & Battery">`) +
+    fieldRow("ABN", null, `<input type="text" value="51 824 753 556">`) +
+    fieldRow("Phone", null, `<input type="text" placeholder="02 XXXX XXXX">`) +
+    fieldRow("Website", null, `<input type="text" placeholder="www.solarpreneur.com.au">`)
+  ) +
+  panel("Contact Details", null,
+    fieldRow("Contact Name", null, `<input type="text" placeholder="Ahmed Saadie">`) +
+    fieldRow("Phone", null, `<input type="text" placeholder="04XX XXX XXX">`) +
+    fieldRow("Email", null, `<input type="text" placeholder="ahmed@solarpreneur.com.au">`)
+  ) +
+  panel("Physical Address", null,
+    fieldRow("Street No.", null, `<input type="text" placeholder="12">`) +
+    fieldRow("Street Address", null, `<input type="text" placeholder="Solar Way">`) +
+    fieldRow("Suburb", null, `<input type="text" placeholder="Springwood">`) +
+    fieldRow("Postcode", null, `<input type="text" placeholder="2777">`) +
+    fieldRow("State", null, `<select><option>NSW</option><option>VIC</option><option>QLD</option><option>WA</option><option>SA</option></select>`) +
+    fieldRow("Postal Address", null, `<div class="segmented" data-segmented><button class="active" data-v="same">Same as physical</button><button data-v="different">Different address</button></div>`)
+  );
+}
+function afterOrgDetails(){
+  document.querySelectorAll('[data-segmented] button').forEach(b=>{
+    b.addEventListener('click', ()=>{ b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); toast('Saved'); });
+  });
+}
+
+/* =========================================================================
+   ORGANISATION › Branding
+   ========================================================================= */
+function pageOrgBranding(){
+  return panel("Company Logo", "Used wherever the company logo appears — invoices, cards, and the customer portal.",
+    `<div style="border:2px dashed var(--gray-300); border-radius:12px; padding:36px; text-align:center; color:var(--gray-500);">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="margin-bottom:10px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+      <div style="font-size:13.5px; margin-bottom:4px;">Drop a logo here, or <span style="color:var(--primary-600); font-weight:600; cursor:pointer;" onclick="toast('Choose a file to upload')">browse files</span></div>
+      <div style="font-size:12px; color:var(--gray-400);">Optimal size 8cm × 4cm, 200 DPI (600 × 315px or higher). JPG, GIF, or PNG.</div>
+    </div>`
+  );
+}
+
+/* =========================================================================
+   ORGANISATION › Invoicing, Licenses & Records
+   ========================================================================= */
+function pageOrgLicenses(){
+  return panel("Invoicing Details", "Bank details shown on invoices for direct bank transfer.",
+    fieldRow("Bank Account Name", null, `<input type="text" placeholder="Solarpreneur Pty Ltd">`) +
+    fieldRow("BSB", null, `<input type="text" placeholder="062-000">`) +
+    fieldRow("Account Number", null, `<input type="text" placeholder="1234 5678">`) +
+    fieldRow("Additional Text", null, `<input type="text" placeholder="e.g. Please use invoice number as payment reference">`)
+  ) +
+  `<div class="banner banner-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Licenses and Records below are pulled automatically from Settings → Resources whenever an item is marked mandatory for a role. They can't be deleted from this page.</div>
+  </div>` +
+  panel("Licenses", null,
+    simpleTable(["License Type","Issuing Authority","License No.","Expiry Date","Status"], [
+      ["Electrical License","NSW Fair Trading","EL-88213","12/08/2027","<span class=\"badge badge-success\">Current</span>"],
+    ])
+  ) +
+  panel("Records", null,
+    simpleTable(["Record Type","Issuing Authority","Record No.","Expiry Date","Status"], [
+      ["Public Liability Insurance","QBE","PL-40921","01/03/2027","<span class=\"badge badge-success\">Current</span>"],
+    ])
+  );
+}
+
+/* =========================================================================
+   FRANCHISEE › Territory Management
+   ========================================================================= */
+function pageTerritory(){
+  return panel("Territories", null,
+    simpleTable(["Territory Name","State","Postcode Range","Stock Location","Status"], [
+      ["Cumberland","NSW","2140 – 2180","Warehouse 1","<span class=\"badge badge-success\">Active</span>"],
+      ["Blacktown","NSW","2180 – 2200","Warehouse 2","<span class=\"badge badge-success\">Active</span>"],
+    ]) +
+    `<div style="margin-top:16px;" class="form-grid">
+      <div class="form-field"><label>Territory Name</label><input type="text" placeholder="e.g. Northern Beaches"></div>
+      <div class="form-field"><label>State</label><select><option>NSW</option><option>VIC</option><option>QLD</option><option>WA</option><option>SA</option></select></div>
+      <div class="form-field"><label>Start Postcode</label><input type="number" placeholder="2085"></div>
+      <div class="form-field"><label>End Postcode</label><input type="number" placeholder="2110"></div>
+      <div class="form-field"><label>Stock Location</label><select><option>Warehouse 1</option><option>Warehouse 2</option></select></div>
+      <div class="checkbox-row"><input type="checkbox" checked id="territory-active-cb"><label for="territory-active-cb" style="margin:0;">Active</label></div>
+    </div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Territory added')">Add Territory</button></div>`
+  );
+}
+
+/* =========================================================================
+   FRANCHISEE › Franchisee Directory & Setup
+   ========================================================================= */
+function pageFranchiseeDirectory(){
+  return panel("Search Franchisees", null,
+    `<div style="display:flex; gap:10px;">
+      <input type="text" placeholder="Search by name, ABN, phone…" style="flex:1;">
+      <select style="max-width:200px;"><option>All Types</option>${LISTS.franchiseeTypes.map(t=>`<option>${t}</option>`).join('')}</select>
+    </div>`
+  ) +
+  panel("Franchisee Types", null, genericChipList("franchiseeTypes")) +
+  `<div class="panel"><div class="panel-head"><h3>Franchisees</h3><p>No franchisees added yet in Ahmed's file.</p></div>
+  <div class="panel-body"><div class="empty-state">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+    <p>No franchisees yet — add the first one below.</p>
+  </div></div></div>` +
+  panel("Add New Franchisee", null,
+    `<div class="form-grid">
+      <div class="form-field"><label>Franchisee Name</label><input type="text" placeholder="e.g. Solarpreneur Newcastle"></div>
+      <div class="form-field"><label>Franchisee Type</label><select>${LISTS.franchiseeTypes.map(t=>`<option>${t}</option>`).join('')}</select></div>
+      <div class="form-field"><label>Territory</label><select><option>Cumberland</option><option>Blacktown</option></select></div>
+      <div class="form-field"><label>ABN</label><input type="text" placeholder="XX XXX XXX XXX"></div>
+      <div class="form-field"><label>Director Name</label><input type="text" placeholder="e.g. Jamie Lee"></div>
+      <div class="form-field"><label>Phone</label><input type="text" placeholder="04XX XXX XXX"></div>
+      <div class="form-field"><label>Email</label><input type="text" placeholder="jamie@franchisee.com.au"></div>
+      <div class="form-field"><label>Website</label><input type="text" placeholder="www.franchisee.com.au"></div>
+      <div class="form-field" style="grid-column:1/-1;"><label>Address</label><input type="text" placeholder="Street, suburb, postcode"></div>
+      <div class="checkbox-row"><input type="checkbox" id="franchisee-gst-cb"><label for="franchisee-gst-cb" style="margin:0;">Registered for GST</label></div>
+    </div>
+    <div class="subtle-label" style="margin-top:22px;">Bank Details</div>
+    <div class="form-grid">
+      <div class="form-field"><label>Bank Name</label><input type="text"></div>
+      <div class="form-field"><label>Account Name</label><input type="text"></div>
+      <div class="form-field"><label>BSB</label><input type="text"></div>
+      <div class="form-field"><label>Account Number</label><input type="text"></div>
+    </div>
+    <div style="margin-top:14px; padding:10px 14px; background:var(--warning-50); border-radius:8px; font-size:12.5px; color:var(--warning-700);">Only one franchisee is permitted per territory.</div>
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Franchisee added')">Add Franchisee</button></div>`
+  );
+}
+
+/* =========================================================================
+   PORTAL › Customer Portal
+   ========================================================================= */
+function pageCustomerPortal(){
+  return `<div class="banner banner-info">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>At least one permission below must be set for a customer to be given portal access.</div>
+  </div>` +
+  panel("Job Permissions", null,
+    fieldRow("Permission Level", null, radioList("job-permission", [
+      {text:"None"},{text:"View"},{text:"View & Edit"},
+    ], 1)) +
+    fieldRow("Visibility", null, radioList("job-visibility", [
+      {text:"View Own", desc:"Customer sees only their own jobs."},
+      {text:"View All", desc:"Customer sees every job linked to their account, including sub-properties."},
+    ], 0))
+  ) +
+  panel("Quotation Permissions", null,
+    fieldRow("Permission Level", null, radioList("quote-permission", [
+      {text:"None"},{text:"View"},{text:"View & Edit"},
+    ], 1)) +
+    fieldRow("Visibility", null, radioList("quote-visibility", [
+      {text:"View Own"},{text:"View All"},
+    ], 0))
+  ) +
+  panel("Creation Rights", null,
+    checkList("portal-create", [
+      {text:"Can Create Jobs"},
+      {text:"Can Create Quotes"},
+    ], [])
+  ) +
+  panel("Portal Password", null,
+    fieldRow("Customer Portal Password", null, `<input type="text" placeholder="Auto-generated on first invite">`) +
+    fieldRow("Send an email when updating the password", null, `<div class="toggle on" data-generic></div>`)
+  );
+}
+
+/* =========================================================================
+   PLACEHOLDER PAGE (not yet built)
+   ========================================================================= */
+function pagePlaceholder(item){
+  const tierLabel = TIER_LABEL[item.tier] || "";
+  const tierBadge = TIER_BADGE[item.tier] || "badge-gray";
+  return `
+  <div class="placeholder-wrap">
+    <div class="placeholder-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
+    <h3>${item.label} — not yet built</h3>
+    <p>This section exists in Ahmed's admin menu structure (tab <b>${item.sheet}</b> in the xlsx), but its UI hasn't been built yet. <span class="badge ${tierBadge}">${tierLabel}</span></p>
+    <button class="btn btn-primary" onclick="alert('Let me know which section to build next 🙂')">Request this section next</button>
+  </div>`;
+}
+
+/* =========================================================================
+   ROUTER
+   ========================================================================= */
+const PAGES = {
+  general:      { title:"General",        desc:"Core system settings",              render:pageGeneral,      after:afterGeneral,      source:"DEFAULTS › General" },
+  lockdates:    { title:"Lock Dates",      desc:"Lock record editing by date",  render:pageLockDates,    after:afterLockDates,    source:"DEFAULTS › Lock Dates" },
+  "quote-defaults":      { title:"Quote",       desc:"Default quote type & follow-up timing",     render:pageQuoteDefaults,               source:"DEFAULTS › Quote" },
+  "jobs-defaults":       { title:"Jobs",        desc:"Default job type",                          render:pageJobsDefaults,                source:"DEFAULTS › Jobs" },
+  "email-defaults":      { title:"Email",       desc:"Send-from configuration per document type", render:pageEmailDefaults,               source:"DEFAULTS › Email" },
+  "marketing-defaults":  { title:"Marketing",   desc:"Default campaign",                          render:pageMarketingDefaults,           source:"DEFAULTS › Marketing" },
+  "menu-defaults":       { title:"Menu",        desc:"Left navigation appearance",                render:pageMenuDefaults, after:afterMenuDefaults, source:"DEFAULTS › Menu" },
+  "tasks-defaults":      { title:"Tasks",       desc:"Task notification sender",                  render:pageTasksDefaults,               source:"DEFAULTS › Tasks" },
+  "payments-defaults":   { title:"Payments",    desc:"Payment methods, terms & gateway",           render:pagePaymentsDefaults, after:afterPaymentsDefaults, source:"DEFAULTS › Payments" },
+  "accounting-defaults": { title:"Accounting",  desc:"Cash rounding",                              render:pageAccountingDefaults,          source:"DEFAULTS › Accounting" },
+  "taxrates-defaults":   { title:"Tax Rates",   desc:"Tax rates & default price display",          render:pageTaxRatesDefaults, after:afterTaxRatesDefaults, source:"DEFAULTS › Tax Rates" },
+  "invoice-defaults":    { title:"Invoice",     desc:"When an invoice is auto-generated",          render:pageInvoiceDefaults,             source:"DEFAULTS › Invoice" },
+  "commissions-defaults":{ title:"Commissions", desc:"Commission calculation basis",               render:pageCommissionsDefaults,         source:"DEFAULTS › Commissions" },
+  "employees-defaults":  { title:"Employees",   desc:"Default allowance",                          render:pageEmployeesDefaults,           source:"DEFAULTS › Employees" },
+  "quotecart-defaults":  { title:"Quote Cart",  desc:"Default rate card",                          render:pageQuoteCartDefaults,           source:"DEFAULTS › Quote Cart" },
+  "schedule-defaults":   { title:"Schedule",    desc:"Default calendar view",                      render:pageScheduleDefaults, after:afterScheduleDefaults, source:"DEFAULTS › Schedule" },
+  "stock-defaults":      { title:"Stock",       desc:"Location, deduction trigger & costing method", render:pageStockDefaults,             source:"DEFAULTS › Stock" },
+  "timesheets-defaults": { title:"Timesheets",  desc:"Timesheet generation rules",                 render:pageTimesheetsDefaults, after:afterTimesheetsDefaults, source:"DEFAULTS › Timesheets" },
+  "leads-defaults":      { title:"Leads",       desc:"Status behaviour & default source",          render:pageLeadsDefaults,               source:"DEFAULTS › Leads" },
+  "purchases-defaults":  { title:"Purchases",   desc:"Purchase Order defaults",                    render:pagePurchasesDefaults,           source:"DEFAULTS › Purchases" },
+  "renamefields-defaults":{ title:"Rename Fields", desc:"Customize on-screen & printed field labels", render:pageRenameFieldsDefaults,      source:"DEFAULTS › Rename Fields" },
+  "transactionnumbers-defaults":{ title:"Transaction Numbers", desc:"Legacy numbering per transaction type", render:pageTransactionNumbersDefaults, after:afterTransactionNumbersDefaults, source:"DEFAULTS › Transaction Numbers" },
+  "customfieldcounts-defaults":{ title:"Custom Fields (counts)", desc:"Legacy per-entity field counts", render:pageCustomFieldCountsDefaults, source:"DEFAULTS › Custom Fields" },
+  autonumbering:{ title:"Auto-Numbering",  desc:"Document number format",                render:pageAutoNumbering,after:afterAutoNumbering,source:"System Configuration › Auto-Numbering" },
+  customfields: { title:"Custom Fields",   desc:"Additional fields for platform entities",   render:pageCustomFields, after:afterCustomFields, source:"Custom Fields" },
+  catalog:      { title:"Catalog",         desc:"Units of measurement & cost types",         render:pageCatalog, after:afterCatalog, source:"Settings › Catalog" },
+  "customers-settings": { title:"Customers", desc:"Contact type & contact role",             render:pageCustomersSettings, source:"Settings › Customers" },
+  "leads-settings":     { title:"Leads",     desc:"Status workflow, source, owners & assignment", render:pageLeadsSettings, after:afterLeadsSettings, source:"Settings › Leads" },
+  "quotes-settings":    { title:"Quotes",    desc:"Types, validity, mark up, travel & items", render:pageQuotesSettings, after:afterQuotesSettings, source:"Settings › Quotes" },
+  "jobs-settings":      { title:"Jobs",      desc:"Status reasons, types, priorities & assignment", render:pageJobsSettings, source:"Settings › Jobs" },
+  operations:   { title:"Operations",       desc:"Schedule types",                            render:pageOperations, source:"Settings › Schedule" },
+  purchasing:   { title:"Purchasing",       desc:"Purchase order status list",                render:pagePurchasing, source:"Settings › Purchases" },
+  "stock-settings": { title:"Stock",        desc:"Locations, allocation, transfers & picklist", render:pageStockSettings, source:"Settings › Stock" },
+  resources:    { title:"Resources",        desc:"Pay rates, leaves, allowances, licenses & rate cards", render:pageResources, source:"Settings › Resources" },
+  "timesheets-settings": { title:"Timesheets", desc:"Empty in the source file",                render:pageTimesheetsSettings, source:"Settings › Timesheets" },
+  stcs:         { title:"STCs",             desc:"Price, deeming periods & trading partners", render:pageSTCs, source:"Settings › STCs" },
+  import:       { title:"Import",           desc:"CSV import & supplier invoice email import", render:pageImport, source:"Settings › Import" },
+  communication:{ title:"Communication",    desc:"Follow ups, notifications, confirmations & reminders", render:pageCommunicationSettings, source:"Settings › Communication" },
+  forms:        { title:"Forms",            desc:"Retailer forms & document mapping",          render:pageFormsSettings, source:"Settings › Forms" },
+  "sms-templates":      { title:"SMS Templates",      desc:"Create and manage SMS templates",     render:pageSmsTemplates, source:"Templates › SMS" },
+  "email-templates":    { title:"Email Templates",    desc:"Create templates & assign files",     render:pageEmailTemplates, source:"Templates › Email" },
+  "document-templates": { title:"Document Templates", desc:"Proposal, contract & compliance docs", render:pageDocumentTemplates, source:"Templates › Document" },
+  "finance-providers":  { title:"Finance Providers",  desc:"Customer finance options & franchisee fees", render:pageFinanceProviders, source:"Accounting › Finance Management" },
+  "org-details": { title:"Organisation Details", desc:"Legal entity, contact & address",          render:pageOrgDetails, after:afterOrgDetails, source:"Organisation › Details" },
+  "org-branding":{ title:"Branding",             desc:"Company logo",                             render:pageOrgBranding, source:"Organisation › Branding" },
+  "org-licenses":{ title:"Invoicing, Licenses & Records", desc:"Bank details, licenses & compliance records", render:pageOrgLicenses, source:"Organisation › Invoicing & Licenses" },
+  territory:     { title:"Territory Management", desc:"Postcode-based service territories",        render:pageTerritory, source:"Franchisee › Territory" },
+  "franchisee-directory": { title:"Franchisee Directory & Setup", desc:"Search, types & add a franchisee", render:pageFranchiseeDirectory, source:"Franchisee › Franchisee Management" },
+  "customer-portal": { title:"Customer Portal", desc:"Permissions & login for the customer-facing portal", render:pageCustomerPortal, source:"Portal › Customer Portal" },
+};
+
+let currentId = "general";
+
+function navigateTo(id){
+  currentId = id;
+  const item = findNavItem(id);
+  if(item) expandedGroups.add(item.group);
+  render();
+}
+
+function render(){
+  const built = PAGES[currentId];
+  const item = findNavItem(currentId);
+  document.getElementById('page-title').textContent = item ? item.label : (built ? built.title : "");
+  document.getElementById('page-desc').textContent = built ? built.desc : (item ? `Source: tab "${item.sheet}" in the xlsx` : "");
+  document.getElementById('source-pill').innerHTML = `
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+    ${built ? built.source : (item ? (item.group + ' › ' + item.sheet) : '')}`;
+
+  const content = document.getElementById('content');
+  if(built){
+    content.innerHTML = built.render();
+    if(built.after) built.after();
+  } else if(item){
+    content.innerHTML = pagePlaceholder(item);
+  } else {
+    content.innerHTML = `<div class="empty-state"><p>Section not found.</p></div>`;
+  }
+  renderNav(document.getElementById('nav-search').value);
+}
+
+render();
+</script>
+</body>
+</html>
