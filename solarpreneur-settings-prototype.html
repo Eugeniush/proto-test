@@ -64,6 +64,7 @@
   .nav-item.active .dot{background:var(--primary-500);}
   .nav-item .dot{width:6px; height:6px; border-radius:50%; flex-shrink:0; background:var(--gray-300);}
   .nav-item .dot.built{background:var(--success-500);}
+  .nav-item .dot.warn{background:var(--warning-500);}
   .nav-item .label{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .nav-item .tag{font-size:10px; font-weight:700; padding:1px 6px; border-radius:20px; background:var(--gray-100); color:var(--gray-500); flex-shrink:0;}
   .nav-item.active .tag{background:#fff;}
@@ -213,7 +214,7 @@
     </div>
     <nav class="nav-scroll" id="nav-scroll"></nav>
     <div class="sidebar-footer">
-      🟢 = built and interactive · ⚪ = mapped from the structure, not yet built<br>
+      🟢 = built and interactive · ⚪ = mapped from the structure, not yet built · 🟡 = open question, flagged for Eugene/Ahmed<br>
       Data source: <i>Admin (Sample Only).xlsx</i> from Ahmed
     </div>
   </aside>
@@ -247,11 +248,9 @@ const NAV = [
   { group: "Defaults", items: [
     { id:"general", label:"General", built:true },
     { id:"lockdates", label:"Lock Dates", built:true },
-    { id:"quote-defaults", label:"Quote", built:true },
-    { id:"jobs-defaults", label:"Jobs", built:true },
-    { id:"email-defaults", label:"Email", built:true },
+    { id:"email-defaults", label:"Email", built:true, flag:"warn" },
     { id:"marketing-defaults", label:"Marketing", built:true },
-    { id:"menu-defaults", label:"Menu", built:true },
+    { id:"menu-defaults", label:"Menu", built:true, flag:"warn" },
     { id:"tasks-defaults", label:"Tasks", built:true },
     { id:"payments-defaults", label:"Payments", built:true },
     { id:"accounting-defaults", label:"Accounting", built:true },
@@ -286,6 +285,7 @@ const NAV = [
     { id:"import", label:"Import", built:true },
     { id:"communication", label:"Communication", built:true },
     { id:"forms", label:"Forms", built:true },
+    { id:"payments-settings", label:"Payments · Methods & Terms", built:true },
   ]},
   { group: "Templates", items: [
     { id:"sms-templates", label:"SMS Templates", built:true },
@@ -353,7 +353,7 @@ function renderNav(filter=""){
       const el = document.createElement('div');
       el.className = 'nav-item' + (it.id === currentId ? ' active' : '');
       el.dataset.id = it.id;
-      el.innerHTML = `<span class="dot ${it.built?'built':''}"></span><span class="label">${it.label}</span>` +
+      el.innerHTML = `<span class="dot ${it.flag==='warn' ? 'warn' : (it.built?'built':'')}"></span><span class="label">${it.label}</span>` +
         (!it.built ? `<span class="tag">${it.tier}</span>` : '');
       el.addEventListener('click', () => navigateTo(it.id));
       itemsWrap.appendChild(el);
@@ -380,12 +380,6 @@ function toast(text){
   t.classList.add('show');
   clearTimeout(window.__toastTimer);
   window.__toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
-}
-
-function hypoBadge(text){
-  return `<span class="badge badge-hypo">
-    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>
-    ${text}</span>`;
 }
 
 /* =========================================================================
@@ -456,7 +450,7 @@ const LOCK_ROWS = [
   { name:"Purchase Orders", note:null },
   { name:"Quotes", note:null },
   { name:"Time Sheet", note:"Blocks schedule edits until payroll has been processed." },
-  { name:"Leave", note:"__UNCLEAR__" },
+  { name:"Leave", note:null },
   { name:"STCs", note:null },
 ];
 function pageLockDates(){
@@ -466,13 +460,9 @@ function pageLockDates(){
       <td><div class="toggle" data-row="${i}"></div></td>
       <td><input type="date" style="max-width:160px;" disabled id="lockdate-${i}"></td>
       <td><a href="#" style="color:var(--primary-600); font-weight:500; text-decoration:none;">View log</a></td>
-      <td>${r.note === "__UNCLEAR__" ? hypoBadge('Purpose unclear — confirm with Ahmed') : (r.note ? `<div class="row-note">${r.note}</div>` : '')}</td>
+      <td>${r.note ? `<div class="row-note">${r.note}</div>` : ''}</td>
     </tr>`).join('');
   return `
-  <div class="banner banner-info">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-    <div>A Lock Date prevents creating or editing records of this type before the specified date. Most commonly used to close an accounting period.</div>
-  </div>
   <div class="panel">
     <div class="panel-head"><h3>Lock Dates</h3><p>Lock record editing before a specific date, per module.</p></div>
     <div class="panel-body" style="padding:0;">
@@ -573,7 +563,7 @@ function pageCustomFields(){
   </div>
 
   <div class="panel">
-    <div class="panel-head"><h3>+ New Custom Field</h3><p>${hypoBadge("Behavior of 'Field Value' per type is a hypothesis — not detailed in the file")}</p></div>
+    <div class="panel-head"><h3>+ New Custom Field</h3></div>
     <div class="panel-body">
       <div class="form-grid">
         <div class="form-field">
@@ -738,26 +728,6 @@ document.getElementById('content').addEventListener('click', (e) => {
 });
 
 /* =========================================================================
-   DEFAULTS › Quote
-   ========================================================================= */
-function pageQuoteDefaults(){
-  return panel("Quote", "Defaults applied to every new quote.",
-    fieldRow("Default Quote Type", null, `<select><option>Standard Quote</option><option>Finance Quote</option><option>Insurance Quote</option></select>`) +
-    fieldRow("Lapsed Time Since Created", "Moves a quote to the 'Follow Up' category after this many days without being sold.",
-      `<div style="display:flex; align-items:center; gap:10px;"><input type="number" value="14" min="1" style="max-width:100px;"><span style="color:var(--gray-500); font-size:13px;">days</span></div>`)
-  ) + saveBar();
-}
-
-/* =========================================================================
-   DEFAULTS › Jobs
-   ========================================================================= */
-function pageJobsDefaults(){
-  return panel("Jobs", "Default applied when a new job is created.",
-    fieldRow("Default Job Type", null, `<select><option>Solar Installation</option><option>Battery Installation</option><option>Service &amp; Repair</option><option>Inspection</option></select>`)
-  ) + saveBar();
-}
-
-/* =========================================================================
    DEFAULTS › Email
    ========================================================================= */
 const EMAIL_ROWS = ["Quotes","Jobs","Purchase Orders","Invoices","Payments","Statements","Tasks","Back-Up"];
@@ -771,9 +741,9 @@ function pageEmailDefaults(){
       <td><button class="btn btn-sm" onclick="toast('Test email sent to ' + (document.getElementById('email-from-${i}').value || '—'))">Send Test Email</button></td>
     </tr>`).join('');
   return `
-  <div class="banner banner-info">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-    <div>Choose which address each system email sends from — the mail server's default, the logged-in user's own address, or a custom "Send From" address per document type.</div>
+  <div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Eugene: Not sure we need it so far because I don't quite understand how important this is for us to have at this stage.</div>
   </div>
   <div class="panel">
     <div class="panel-head"><h3>Email</h3><p>Send-from configuration per document type.</p></div>
@@ -793,7 +763,7 @@ function pageMarketingDefaults(){
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
     <div>Sample campaign names below — the real list will come from the Marketing module once it's built.</div>
   </div>` +
-  panel("Marketing", "Default campaign applied to new leads when no source campaign is specified.",
+  panel("Marketing", null,
     fieldRow("Default Campaign", null, `<select><option>Spring Solar Promo 2026</option><option>Referral Program</option><option>Google Ads — Solar</option><option>Facebook — Battery Bundle</option></select>`)
   ) + saveBar();
 }
@@ -810,7 +780,12 @@ function pageMenuDefaults(){
   const swatches = MENU_COLORS.map((c,i)=>`
     <div class="menu-swatch ${i===menuColorSelected?'selected':''}" data-color-index="${i}"
       style="width:32px; height:32px; border-radius:50%; background:${c.hex}; cursor:pointer; border:2px solid ${i===menuColorSelected?'var(--gray-900)':'transparent'}; box-shadow:0 0 0 2px #fff, 0 0 0 3px ${i===menuColorSelected?c.hex:'transparent'};" title="${c.name}"></div>`).join('');
-  return panel("Menu", "Appearance of the left navigation menu.",
+  return `
+  <div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>My opinion is that this is useless functionality.</div>
+  </div>` +
+  panel("Menu", "Appearance of the left navigation menu.",
     fieldRow("Size", null, `<div class="segmented" data-segmented><button class="active" data-v="small">Small</button><button data-v="medium">Medium</button><button data-v="large">Large</button></div>`) +
     fieldRow("Color", null, `<div id="menu-swatches" style="display:flex; gap:12px;">${swatches}</div>`)
   ) + saveBar();
@@ -828,8 +803,13 @@ function afterMenuDefaults(){
    DEFAULTS › Tasks
    ========================================================================= */
 function pageTasksDefaults(){
-  return panel("Tasks", "Default sender for task notification emails.",
-    fieldRow("Send Task From User Email", "When on, task notifications send from the assigned user's own email instead of the system address.",
+  return `
+  <div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Not clear the value.</div>
+  </div>` +
+  panel("Tasks", "Default sender for task notification emails.",
+    fieldRow("Send Task From User Email", null,
       `<div class="toggle" data-generic></div>`)
   ) + saveBar();
 }
@@ -844,14 +824,19 @@ function chipListHtml(items, kind){
   <div class="chip-add-row"><input type="text" placeholder="Add new..." id="add-${kind}"><button class="btn btn-sm" data-add="${kind}">Add</button></div>`;
 }
 function pagePaymentsDefaults(){
-  return panel("Payments", "Configure the payment methods, terms, and gateway used across Quotes, Jobs, and Invoices.",
-    `<div class="subtle-label">Payment Methods</div>` + chipListHtml(paymentMethods,"method") +
-    `<div style="height:22px;"></div><div class="subtle-label">Payment Terms</div>` + chipListHtml(paymentTerms,"term") +
-    `<div style="height:22px;"></div>` +
+  return panel("Payments", null,
+    fieldRow("Payment Methods · Default", null, `<select>${paymentMethods.map(m=>`<option>${m}</option>`).join('')}</select>`) +
+    fieldRow("Payment Terms · Default", null, `<select>${paymentTerms.map(t=>`<option>${t}</option>`).join('')}</select>`) +
     fieldRow("Payment Gateway", null, `<select><option>Stripe</option><option>PayPal</option><option>EzyFinance</option><option>None</option></select>`)
   );
 }
-function afterPaymentsDefaults(){
+function pagePaymentsSettings(){
+  return panel("Payments", "Manage the Payment Methods and Payment Terms lists used across Quotes, Jobs, and Invoices.",
+    `<div class="subtle-label">Payment Methods</div>` + chipListHtml(paymentMethods,"method") +
+    `<div style="height:22px;"></div><div class="subtle-label">Payment Terms</div>` + chipListHtml(paymentTerms,"term")
+  );
+}
+function afterPaymentsSettings(){
   document.querySelectorAll('[data-remove]').forEach(b=>{
     b.addEventListener('click', ()=>{
       const kind = b.dataset.remove, idx = parseInt(b.dataset.index);
@@ -888,7 +873,7 @@ function pageTaxRatesDefaults(){
   const rows = taxRates.map((t,i)=>`
     <tr><td class="row-name">${t.name}</td><td>${t.rate}%</td>
     <td style="text-align:right;"><button class="btn btn-sm" data-del-tax="${i}">Delete</button></td></tr>`).join('');
-  return panel("Tax Rates", "Tax rates available across Quotes, Jobs, and Invoices.",
+  return panel("Tax Rates", null,
     `<table><thead><tr><th>Tax Name</th><th>Rate</th><th></th></tr></thead><tbody id="tax-rows">${rows}</tbody></table>
     <div style="display:flex; gap:10px; margin-top:14px;">
       <input type="text" placeholder="Tax name" id="tax-name" style="max-width:180px;">
@@ -944,10 +929,7 @@ function pageCommissionsDefaults(){
    DEFAULTS › Employees
    ========================================================================= */
 function pageEmployeesDefaults(){
-  return `<div class="banner banner-info">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-    <div>Options below pull from Settings → Resources → Allowances once that list exists.</div>
-  </div>` +
+  return `` +
   panel("Employees", "Default allowance applied to a new employee record.",
     fieldRow("Default Allowance", null, `<select><option>Travel Allowance</option><option>Meal Allowance</option><option>Tool Allowance</option><option>None</option></select>`)
   ) + saveBar();
@@ -1039,12 +1021,12 @@ function afterTimesheetsDefaults(){
    DEFAULTS › Leads
    ========================================================================= */
 function pageLeadsDefaults(){
-  return panel("Leads", "Default status behaviour and lead source.",
+  return panel("Leads", null,
     fieldRow("Lead Status", null, radioList("lead-status", [
-      {text:"Change Automatically", desc:"Status updates based on system events (e.g. quote sent, quote won)."},
-      {text:"Change Manually", desc:"A user must update the status by hand."},
+      {text:"Change Automatically"},
+      {text:"Change Manually"},
     ], 0)) +
-    fieldRow("Lead Source · Default", null, `<select><option>Google Ads</option><option>Referral</option><option>Website</option><option>Trade Show</option><option>Cold Call</option><option>Facebook</option></select>`)
+    fieldRow("Lead Source · Default", null, `<select>${[...LISTS.leadSourceOnline, ...LISTS.leadSourceOffline, ...LISTS.leadSourcePurchased].map(s=>`<option>${s}</option>`).join('')}</select>`)
   );
 }
 
@@ -1066,11 +1048,7 @@ const RENAME_FIELDS = ["Sales Reps","Add sublocation","Billing Address","Carrier
 function pageRenameFieldsDefaults(){
   const rows = RENAME_FIELDS.map((f,i)=>`
     <tr><td class="row-name">${f}</td><td><input type="text" placeholder="Custom text (optional)" id="rename-${i}"></td></tr>`).join('');
-  return `<div class="banner banner-warn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-    <div>Some of these terms ("Carrier", "Add sublocation") read like they're from Ahmed's old stock/inventory system and may not map to Solarpreneur's fields. Confirm relevance before building this for real.</div>
-  </div>
-  <div class="panel">
+  return `<div class="panel">
     <div class="panel-head"><h3>Rename Fields</h3><p>Customize the text shown on screen and on printed documents.</p></div>
     <div class="panel-body" style="padding:0;">
       <table><thead><tr><th>Default text</th><th>Custom text</th></tr></thead><tbody>${rows}</tbody></table>
@@ -1102,11 +1080,7 @@ function pageTransactionNumbersDefaults(){
         </div>
       </div>
     </div>`).join('');
-  return `<div class="banner banner-warn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-    <div>This looks like it may overlap with Settings → Auto-Numbering (Quote / Job / Invoice). Possibly a leftover from the old inventory system — confirm with Ahmed whether both numbering tables are needed.</div>
-  </div>
-  <div class="panel">
+  return `<div class="panel">
     <div class="panel-head"><h3>Transaction Numbers</h3><p>Choose how you name your transactions.</p></div>
     <div class="panel-body">${rows}</div>
   </div>` + saveBar();
@@ -1130,11 +1104,7 @@ const CF_COUNTS = [
 ];
 function pageCustomFieldCountsDefaults(){
   const rows = CF_COUNTS.map(c=>`<div class="stat-row"><div class="name">${c.name}</div><div class="count">${c.count} field${c.count===1?'':'s'}</div></div>`).join('');
-  return `<div class="banner banner-warn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-    <div>Read-only in the old file — a per-entity count of custom fields. Entity names (Sales order, Vendor, Manufacture order) are inventory/ERP terms, not a 1:1 match to Solarpreneur entities. Not the same as Settings → Custom Fields, which is the customer-facing feature we already built.</div>
-  </div>
-  <div class="panel">
+  return `<div class="panel">
     <div class="panel-head"><h3>Custom Fields — counts (legacy)</h3><p>Reference only, from Ahmed's previous system.</p></div>
     <div class="panel-body">${rows}</div>
   </div>`;
@@ -1144,10 +1114,10 @@ function pageCustomFieldCountsDefaults(){
    SETTINGS › Catalog
    ========================================================================= */
 function pageCatalog(){
-  return panel("Unit of Measurement", "Units available when defining cost types and line items.",
+  return panel("Unit of Measurement", null,
     genericChipList("units")
   ) +
-  panel("Cost Types", "Pricing logic used across Quotes, Jobs, and the Catalog.",
+  panel("Cost Types", null,
     simpleTable(["Cost Type","Unit","Description"], [
       ["Flat Rate","Job","A simple fixed cost for a product or service, irrespective of quantity."],
       ["Hourly","H","For services priced based on the number of hours worked."],
@@ -1200,10 +1170,15 @@ function pageLeadsSettings(){
       ["Qualified Lead","'Qualify Lead' toggle turned ON"],
       ["Consultation","Lead assigned to an owner"],
       ["Quote","A quote has been created"],
-      ["Follow Up","Lapsed time since Proposal Sent reached"],
+      ["Follow Up","Lapsed time since Proposal Sent reached — set below"],
       ["Sale Pending","A quote has been accepted"],
       ["Archived","Manual"],
-    ]) + `<div class="subtle-label" style="margin-top:18px;">Workflow (post-sale)</div>` +
+    ]) +
+    `<div style="margin-top:16px;">` +
+    fieldRow("Lapsed Time Since Proposal Sent", "Moves a lead from Quote to the Follow Up status after this many days without being sold.",
+      `<div style="display:flex; align-items:center; gap:10px;"><input type="number" value="14" min="1" style="max-width:100px;"><span style="color:var(--gray-500); font-size:13px;">days</span></div>`) +
+    `</div>` +
+    `<div class="subtle-label" style="margin-top:18px;">Workflow (post-sale)</div>` +
     simpleTable(["Lead Status","Triggered By"], [
       ["Order Validation","A job has been converted from Quote to Invoice"],
       ["Install Pending","Received Permission to Connect"],
@@ -1380,14 +1355,15 @@ function pageJobsSettings(){
     `<div style="height:14px;"></div><div class="subtle-label">Cancelled</div>` + genericChipList("jobCancelReasons")
   ) +
   panel("Job Types", null,
-    simpleTable(["Job Type","Role Group","Status"], [
-      ["New Solar System","Installation","Active"],
-      ["Upgrade To Existing","Installation","Active"],
-      ["Battery Install","Battery Installation","Active"],
-      ["New Service Job","Service","Active"],
-      ["Wholesale","Purchases","Active"],
-      ["Installation Sub-Contracting Job","Contracting","Active"],
+    simpleTable(["Default","Job Type","Role Group","Status"], [
+      [`<input type="radio" name="defaultJobType" onclick="toast('Default Job Type set to New Solar System')" checked>`,"New Solar System","Installation","Active"],
+      [`<input type="radio" name="defaultJobType" onclick="toast('Default Job Type set to Upgrade To Existing')">`,"Upgrade To Existing","Installation","Active"],
+      [`<input type="radio" name="defaultJobType" onclick="toast('Default Job Type set to Battery Install')">`,"Battery Install","Battery Installation","Active"],
+      [`<input type="radio" name="defaultJobType" onclick="toast('Default Job Type set to New Service Job')">`,"New Service Job","Service","Active"],
+      [`<input type="radio" name="defaultJobType" onclick="toast('Default Job Type set to Wholesale')">`,"Wholesale","Purchases","Active"],
+      [`<input type="radio" name="defaultJobType" onclick="toast('Default Job Type set to Installation Sub-Contracting Job')">`,"Installation Sub-Contracting Job","Contracting","Active"],
     ]) +
+    `<div style="margin-top:8px; color:var(--gray-500); font-size:12px;">The radio button marks which job type is pre-selected when a new job is created.</div>` +
     `<div style="margin-top:16px;" class="form-grid">
       <div class="form-field"><label>Job Type Name</label><input type="text" placeholder="e.g. Roof Repair"></div>
       <div class="form-field"><label>Role Group</label><select><option>Installation</option><option>Service</option><option>Contracting</option><option>Purchases</option></select></div>
@@ -1492,7 +1468,7 @@ function pageResources(){
     simpleTable(["Allowance Name","Default Amount"], [["Meal","$0.00"],["Travel","$0.00"]]) +
     `<div style="margin-top:16px; display:flex; gap:8px;"><input type="text" placeholder="Allowance name" style="max-width:200px;"><input type="number" placeholder="Default $" style="max-width:120px;"><button class="btn btn-sm" onclick="toast('Allowance added')">Add</button></div>`
   ) +
-  panel("Company Type", "Types used to categorise businesses in Solarpreneur's contact records.", genericChipList("companyTypes")) +
+  panel("Company Type", null, genericChipList("companyTypes")) +
   panel("License Type", "Licenses that can be attached to an employee, contractor, or company.",
     `<div class="form-grid">
       <div class="form-field"><label>License Type Name</label><input type="text" placeholder="e.g. Electrical License"></div>
@@ -1598,15 +1574,15 @@ function pageImport(){
    SETTINGS › Communication
    ========================================================================= */
 function pageCommunicationSettings(){
-  return `<div class="banner banner-warn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
-    <div>Ahmed's file only lists these four category names — no detail on triggers, channels, or content. The toggles below are a placeholder structure; confirm intended behaviour with Ahmed before building this for real.</div>
-  </div>` +
-  panel("Communication Types", null,
-    fieldRow("Follow Ups", null, `<div class="toggle on" data-generic></div>`) +
-    fieldRow("Notifications", null, `<div class="toggle on" data-generic></div>`) +
-    fieldRow("Confirmations", null, `<div class="toggle on" data-generic></div>`) +
-    fieldRow("Reminders", null, `<div class="toggle" data-generic></div>`)
+  return panel("Communication Types", null,
+    `<div style="padding:20px 24px;">
+      <ul style="margin:0; padding-left:18px; color:var(--gray-700); font-size:14px; line-height:1.9;">
+        <li>Follow Ups</li>
+        <li>Notifications</li>
+        <li>Confirmations</li>
+        <li>Reminders</li>
+      </ul>
+    </div>`
   );
 }
 
@@ -1628,8 +1604,7 @@ function pageFormsSettings(){
       <div class="form-field"><label>Email Template</label><select><option>Retailer Notification</option></select></div>
       <div class="form-field" style="grid-column:1/-1;"><label>Email Recipients</label><input type="text" placeholder="retailer@energyco.com"></div>
     </div>
-    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Form added')">Add Form</button></div>
-    <div style="margin-top:16px;">` + hypoBadge('Field-mapping / conditional logic per form (e.g. only show for NMI starting with 431) — likely needs a dev-only rules builder, not a simple field') + `</div>`
+    <div style="margin-top:14px; display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Form added')">Add Form</button></div>`
   );
 }
 
@@ -1647,7 +1622,7 @@ function pageSmsTemplates(){
   panel("Create Template", null,
     fieldRow("Template Name", null, `<input type="text" placeholder="e.g. Appointment Reminder">`) +
     fieldRow("Type", null, `<select><option>Appointment Reminder</option><option>Quote Follow Up</option><option>Job Confirmation</option><option>Payment Reminder</option></select>`) +
-    fieldRow("Template Content", "Supports placeholders like {first_name}, {job_date}, {company_name}.", `<textarea rows="3" style="width:100%; padding:8px 12px; border:1px solid var(--gray-300); border-radius:8px; font-family:inherit; font-size:13.5px;" placeholder="Hi {first_name}, this is a reminder about your appointment on {job_date}."></textarea>`)
+    fieldRow("Template Content", null, `<textarea rows="3" style="width:100%; padding:8px 12px; border:1px solid var(--gray-300); border-radius:8px; font-family:inherit; font-size:13.5px;" placeholder="Enter template content..."></textarea>`)
   ) + `<div style="display:flex; justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Template saved')">Save Template</button></div>`;
 }
 
@@ -1881,8 +1856,8 @@ function pageCustomerPortal(){
       {text:"None"},{text:"View"},{text:"View & Edit"},
     ], 1)) +
     fieldRow("Visibility", null, radioList("job-visibility", [
-      {text:"View Own", desc:"Customer sees only their own jobs."},
-      {text:"View All", desc:"Customer sees every job linked to their account, including sub-properties."},
+      {text:"View Own"},
+      {text:"View All"},
     ], 0))
   ) +
   panel("Quotation Permissions", null,
@@ -1928,13 +1903,11 @@ function pagePlaceholder(item){
 const PAGES = {
   general:      { title:"General",        desc:"Core system settings",              render:pageGeneral,      after:afterGeneral,      source:"DEFAULTS › General" },
   lockdates:    { title:"Lock Dates",      desc:"Lock record editing by date",  render:pageLockDates,    after:afterLockDates,    source:"DEFAULTS › Lock Dates" },
-  "quote-defaults":      { title:"Quote",       desc:"Default quote type & follow-up timing",     render:pageQuoteDefaults,               source:"DEFAULTS › Quote" },
-  "jobs-defaults":       { title:"Jobs",        desc:"Default job type",                          render:pageJobsDefaults,                source:"DEFAULTS › Jobs" },
   "email-defaults":      { title:"Email",       desc:"Send-from configuration per document type", render:pageEmailDefaults,               source:"DEFAULTS › Email" },
   "marketing-defaults":  { title:"Marketing",   desc:"Default campaign",                          render:pageMarketingDefaults,           source:"DEFAULTS › Marketing" },
   "menu-defaults":       { title:"Menu",        desc:"Left navigation appearance",                render:pageMenuDefaults, after:afterMenuDefaults, source:"DEFAULTS › Menu" },
   "tasks-defaults":      { title:"Tasks",       desc:"Task notification sender",                  render:pageTasksDefaults,               source:"DEFAULTS › Tasks" },
-  "payments-defaults":   { title:"Payments",    desc:"Payment methods, terms & gateway",           render:pagePaymentsDefaults, after:afterPaymentsDefaults, source:"DEFAULTS › Payments" },
+  "payments-defaults":   { title:"Payments",    desc:"Default payment method, term & gateway",     render:pagePaymentsDefaults,             source:"DEFAULTS › Payments" },
   "accounting-defaults": { title:"Accounting",  desc:"Cash rounding",                              render:pageAccountingDefaults,          source:"DEFAULTS › Accounting" },
   "taxrates-defaults":   { title:"Tax Rates",   desc:"Tax rates & default price display",          render:pageTaxRatesDefaults, after:afterTaxRatesDefaults, source:"DEFAULTS › Tax Rates" },
   "invoice-defaults":    { title:"Invoice",     desc:"When an invoice is auto-generated",          render:pageInvoiceDefaults,             source:"DEFAULTS › Invoice" },
@@ -1965,6 +1938,7 @@ const PAGES = {
   import:       { title:"Import",           desc:"CSV import & supplier invoice email import", render:pageImport, source:"Settings › Import" },
   communication:{ title:"Communication",    desc:"Follow ups, notifications, confirmations & reminders", render:pageCommunicationSettings, source:"Settings › Communication" },
   forms:        { title:"Forms",            desc:"Retailer forms & document mapping",          render:pageFormsSettings, source:"Settings › Forms" },
+  "payments-settings":  { title:"Payments", desc:"Payment Methods & Payment Terms lists",       render:pagePaymentsSettings, after:afterPaymentsSettings, source:"Settings › Invoices › Payments" },
   "sms-templates":      { title:"SMS Templates",      desc:"Create and manage SMS templates",     render:pageSmsTemplates, source:"Templates › SMS" },
   "email-templates":    { title:"Email Templates",    desc:"Create templates & assign files",     render:pageEmailTemplates, source:"Templates › Email" },
   "document-templates": { title:"Document Templates", desc:"Proposal, contract & compliance docs", render:pageDocumentTemplates, source:"Templates › Document" },
