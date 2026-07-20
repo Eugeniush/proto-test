@@ -100,6 +100,13 @@
   select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1L6 6L11 1' stroke='%23667085' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px;}
   select:focus, input:focus{border-color:var(--primary-500); box-shadow:0 0 0 4px var(--primary-50);}
 
+  .pagetabs{display:flex; gap:4px; border-bottom:1px solid var(--gray-200); margin-bottom:20px;}
+  .pagetabs button{border:none; background:none; padding:10px 4px; margin-right:20px; font-family:inherit; font-size:13.5px; font-weight:500; color:var(--gray-500); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;}
+  .pagetabs button.active{color:var(--primary-700); border-bottom-color:var(--primary-500);}
+  .pagetabs button:hover:not(.active){color:var(--gray-700);}
+  .tabpanel{display:none;}
+  .tabpanel.active{display:block;}
+
   .segmented{display:inline-flex; border:1px solid var(--gray-300); border-radius:var(--radius-md); overflow:hidden;}
   .segmented button{border:none; background:#fff; padding:8px 16px; font-family:inherit; font-size:13.5px; font-weight:500; color:var(--gray-600); cursor:pointer; border-right:1px solid var(--gray-300);}
   .segmented button:last-child{border-right:none;}
@@ -245,67 +252,65 @@
    DATA — navigation assembled from the MENU STRUCTURE tab + actual content of the xlsx
    ========================================================================= */
 const NAV = [
-  { group: "Defaults", items: [
-    { id:"general", label:"General", built:true },
-    { id:"lockdates", label:"Lock Dates", built:true },
-    { id:"email-defaults", label:"Email", built:true, flag:"warn" },
-    { id:"marketing-defaults", label:"Marketing", built:true },
-    { id:"menu-defaults", label:"Menu", built:true, flag:"warn" },
-    { id:"tasks-defaults", label:"Tasks", built:true },
-    { id:"payments-defaults", label:"Payments", built:true },
-    { id:"accounting-defaults", label:"Accounting", built:true },
-    { id:"taxrates-defaults", label:"Tax Rates", built:true },
-    { id:"invoice-defaults", label:"Invoice", built:true },
-    { id:"commissions-defaults", label:"Commissions", built:true },
-    { id:"employees-defaults", label:"Employees", built:true },
-    { id:"quotecart-defaults", label:"Quote Cart", built:true },
-    { id:"schedule-defaults", label:"Schedule", built:true },
-    { id:"stock-defaults", label:"Stock", built:true },
-    { id:"timesheets-defaults", label:"Timesheets", built:true },
-    { id:"leads-defaults", label:"Leads", built:true },
-    { id:"purchases-defaults", label:"Purchases", built:true },
+  { group: "General", items: [
+    { id:"org-details", label:"Organisation", built:true },
+    { id:"general", label:"General · Regional & Format", built:true },
     { id:"renamefields-defaults", label:"Rename Fields", built:true },
     { id:"transactionnumbers-defaults", label:"Transaction Numbers", built:true },
-    { id:"customfieldcounts-defaults", label:"Custom Fields (counts)", built:true },
+    { id:"milestones-general", label:"Milestones", built:true },
+    { id:"lineitems-general", label:"Line Items", built:true },
+    { id:"preferences-general", label:"Preferences", built:true },
   ]},
-  { group: "Settings", items: [
-    { id:"autonumbering", label:"Auto-Numbering", built:true },
-    { id:"customfields", label:"Custom Fields", built:true },
-    { id:"catalog", label:"Catalog", built:true },
+  { group: "Finance", items: [
+    { id:"taxrates-defaults", label:"Tax Rates", built:true },
+    { id:"finance-providers", label:"Finance Providers", built:true },
+    { id:"payments-settings", label:"Payments · Methods & Terms", built:true },
+    { id:"preferences-finance", label:"Preferences", built:true },
+  ]},
+  { group: "Customer Lifecycle", items: [
     { id:"customers-settings", label:"Customers · Contact Type & Role", built:true },
-    { id:"leads-settings", label:"Leads · Status, Source, Owners…", built:true },
+    { id:"leads-combined", label:"Leads", built:true },
     { id:"quotes-settings", label:"Quotes · Types, Validity, Mark Up…", built:true },
     { id:"jobs-settings", label:"Jobs · Type, Priorities…", built:true },
-    { id:"operations", label:"Operations · Schedule Types", built:true },
-    { id:"purchasing", label:"Purchasing · PO Status", built:true },
+  ]},
+  { group: "Inventory", items: [
+    { id:"stock-defaults", label:"Stock", built:true },
     { id:"stock-settings", label:"Stock · Locations, Allocation…", built:true },
+    { id:"purchasing", label:"Purchase Order Status", built:true },
+    { id:"purchases-defaults", label:"Purchases", built:true },
+  ]},
+  { group: "Workforce", items: [
     { id:"resources", label:"Resources · Pay Rates, Leaves…", built:true },
-    { id:"timesheets-settings", label:"Timesheets", built:true },
-    { id:"stcs", label:"STCs", built:true },
-    { id:"import", label:"Import", built:true },
-    { id:"communication", label:"Communication", built:true },
-    { id:"forms", label:"Forms", built:true },
-    { id:"payments-settings", label:"Payments · Methods & Terms", built:true },
+    { id:"timesheets-defaults", label:"Timesheets", built:true },
+    { id:"employees-defaults", label:"Employees", built:true },
   ]},
   { group: "Templates", items: [
     { id:"sms-templates", label:"SMS Templates", built:true },
     { id:"email-templates", label:"Email Templates", built:true },
     { id:"document-templates", label:"Document Templates", built:true },
   ]},
-  { group: "Accounting", items: [
-    { id:"finance-providers", label:"Finance Providers", built:true },
+  { group: "System & Access", items: [
+    { id:"lockdates", label:"Lock Dates", built:true },
+    { id:"menu-defaults", label:"Menu", built:true, flag:"warn" },
+    { id:"customfields", label:"Custom Fields", built:true },
+    { id:"customfieldcounts-defaults", label:"Custom Fields (counts)", built:true, flag:"warn" },
   ]},
-  { group: "Organisation", items: [
-    { id:"org-details", label:"Organisation Details", built:true },
+  { group: "Customer-Facing", items: [
+    { id:"customer-portal", label:"Customer Portal", built:true },
+    { id:"forms", label:"Forms", built:true },
     { id:"org-branding", label:"Branding", built:true },
-    { id:"org-licenses", label:"Invoicing, Licenses & Records", built:true },
+    { id:"email-defaults", label:"Email", built:true, flag:"warn" },
+    { id:"communication", label:"Communication", built:true },
   ]},
-  { group: "Franchisee", items: [
+  { group: "Franchise & Compliance", items: [
     { id:"territory", label:"Territory Management", built:true },
     { id:"franchisee-directory", label:"Franchisee Directory & Setup", built:true },
+    { id:"org-licenses", label:"Invoicing, Licenses & Records", built:true },
   ]},
-  { group: "Portal", items: [
-    { id:"customer-portal", label:"Customer Portal", built:true },
+  { group: "Data & Utilities", items: [
+    { id:"import", label:"Import", built:true },
+    { id:"stcs", label:"STCs", built:true },
+    { id:"quotecart-defaults", label:"Quote Cart", built:true },
   ]},
 ];
 
@@ -318,7 +323,7 @@ const TIER_BADGE = { D:"badge-success", S:"badge-warn", E:"badge-gray" };
 const navScroll = document.getElementById('nav-scroll');
 
 // Which level-1 groups are currently expanded. "Defaults" open by default.
-const expandedGroups = new Set(["Defaults"]);
+const expandedGroups = new Set(["General"]);
 
 const FOLDER_ICON = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>`;
 const CHEVRON_ICON = `<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>`;
@@ -652,6 +657,29 @@ function saveBar(id){
 function simpleTable(headers, rows){
   return `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
     <tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+
+/* ---- Generic page-level tabs — used to combine several sub-pages under one nav item ---- */
+function pageTabs(tabs, activeIndex){
+  activeIndex = activeIndex || 0;
+  const bar = `<div class="pagetabs">` + tabs.map((t,i)=>
+    `<button class="${i===activeIndex?'active':''}" data-pagetab="${i}">${t.label}</button>`).join('') + `</div>`;
+  const panels = tabs.map((t,i)=>
+    `<div class="tabpanel ${i===activeIndex?'active':''}" data-tabpanel="${i}">${t.render()}</div>`).join('');
+  return bar + panels;
+}
+function afterPageTabs(tabs){
+  document.querySelectorAll('[data-pagetab]').forEach(btn=>{
+    btn.dataset.wired = "1";
+    btn.addEventListener('click', ()=>{
+      const idx = btn.dataset.pagetab;
+      document.querySelectorAll('[data-pagetab]').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('[data-tabpanel]').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`[data-tabpanel="${idx}"]`).classList.add('active');
+    });
+  });
+  tabs.forEach(t=>{ if(t.after) t.after(); });
 }
 
 /* ---- Generic named lists (Settings sub-pages) — simple add/remove chip lists ---- */
@@ -1104,7 +1132,12 @@ const CF_COUNTS = [
 ];
 function pageCustomFieldCountsDefaults(){
   const rows = CF_COUNTS.map(c=>`<div class="stat-row"><div class="name">${c.name}</div><div class="count">${c.count} field${c.count===1?'':'s'}</div></div>`).join('');
-  return `<div class="panel">
+  return `
+  <div class="banner banner-warn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>Eugene: Not sure we need it so far because not clear what problems can it solve.</div>
+  </div>
+  <div class="panel">
     <div class="panel-head"><h3>Custom Fields — counts (legacy)</h3><p>Reference only, from Ahmed's previous system.</p></div>
     <div class="panel-body">${rows}</div>
   </div>`;
@@ -1609,6 +1642,20 @@ function pageFormsSettings(){
 }
 
 /* =========================================================================
+   OTHERS › Templates (combines SMS, Email, Document templates)
+   ========================================================================= */
+function pageTemplatesCombined(){
+  return pageTabs([
+    { label:"SMS", render:pageSmsTemplates },
+    { label:"Email", render:pageEmailTemplates },
+    { label:"Document", render:pageDocumentTemplates },
+  ]);
+}
+function afterTemplatesCombined(){
+  afterPageTabs([{},{},{}]);
+}
+
+/* =========================================================================
    TEMPLATES › SMS Templates
    ========================================================================= */
 function pageSmsTemplates(){
@@ -1898,57 +1945,143 @@ function pagePlaceholder(item){
 }
 
 /* =========================================================================
+   GENERAL › Preferences (combines Marketing, Tasks, Schedule, Auto-Numbering, Catalog)
+   ========================================================================= */
+function pagePreferencesGeneral(){
+  return pageTabs([
+    { label:"Marketing", render:pageMarketingDefaults },
+    { label:"Tasks", render:pageTasksDefaults },
+    { label:"Schedule", render:()=> pageScheduleDefaults() + pageOperations(), after:()=>{ afterScheduleDefaults(); } },
+    { label:"Auto-Numbering", render:pageAutoNumbering, after:afterAutoNumbering },
+    { label:"Catalog", render:pageCatalog, after:afterCatalog },
+  ]);
+}
+function afterPreferencesGeneral(){
+  afterPageTabs([
+    {}, {},
+    { after:()=>{ afterScheduleDefaults(); } },
+    { after:afterAutoNumbering },
+    { after:afterCatalog },
+  ]);
+}
+
+/* =========================================================================
+   FINANCE › Preferences (combines Payments, Invoice, Commissions, Accounting defaults)
+   ========================================================================= */
+function pagePreferencesFinance(){
+  return pageTabs([
+    { label:"Payments", render:pagePaymentsDefaults },
+    { label:"Invoice", render:pageInvoiceDefaults },
+    { label:"Commissions", render:pageCommissionsDefaults },
+    { label:"Accounting", render:pageAccountingDefaults },
+  ]);
+}
+function afterPreferencesFinance(){
+  afterPageTabs([{},{},{},{}]);
+}
+
+/* =========================================================================
+   CUSTOMER LIFECYCLE › Leads (combines Leads settings + Leads defaults)
+   ========================================================================= */
+function pageLeadsCombined(){
+  return pageTabs([
+    { label:"Workflow & Assignment", render:pageLeadsSettings, after:afterLeadsSettings },
+    { label:"Status Behaviour", render:pageLeadsDefaults },
+  ]);
+}
+function afterLeadsCombined(){
+  afterPageTabs([
+    { after:afterLeadsSettings }, {},
+  ]);
+}
+
+/* =========================================================================
+   GENERAL › Milestones
+   ========================================================================= */
+function pageMilestonesGeneral(){
+  return `<div class="panel"><div class="panel-head"><h3>Milestones</h3><p>Milestone types are configured per Job Type in Admin Settings and auto-populate when a Job Type is selected.</p></div>
+    <div class="panel-body">
+      <div class="empty-state">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+        <p>No milestone types configured yet. Empty in Ahmed's file — add the first milestone type below.</p>
+        <button class="btn btn-primary btn-sm" onclick="toast('Milestone type added')">+ Add Milestone Type</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================================
+   GENERAL › Line Items
+   ========================================================================= */
+function pageLineItemsGeneral(){
+  return `<div class="panel"><div class="panel-head"><h3>Line Items</h3><p>Line items are entered manually, selected from the Catalog, or applied from a Template (Settings → Templates).</p></div>
+    <div class="panel-body">
+      <div class="empty-state">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+        <p>No line item defaults configured yet. Empty in Ahmed's file — add the first default below.</p>
+        <button class="btn btn-primary btn-sm" onclick="toast('Line item default added')">+ Add Default</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================================
    ROUTER
    ========================================================================= */
 const PAGES = {
-  general:      { title:"General",        desc:"Core system settings",              render:pageGeneral,      after:afterGeneral,      source:"DEFAULTS › General" },
-  lockdates:    { title:"Lock Dates",      desc:"Lock record editing by date",  render:pageLockDates,    after:afterLockDates,    source:"DEFAULTS › Lock Dates" },
-  "email-defaults":      { title:"Email",       desc:"Send-from configuration per document type", render:pageEmailDefaults,               source:"DEFAULTS › Email" },
+  general:      { title:"General",        desc:"Core system settings",              render:pageGeneral,      after:afterGeneral,      source:"GENERAL › Regional & Format" },
+  lockdates:    { title:"Lock Dates",      desc:"Lock record editing by date",  render:pageLockDates,    after:afterLockDates,    source:"SYSTEM & ACCESS › Lock Dates" },
+  "email-defaults":      { title:"Email",       desc:"Send-from configuration per document type", render:pageEmailDefaults,               source:"CUSTOMER-FACING › Email" },
   "marketing-defaults":  { title:"Marketing",   desc:"Default campaign",                          render:pageMarketingDefaults,           source:"DEFAULTS › Marketing" },
-  "menu-defaults":       { title:"Menu",        desc:"Left navigation appearance",                render:pageMenuDefaults, after:afterMenuDefaults, source:"DEFAULTS › Menu" },
+  "menu-defaults":       { title:"Menu",        desc:"Left navigation appearance",                render:pageMenuDefaults, after:afterMenuDefaults, source:"SYSTEM & ACCESS › Menu" },
   "tasks-defaults":      { title:"Tasks",       desc:"Task notification sender",                  render:pageTasksDefaults,               source:"DEFAULTS › Tasks" },
   "payments-defaults":   { title:"Payments",    desc:"Default payment method, term & gateway",     render:pagePaymentsDefaults,             source:"DEFAULTS › Payments" },
   "accounting-defaults": { title:"Accounting",  desc:"Cash rounding",                              render:pageAccountingDefaults,          source:"DEFAULTS › Accounting" },
   "taxrates-defaults":   { title:"Tax Rates",   desc:"Tax rates & default price display",          render:pageTaxRatesDefaults, after:afterTaxRatesDefaults, source:"DEFAULTS › Tax Rates" },
   "invoice-defaults":    { title:"Invoice",     desc:"When an invoice is auto-generated",          render:pageInvoiceDefaults,             source:"DEFAULTS › Invoice" },
   "commissions-defaults":{ title:"Commissions", desc:"Commission calculation basis",               render:pageCommissionsDefaults,         source:"DEFAULTS › Commissions" },
-  "employees-defaults":  { title:"Employees",   desc:"Default allowance",                          render:pageEmployeesDefaults,           source:"DEFAULTS › Employees" },
-  "quotecart-defaults":  { title:"Quote Cart",  desc:"Default rate card",                          render:pageQuoteCartDefaults,           source:"DEFAULTS › Quote Cart" },
+  "employees-defaults":  { title:"Employees",   desc:"Default allowance",                          render:pageEmployeesDefaults,           source:"WORKFORCE › Employees" },
+  "quotecart-defaults":  { title:"Quote Cart",  desc:"Default rate card",                          render:pageQuoteCartDefaults,           source:"DATA & UTILITIES › Quote Cart" },
   "schedule-defaults":   { title:"Schedule",    desc:"Default calendar view",                      render:pageScheduleDefaults, after:afterScheduleDefaults, source:"DEFAULTS › Schedule" },
-  "stock-defaults":      { title:"Stock",       desc:"Location, deduction trigger & costing method", render:pageStockDefaults,             source:"DEFAULTS › Stock" },
-  "timesheets-defaults": { title:"Timesheets",  desc:"Timesheet generation rules",                 render:pageTimesheetsDefaults, after:afterTimesheetsDefaults, source:"DEFAULTS › Timesheets" },
+  "stock-defaults":      { title:"Stock",       desc:"Location, deduction trigger & costing method", render:pageStockDefaults,             source:"INVENTORY › Stock" },
+  "timesheets-defaults": { title:"Timesheets",  desc:"Timesheet generation rules",                 render:pageTimesheetsDefaults, after:afterTimesheetsDefaults, source:"WORKFORCE › Timesheets" },
   "leads-defaults":      { title:"Leads",       desc:"Status behaviour & default source",          render:pageLeadsDefaults,               source:"DEFAULTS › Leads" },
-  "purchases-defaults":  { title:"Purchases",   desc:"Purchase Order defaults",                    render:pagePurchasesDefaults,           source:"DEFAULTS › Purchases" },
-  "renamefields-defaults":{ title:"Rename Fields", desc:"Customize on-screen & printed field labels", render:pageRenameFieldsDefaults,      source:"DEFAULTS › Rename Fields" },
-  "transactionnumbers-defaults":{ title:"Transaction Numbers", desc:"Legacy numbering per transaction type", render:pageTransactionNumbersDefaults, after:afterTransactionNumbersDefaults, source:"DEFAULTS › Transaction Numbers" },
-  "customfieldcounts-defaults":{ title:"Custom Fields (counts)", desc:"Legacy per-entity field counts", render:pageCustomFieldCountsDefaults, source:"DEFAULTS › Custom Fields" },
+  "purchases-defaults":  { title:"Purchases",   desc:"Purchase Order defaults",                    render:pagePurchasesDefaults,           source:"INVENTORY › Purchases" },
+  "renamefields-defaults":{ title:"Rename Fields", desc:"Customize on-screen & printed field labels", render:pageRenameFieldsDefaults,      source:"GENERAL › Rename Fields" },
+  "transactionnumbers-defaults":{ title:"Transaction Numbers", desc:"Legacy numbering per transaction type", render:pageTransactionNumbersDefaults, after:afterTransactionNumbersDefaults, source:"GENERAL › Transaction Numbers" },
+  "customfieldcounts-defaults":{ title:"Custom Fields (counts)", desc:"Legacy per-entity field counts", render:pageCustomFieldCountsDefaults, source:"SYSTEM & ACCESS › Custom Fields (counts)" },
   autonumbering:{ title:"Auto-Numbering",  desc:"Document number format",                render:pageAutoNumbering,after:afterAutoNumbering,source:"System Configuration › Auto-Numbering" },
-  customfields: { title:"Custom Fields",   desc:"Additional fields for platform entities",   render:pageCustomFields, after:afterCustomFields, source:"Custom Fields" },
+  customfields: { title:"Custom Fields",   desc:"Additional fields for platform entities",   render:pageCustomFields, after:afterCustomFields, source:"SYSTEM & ACCESS › Custom Fields" },
   catalog:      { title:"Catalog",         desc:"Units of measurement & cost types",         render:pageCatalog, after:afterCatalog, source:"Settings › Catalog" },
-  "customers-settings": { title:"Customers", desc:"Contact type & contact role",             render:pageCustomersSettings, source:"Settings › Customers" },
+  "customers-settings": { title:"Customers", desc:"Contact type & contact role",             render:pageCustomersSettings, source:"CUSTOMER LIFECYCLE › Customers" },
   "leads-settings":     { title:"Leads",     desc:"Status workflow, source, owners & assignment", render:pageLeadsSettings, after:afterLeadsSettings, source:"Settings › Leads" },
-  "quotes-settings":    { title:"Quotes",    desc:"Types, validity, mark up, travel & items", render:pageQuotesSettings, after:afterQuotesSettings, source:"Settings › Quotes" },
-  "jobs-settings":      { title:"Jobs",      desc:"Status reasons, types, priorities & assignment", render:pageJobsSettings, source:"Settings › Jobs" },
+  "quotes-settings":    { title:"Quotes",    desc:"Types, validity, mark up, travel & items", render:pageQuotesSettings, after:afterQuotesSettings, source:"CUSTOMER LIFECYCLE › Quotes" },
+  "jobs-settings":      { title:"Jobs",      desc:"Status reasons, types, priorities & assignment", render:pageJobsSettings, source:"CUSTOMER LIFECYCLE › Jobs" },
   operations:   { title:"Operations",       desc:"Schedule types",                            render:pageOperations, source:"Settings › Schedule" },
-  purchasing:   { title:"Purchasing",       desc:"Purchase order status list",                render:pagePurchasing, source:"Settings › Purchases" },
-  "stock-settings": { title:"Stock",        desc:"Locations, allocation, transfers & picklist", render:pageStockSettings, source:"Settings › Stock" },
-  resources:    { title:"Resources",        desc:"Pay rates, leaves, allowances, licenses & rate cards", render:pageResources, source:"Settings › Resources" },
+  purchasing:   { title:"Purchase Order Status", desc:"Purchase order status list",           render:pagePurchasing, source:"INVENTORY › Purchase Orders" },
+  "stock-settings": { title:"Stock",        desc:"Locations, allocation, transfers & picklist", render:pageStockSettings, source:"INVENTORY › Stock Locations" },
+  resources:    { title:"Resources",        desc:"Pay rates, leaves, allowances, licenses & rate cards", render:pageResources, source:"WORKFORCE › Resources" },
   "timesheets-settings": { title:"Timesheets", desc:"Empty in the source file",                render:pageTimesheetsSettings, source:"Settings › Timesheets" },
-  stcs:         { title:"STCs",             desc:"Price, deeming periods & trading partners", render:pageSTCs, source:"Settings › STCs" },
-  import:       { title:"Import",           desc:"CSV import & supplier invoice email import", render:pageImport, source:"Settings › Import" },
-  communication:{ title:"Communication",    desc:"Follow ups, notifications, confirmations & reminders", render:pageCommunicationSettings, source:"Settings › Communication" },
-  forms:        { title:"Forms",            desc:"Retailer forms & document mapping",          render:pageFormsSettings, source:"Settings › Forms" },
-  "payments-settings":  { title:"Payments", desc:"Payment Methods & Payment Terms lists",       render:pagePaymentsSettings, after:afterPaymentsSettings, source:"Settings › Invoices › Payments" },
-  "sms-templates":      { title:"SMS Templates",      desc:"Create and manage SMS templates",     render:pageSmsTemplates, source:"Templates › SMS" },
-  "email-templates":    { title:"Email Templates",    desc:"Create templates & assign files",     render:pageEmailTemplates, source:"Templates › Email" },
-  "document-templates": { title:"Document Templates", desc:"Proposal, contract & compliance docs", render:pageDocumentTemplates, source:"Templates › Document" },
-  "finance-providers":  { title:"Finance Providers",  desc:"Customer finance options & franchisee fees", render:pageFinanceProviders, source:"Accounting › Finance Management" },
-  "org-details": { title:"Organisation Details", desc:"Legal entity, contact & address",          render:pageOrgDetails, after:afterOrgDetails, source:"Organisation › Details" },
-  "org-branding":{ title:"Branding",             desc:"Company logo",                             render:pageOrgBranding, source:"Organisation › Branding" },
-  "org-licenses":{ title:"Invoicing, Licenses & Records", desc:"Bank details, licenses & compliance records", render:pageOrgLicenses, source:"Organisation › Invoicing & Licenses" },
-  territory:     { title:"Territory Management", desc:"Postcode-based service territories",        render:pageTerritory, source:"Franchisee › Territory" },
-  "franchisee-directory": { title:"Franchisee Directory & Setup", desc:"Search, types & add a franchisee", render:pageFranchiseeDirectory, source:"Franchisee › Franchisee Management" },
-  "customer-portal": { title:"Customer Portal", desc:"Permissions & login for the customer-facing portal", render:pageCustomerPortal, source:"Portal › Customer Portal" },
+  stcs:         { title:"STCs",             desc:"Price, deeming periods & trading partners", render:pageSTCs, source:"DATA & UTILITIES › STCs" },
+  import:       { title:"Import",           desc:"CSV import & supplier invoice email import", render:pageImport, source:"DATA & UTILITIES › Import" },
+  communication:{ title:"Communication",    desc:"Follow ups, notifications, confirmations & reminders", render:pageCommunicationSettings, source:"CUSTOMER-FACING › Communication" },
+  forms:        { title:"Forms",            desc:"Retailer forms & document mapping",          render:pageFormsSettings, source:"CUSTOMER-FACING › Forms" },
+  "payments-settings":  { title:"Payments", desc:"Payment Methods & Payment Terms lists",       render:pagePaymentsSettings, after:afterPaymentsSettings, source:"FINANCE › Payments" },
+  "sms-templates":      { title:"SMS Templates",      desc:"Create and manage SMS templates",     render:pageSmsTemplates, source:"TEMPLATES › SMS" },
+  "email-templates":    { title:"Email Templates",    desc:"Create templates & assign files",     render:pageEmailTemplates, source:"TEMPLATES › Email" },
+  "document-templates": { title:"Document Templates", desc:"Proposal, contract & compliance docs", render:pageDocumentTemplates, source:"TEMPLATES › Document" },
+  "finance-providers":  { title:"Finance Providers",  desc:"Customer finance options & franchisee fees", render:pageFinanceProviders, source:"FINANCE › Finance Providers" },
+  "org-details": { title:"Organisation", desc:"Legal entity, contact & address",          render:pageOrgDetails, after:afterOrgDetails, source:"GENERAL › Organisation" },
+  "org-branding":{ title:"Branding",             desc:"Company logo",                             render:pageOrgBranding, source:"CUSTOMER-FACING › Branding" },
+  "org-licenses":{ title:"Invoicing, Licenses & Records", desc:"Bank details, licenses & compliance records", render:pageOrgLicenses, source:"FRANCHISE & COMPLIANCE › Invoicing, Licenses & Records" },
+  territory:     { title:"Territory Management", desc:"Postcode-based service territories",        render:pageTerritory, source:"FRANCHISE & COMPLIANCE › Territory Management" },
+  "franchisee-directory": { title:"Franchisee Directory & Setup", desc:"Search, types & add a franchisee", render:pageFranchiseeDirectory, source:"FRANCHISE & COMPLIANCE › Franchisee Directory & Setup" },
+  "customer-portal": { title:"Customer Portal", desc:"Permissions & login for the customer-facing portal", render:pageCustomerPortal, source:"CUSTOMER-FACING › Customer Portal" },
+  "preferences-general": { title:"Preferences", desc:"Marketing, tasks, schedule, auto-numbering & catalog", render:pagePreferencesGeneral, after:afterPreferencesGeneral, source:"GENERAL › Preferences" },
+  "preferences-finance": { title:"Preferences", desc:"Payments, invoice, commissions & accounting defaults", render:pagePreferencesFinance, after:afterPreferencesFinance, source:"FINANCE › Preferences" },
+  "leads-combined": { title:"Leads", desc:"Workflow, assignment & status behaviour", render:pageLeadsCombined, after:afterLeadsCombined, source:"CUSTOMER LIFECYCLE › Leads" },
+  "milestones-general": { title:"Milestones", desc:"Milestone types per Job Type", render:pageMilestonesGeneral, source:"GENERAL › Milestones" },
+  "lineitems-general": { title:"Line Items", desc:"Manual entry, Catalog & Template defaults", render:pageLineItemsGeneral, source:"GENERAL › Line Items" },
 };
 
 let currentId = "general";
@@ -1958,6 +2091,51 @@ function navigateTo(id){
   const item = findNavItem(id);
   if(item) expandedGroups.add(item.group);
   render();
+}
+
+/* ---- Auto-tabify: any page with more than 2 top-level .panel sections
+   automatically gets a tab bar, one tab per section (section title = tab label).
+   Runs on the rendered HTML of every page, so it applies everywhere without
+   having to hand-edit each page function. ---- */
+function autoTabifyHTML(html){
+  const holder = document.createElement('div');
+  holder.innerHTML = html;
+  const children = Array.from(holder.children);
+  const groups = [];
+  let pending = [];
+  children.forEach(node=>{
+    if(node.classList && node.classList.contains('panel')){
+      const h3 = node.querySelector('.panel-head h3');
+      const label = h3 ? h3.textContent.replace(/^\+\s*/, '') : ('Section ' + (groups.length + 1));
+      groups.push({ label, nodes: pending.concat([node]) });
+      pending = [];
+    } else {
+      pending.push(node);
+    }
+  });
+  if(pending.length){
+    if(groups.length) groups[groups.length - 1].nodes.push(...pending);
+    else return html;
+  }
+  if(groups.length <= 2) return html;
+  const bar = `<div class="pagetabs">` + groups.map((g,i)=>
+    `<button class="${i===0?'active':''}" data-pagetab="${i}">${g.label}</button>`).join('') + `</div>`;
+  const panels = groups.map((g,i)=>{
+    const wrap = document.createElement('div');
+    g.nodes.forEach(n=>wrap.appendChild(n));
+    return `<div class="tabpanel ${i===0?'active':''}" data-tabpanel="${i}">${wrap.innerHTML}</div>`;
+  }).join('');
+  return bar + panels;
+}
+function wireGenericTabs(){
+  document.querySelectorAll('[data-pagetab]:not([data-wired])').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('[data-pagetab]').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('[data-tabpanel]').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`[data-tabpanel="${btn.dataset.pagetab}"]`).classList.add('active');
+    });
+  });
 }
 
 function render(){
@@ -1971,8 +2149,9 @@ function render(){
 
   const content = document.getElementById('content');
   if(built){
-    content.innerHTML = built.render();
+    content.innerHTML = autoTabifyHTML(built.render());
     if(built.after) built.after();
+    wireGenericTabs();
   } else if(item){
     content.innerHTML = pagePlaceholder(item);
   } else {
