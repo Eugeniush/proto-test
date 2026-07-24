@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>021 — System Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-page:#FBF1E9;
+    --bg-panel:#FFFFFF;
+    --border-soft:#EEDFD2;
+    --border-grid:#E6DFD7;
+    --text-primary:#3A332E;
+    --text-muted:#A79C90;
+    --text-faint:#CBBFB2;
+    --accent-dark:#4A362B;
+    --accent-orange:#E08A4C;
+    --icon-gray:#B9AFA3;
+    --row-tint:#FBEFE5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg-page);
+    color:var(--text-primary);
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* ===== TOP BAR ===== */
+  .topbar{
+    height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    background:var(--bg-page);
+  }
+  .topbar-left{display:flex;align-items:center;gap:18px;}
+  .hamburger{display:flex;flex-direction:column;gap:4px;cursor:pointer;padding:6px;}
+  .hamburger span{width:18px;height:2px;background:var(--text-primary);display:block;border-radius:1px;}
+  .logo{display:flex;align-items:center;gap:8px;cursor:default;}
+  .logo-mark{width:22px;height:22px;border-radius:50%;border:2px solid var(--text-primary);position:relative;flex:0 0 auto;}
+  .logo-mark::after{content:"";position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:var(--text-primary);transform:translate(-50%,-50%);}
+  .logo-text{font-weight:700;font-size:19px;letter-spacing:1px;}
+  .topbar-right{display:flex;align-items:center;gap:20px;}
+  .help-circle{
+    width:26px;height:26px;border-radius:50%;border:1.5px solid var(--text-muted);
+    display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);
+    cursor:pointer;font-family:'JetBrains Mono',monospace;
+  }
+  .user-chip{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;}
+  .user-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-dark);}
+  .user-name{font-size:14px;font-weight:500;}
+  .chev-sm{width:9px;height:9px;border-right:1.5px solid var(--text-muted);border-bottom:1.5px solid var(--text-muted);transform:rotate(45deg);margin-top:-3px;}
+
+  /* ===== APP BODY ===== */
+  .app{display:flex;height:calc(100% - 64px);}
+
+  /* left icon rail */
+  .rail{
+    width:76px;
+    display:flex;flex-direction:column;align-items:center;
+    padding-top:8px;gap:10px;flex:0 0 auto;
+  }
+  .rail-btn{
+    width:52px;height:52px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:var(--text-muted);
+    border:1px solid transparent;
+    transition:background .15s,color .15s;
+  }
+  .rail-btn svg{width:22px;height:22px;}
+  .rail-btn:hover{background:#F3E4D8;}
+  .rail-btn.active{background:var(--bg-panel);color:var(--accent-dark);border-color:var(--border-soft);box-shadow:0 1px 2px rgba(0,0,0,.04);}
+
+  /* sidebar panel */
+  .sidebar{
+    width:284px;flex:0 0 auto;
+    background:var(--bg-panel);
+    border-radius:18px;
+    margin:0 0 14px 0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    border:1px solid var(--border-soft);
+  }
+  .search-wrap{padding:16px 16px 8px;}
+  .search-box{
+    display:flex;align-items:center;gap:8px;
+    background:var(--bg-page);border-radius:10px;padding:9px 12px;
+    color:var(--text-muted);
+  }
+  .search-box svg{width:15px;height:15px;flex:0 0 auto;}
+  .search-box input{
+    border:none;background:transparent;outline:none;font-size:13.5px;
+    font-family:'Inter',sans-serif;color:var(--text-primary);width:100%;
+  }
+  .search-box input::placeholder{color:var(--text-faint);}
+
+  .sidebar-scroll{overflow-y:auto;padding:4px 16px 16px;flex:1;}
+  .sidebar-scroll::-webkit-scrollbar{width:6px;}
+  .sidebar-scroll::-webkit-scrollbar-thumb{background:var(--border-soft);border-radius:3px;}
+
+  .section-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 4px;cursor:pointer;user-select:none;
+  }
+  .section-header .label{font-weight:600;font-size:14.5px;}
+  .section-header .chev{
+    width:8px;height:8px;border-right:1.5px solid var(--text-muted);border-bottom:1.5px solid var(--text-muted);
+    transform:rotate(45deg);transition:transform .15s;flex:0 0 auto;
+  }
+  .section-header.collapsed .chev{transform:rotate(-45deg);}
+  .section-body.collapsed{display:none;}
+
+  .block-label{font-weight:600;font-size:13.5px;padding:6px 4px 2px;}
+  .cat-label{font-style:italic;font-size:11.5px;color:var(--text-faint);padding:8px 10px 4px;text-align:right;}
+  .cat-label:first-child{padding-top:2px;}
+
+  .item-card{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 10px;margin:3px 0;
+    border:1px solid var(--border-soft);border-radius:10px;
+    background:var(--bg-panel);
+    font-size:13.5px;font-weight:500;
+    cursor:grab;
+    transition:box-shadow .15s,border-color .15s;
+  }
+  .item-card:hover{border-color:var(--accent-orange);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+  .item-card:active{cursor:grabbing;}
+  .item-card.dragging{opacity:.4;}
+  .item-card svg{width:19px;height:19px;flex:0 0 auto;}
+  .divider{height:1px;background:var(--border-soft);margin:12px 0 6px;}
+
+  /* drag ghost (icon only, no label) */
+  .drag-ghost{
+    position:fixed;top:-200px;left:-200px;width:30px;height:30px;
+    display:flex;align-items:center;justify-content:center;pointer-events:none;
+  }
+  .drag-ghost svg{width:24px;height:24px;}
+
+  /* ===== MAIN ===== */
+  .main{
+    flex:1;min-width:0;
+    background:var(--bg-panel);
+    border-radius:18px;
+    margin:0 14px 14px 0;
+    border:1px solid var(--border-soft);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  .main-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 22px 14px;
+  }
+  .main-head-left{display:flex;align-items:center;gap:14px;}
+  .back-btn{
+    width:34px;height:34px;border-radius:9px;border:1px solid var(--border-soft);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-primary);
+  }
+  .back-btn svg{width:16px;height:16px;}
+  .page-title{font-size:21px;font-weight:700;letter-spacing:.5px;}
+
+  .toolbar{display:flex;align-items:center;gap:8px;}
+  .tool-grp{display:flex;align-items:center;gap:4px;}
+  .tool-sep{width:1px;height:22px;background:var(--border-soft);margin:0 4px;}
+  .tool-btn{
+    width:34px;height:34px;border-radius:9px;border:1px solid transparent;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);
+  }
+  .tool-btn svg{width:16px;height:16px;}
+  .tool-btn:hover{background:#F3E4D8;}
+  .tool-btn.selected{background:var(--bg-panel);border-color:var(--border-soft);color:var(--text-primary);}
+  .tool-btn.active-dark{background:var(--accent-dark);color:#fff;}
+  .tool-11{
+    width:auto;padding:0 10px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-muted);
+    height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;cursor:pointer;
+  }
+  .tool-11:hover{background:#F3E4D8;}
+
+  .sub-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 22px 14px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-muted);
+  }
+  .sub-head .right{display:flex;align-items:center;gap:14px;}
+  .sub-head a{color:var(--text-primary);text-decoration:underline;cursor:pointer;}
+  .reset-btn{
+    display:flex;align-items:center;gap:6px;
+    padding:5px 10px;border-radius:8px;border:1px solid var(--border-soft);
+    color:var(--text-primary);cursor:pointer;background:var(--bg-panel);
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+  }
+  .reset-btn svg{width:13px;height:13px;}
+  .reset-btn:hover{background:#F3E4D8;border-color:var(--accent-orange);color:var(--accent-orange);}
+
+  /* grid */
+  .grid-scroll{
+    flex:1;overflow:auto;position:relative;
+    border-top:1px solid var(--border-grid);
+  }
+  table.gridtbl{border-collapse:collapse;table-layout:fixed;}
+  table.gridtbl th, table.gridtbl td{
+    border:1px solid var(--border-grid);
+    padding:0;height:36px;
+    text-align:center;
+    overflow:hidden;
+  }
+  thead th{
+    background:var(--bg-panel);position:sticky;top:0;z-index:5;
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-muted);font-weight:500;
+    white-space:nowrap;text-overflow:ellipsis;overflow:hidden;padding:0 2px;
+  }
+  thead tr:nth-child(2) th{
+    top:36px;font-weight:600;color:var(--text-primary);background:#FDFAF7;z-index:4;
+  }
+
+  td.rownum, th.corner{
+    background:var(--bg-panel);color:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:11px;
+    position:sticky;left:0;z-index:2;
+  }
+  th.corner{position:sticky;left:0;top:0;z-index:6;}
+  th.corner2{position:sticky;left:0;top:36px;z-index:6;background:#FDFAF7;}
+
+  td.cell.billpayL, th.billpayL-h1, th.billpayL-h2{position:sticky;left:36px;z-index:2;background:var(--bg-panel);}
+  th.billpayL-h1{top:0;z-index:6;}
+  th.billpayL-h2{top:36px;z-index:6;background:#FDFAF7;}
+
+  th.colP-h1, th.colP-h2{position:sticky;left:72px;z-index:6;}
+  th.colP-h2{top:36px;background:#FDFAF7;}
+  td.cell.colP{position:sticky;left:72px;z-index:2;background:var(--bg-panel);}
+
+  td.cell{background:var(--bg-panel);position:relative;cursor:pointer;}
+  td.cell.prc{background:var(--row-tint);}
+  td.cell.billpayL, td.cell.billpayR{overflow:visible;}
+  td.cell.billpay-mid{z-index:3;}
+
+  .col-drag-over{background:#FCEBDD !important;}
+
+  /* while dragging a co-operator icon: mute + disable columns that cannot accept it,
+     and give the two droppable columns a persistent light highlight */
+  table.gridtbl.dragging-active [data-col]:not([data-col="P"]):not([data-col="billpayL"]):not([data-col="billpayR"]){
+    opacity:.32;
+  }
+  table.gridtbl.dragging-active [data-col="P"],
+  table.gridtbl.dragging-active [data-col="billpayL"],
+  table.gridtbl.dragging-active [data-col="billpayR"]{
+    background:#FDF4EC !important;
+    box-shadow:inset 0 0 0 1px var(--accent-orange);
+  }
+
+  /* placed icon (no label, no delete button — select + keyboard delete instead) */
+  td.cell .filled{
+    display:flex;align-items:center;justify-content:center;height:100%;width:100%;
+  }
+  td.cell .filled svg{width:17px;height:17px;}
+  td.cell.default-icon svg{color:var(--icon-gray);}
+
+  td.cell.placed{cursor:pointer;}
+  td.cell.placed .filled{border-radius:4px;transition:box-shadow .1s;}
+  td.cell.placed.selected .filled{box-shadow:inset 0 0 0 2px var(--accent-orange);}
+
+  .billpay-watermark{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    pointer-events:none;
+    display:flex;flex-direction:column;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .billpay-watermark svg{width:15px;height:15px;color:var(--icon-gray);}
+  .billpay-watermark .vlabel{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);
+    letter-spacing:1px;
+  }
+
+  /* bottom tabs */
+  .tabs{
+    display:flex;align-items:center;gap:6px;padding:10px 22px;border-top:1px solid var(--border-grid);
+  }
+  .tab{
+    display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;
+    font-size:13px;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--text-muted);
+  }
+  .tab.active{background:var(--bg-page);color:var(--text-primary);font-weight:600;}
+  .tab .chev{width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);}
+  .add-tab{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);}
+  .add-tab:hover{background:var(--bg-page);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="hamburger"><span></span><span></span><span></span></div>
+    <div class="logo"><div class="logo-mark"></div><div class="logo-text mono">021</div></div>
+  </div>
+  <div class="topbar-right">
+    <div class="help-circle mono">?</div>
+    <div class="user-chip">
+      <div class="user-avatar"></div>
+      <div class="user-name">Dave Boctor</div>
+      <div class="chev-sm"></div>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <!-- RAIL -->
+  <div class="rail" id="rail">
+    <div class="rail-btn active" data-rail="shapes" title="Co-Operators">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="3.2"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><path d="M6 17.5l1.5-3 1.5 3-1.5 2.5z"/><circle cx="17" cy="17" r="3"/></svg>
+    </div>
+    <div class="rail-btn" data-rail="chart" title="Analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 15v-3M12 15V9M16 15v-5"/></svg>
+    </div>
+    <div class="rail-btn" data-rail="network" title="System Diagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="5" r="2.2"/><circle cx="6" cy="17" r="2.2"/><circle cx="18" cy="17" r="2.2"/><path d="M12 7.2v3.5M10.5 12.5l-3 3M13.5 12.5l3 3"/></svg>
+    </div>
+    <div class="rail-btn" data-rail="notes" title="Notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3V2h6v1M9 9h6M9 13h6M9 17h3"/></svg>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.5-4.5"/></svg>
+        <input id="searchInput" type="text" placeholder="Search">
+      </div>
+    </div>
+
+    <div class="sidebar-scroll">
+      <div class="section-header" data-toggle="sec-coop">
+        <div class="label">Co-Operators</div>
+        <div class="chev"></div>
+      </div>
+      <div class="section-body" id="sec-coop">
+
+        <div class="block-label">Blank</div>
+        <div class="cat-label">Natural</div>
+        <div class="item-card" draggable="true" data-type="human" data-color="gray">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7"/></svg>
+          Human
+        </div>
+        <div class="cat-label">Legal</div>
+        <div class="item-card" draggable="true" data-type="vendor" data-color="gray">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="18" height="11" rx="1.6"/><path d="M8.5 8V6a1.6 1.6 0 0 1 1.6-1.6h3.8A1.6 1.6 0 0 1 15.5 6v2"/><path d="M3 13h18"/></svg>
+          Vendor
+        </div>
+        <div class="item-card" draggable="true" data-type="system" data-color="gray">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3.5" width="10" height="17" rx="1"/><rect x="14" y="9" width="6" height="11.5" rx="1"/><path d="M7 7h1.2M11 7h1.2M7 10.5h1.2M11 10.5h1.2M7 14h1.2M11 14h1.2M16.5 12.5h1.2M16.5 16h1.2"/></svg>
+          System
+        </div>
+        <div class="cat-label">Artificial</div>
+        <div class="item-card" draggable="true" data-type="agent" data-color="gray">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="6.5" r="2.7"/><circle cx="6.5" cy="16" r="2.7"/><circle cx="17.5" cy="16" r="2.7"/></svg>
+          Agent
+        </div>
+        <div class="item-card" draggable="true" data-type="android" data-color="gray">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4.5" y="8" width="15" height="11" rx="2.5"/><circle cx="9" cy="13.2" r="1"/><circle cx="15" cy="13.2" r="1"/><path d="M12 8V5.2M10.3 4.3l1.7.9 1.7-.9"/></svg>
+          Android
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-header" data-toggle="sec-saved">
+          <div class="label">Saved</div>
+          <div class="chev"></div>
+        </div>
+        <div class="section-body" id="sec-saved">
+          <div class="cat-label">Natural</div>
+          <div class="item-card" draggable="true" data-type="human" data-color="orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7"/></svg>Copywriter</div>
+          <div class="item-card" draggable="true" data-type="human" data-color="orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7"/></svg>Director</div>
+          <div class="item-card" draggable="true" data-type="human" data-color="orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7"/></svg>Editor</div>
+          <div class="item-card" draggable="true" data-type="human" data-color="orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7"/></svg>Sound Engineer</div>
+          <div class="item-card" draggable="true" data-type="human" data-color="orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7"/></svg>CEO</div>
+          <div class="item-card" draggable="true" data-type="human" data-color="orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7"/></svg>CMO</div>
+          <div class="cat-label">Legal</div>
+          <div class="item-card" draggable="true" data-type="system" data-color="orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3.5" width="10" height="17" rx="1"/><rect x="14" y="9" width="6" height="11.5" rx="1"/><path d="M7 7h1.2M11 7h1.2M7 10.5h1.2M11 10.5h1.2M7 14h1.2M11 14h1.2M16.5 12.5h1.2M16.5 16h1.2"/></svg>Inventory Funding</div>
+          <div class="cat-label">Artificial</div>
+          <div class="item-card" draggable="true" data-type="agent" data-color="orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="6.5" r="2.7"/><circle cx="6.5" cy="16" r="2.7"/><circle cx="17.5" cy="16" r="2.7"/></svg>Agent</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-header collapsed" data-toggle="sec-activities"><div class="label">Activities</div><div class="chev"></div></div>
+      <div class="section-body collapsed" id="sec-activities"></div>
+      <div class="section-header collapsed" data-toggle="sec-agreements"><div class="label">Agreements</div><div class="chev"></div></div>
+      <div class="section-body collapsed" id="sec-agreements"></div>
+      <div class="section-header collapsed" data-toggle="sec-event"><div class="label">Event</div><div class="chev"></div></div>
+      <div class="section-body collapsed" id="sec-event"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="main-head">
+      <div class="main-head-left">
+        <div class="back-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg></div>
+        <div class="page-title mono">System Diagram</div>
+      </div>
+      <div class="toolbar">
+        <div class="tool-grp">
+          <div class="tool-btn selected" id="btnSelect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3l14 6-6 2-2 6-6-14z"/></svg></div>
+          <div class="tool-btn" id="btnPan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1V4a1.5 1.5 0 1 1 3 0v7m0-2a1.5 1.5 0 1 1 3 0v4m-9-2v6a5 5 0 0 0 5 5h1a5 5 0 0 0 5-5v-3"/></svg></div>
+        </div>
+        <div class="tool-sep"></div>
+        <div class="tool-grp">
+          <div class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 14L4 9l5-5M4 9h10a5 5 0 0 1 0 10h-1"/></svg></div>
+          <div class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 14l5-5-5-5M20 9H10a5 5 0 0 0 0 10h1"/></svg></div>
+        </div>
+        <div class="tool-sep"></div>
+        <div class="tool-grp">
+          <div class="tool-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4H5a1 1 0 0 0-1 1v4M15 4h4a1 1 0 0 1 1 1v4M9 20H5a1 1 0 0 1-1-1v-4M15 20h4a1 1 0 0 0 1-1v-4"/></svg></div>
+          <div class="tool-11" id="btnReset">1:1</div>
+        </div>
+        <div class="tool-sep"></div>
+        <div class="tool-grp">
+          <div class="tool-btn" id="btnZoomOut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.3-4.3M8 10.5h5"/></svg></div>
+          <div class="tool-btn" id="btnZoomIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.3-4.3M10.5 8v5M8 10.5h5"/></svg></div>
+        </div>
+        <div class="tool-sep"></div>
+        <div class="tool-grp">
+          <div class="tool-btn active-dark" id="btnRuler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="8" width="18" height="8" rx="1.5"/><path d="M6 8v3M9.5 8v2M13 8v3M16.5 8v2"/></svg></div>
+          <div class="tool-btn active-dark" id="btnPerson"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="6" r="2.6"/><path d="M7 20c0-3.8 2.2-6 5-6s5 2.2 5 6"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-head">
+      <div>Business Unit - Bill Pay</div>
+      <div class="right">
+        <div>Strategy 1A - Borrowers United</div>
+        <a id="showDetails">Show Details</a>
+        <div class="reset-btn" id="resetGrid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4v5h5"/><path d="M4.6 15a8 8 0 1 0 1.7-8.4L4 9"/></svg>
+          Reset Grid
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-scroll" id="gridScroll">
+      <table class="gridtbl" id="gridTable"></table>
+    </div>
+
+    <div class="tabs">
+      <div class="add-tab">+</div>
+      <div class="add-tab"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+      <div class="tab active" data-tab="value"><div class="chev"></div>Value Chain</div>
+      <div class="tab" data-tab="reward"><div class="chev"></div>Reward Chain</div>
+      <div class="tab" data-tab="sailing"><div class="chev"></div>Sailing Chain</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- ICONS ---------- */
+const ICONS = {
+  human:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7.5" r="3.5"/><path d="M4.5 20c0-4.4 3.4-7 7.5-7s7.5 2.6 7.5 7"/></svg>`,
+  vendor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="8" width="18" height="11" rx="1.6"/><path d="M8.5 8V6a1.6 1.6 0 0 1 1.6-1.6h3.8A1.6 1.6 0 0 1 15.5 6v2"/><path d="M3 13h18"/></svg>`,
+  system: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3.5" width="10" height="17" rx="1"/><rect x="14" y="9" width="6" height="11.5" rx="1"/><path d="M7 7h1.2M11 7h1.2M7 10.5h1.2M11 10.5h1.2M7 14h1.2M11 14h1.2M16.5 12.5h1.2M16.5 16h1.2"/></svg>`,
+  agent:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="6.5" r="2.7"/><circle cx="6.5" cy="16" r="2.7"/><circle cx="17.5" cy="16" r="2.7"/></svg>`,
+  android:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4.5" y="8" width="15" height="11" rx="2.5"/><circle cx="9" cy="13.2" r="1"/><circle cx="15" cy="13.2" r="1"/><path d="M12 8V5.2M10.3 4.3l1.7.9 1.7-.9"/></svg>`
+};
+const COLORS = { gray: 'var(--icon-gray)', orange: 'var(--accent-orange)' };
+
+/* ---------- BUILD GRID ---------- */
+const midLetters = (()=>{ const arr=[]; for(let c='D'.charCodeAt(0); c<='W'.charCodeAt(0); c++) arr.push(String.fromCharCode(c)); return arr; })();
+
+const CELL = 36;
+const columns = [
+  {id:'rownum',   letter:'', group:'', width:CELL, special:'rownum'},
+  {id:'billpayL', letter:'', group:'', width:CELL, billpay:true},
+  {id:'P',        letter:'', group:'P', width:CELL, special:'avatarcol'},
+  {id:'A',        letter:'A', group:'FAGR', width:CELL},
+  {id:'B',        letter:'B', group:'S', width:CELL},
+  {id:'C',        letter:'C', group:'FTRN', width:CELL},
+  ...midLetters.map((l,i)=>({id:l, letter:l, group: i===0?'PRC':null, width:CELL, merge: i===0?midLetters.length:0, prc:true})),
+  {id:'X',  letter:'X', group:'PTRN', width:CELL},
+  {id:'Y',  letter:'Y', group:'E', width:CELL},
+  {id:'Z',  letter:'Z', group:'PAGR', width:CELL},
+  {id:'AA', letter:'AA', group:'B', width:CELL},
+  {id:'AB', letter:'AB', group:'', width:CELL},
+  {id:'billpayR', letter:'', group:'', width:CELL, billpay:true},
+];
+
+const table = document.getElementById('gridTable');
+const ROWS = 20;
+const WATERMARK_ROW = 10;
+let html = '<colgroup>' + columns.map(c=>`<col style="width:${c.width}px">`).join('') + '</colgroup>';
+
+/* thead row 1 (letters) */
+html += '<thead><tr>';
+columns.forEach(c=>{
+  let cls = '';
+  if(c.special==='rownum') cls='corner';
+  else if(c.id==='billpayL') cls='billpayL-h1';
+  else if(c.special==='avatarcol') cls='colP-h1';
+  html += `<th class="${cls}" data-col="${c.id}">${c.letter}</th>`;
+});
+html += '</tr>';
+
+/* thead row 2 (group labels, with merge) */
+html += '<tr>';
+columns.forEach(c=>{
+  if(c.group===null) return;
+  const span = c.merge ? c.merge : 1;
+  let cls = '';
+  if(c.special==='rownum') cls='corner2';
+  else if(c.id==='billpayL') cls='billpayL-h2';
+  else if(c.special==='avatarcol') cls='colP-h2';
+  html += `<th class="${cls}" data-col="${c.id}" colspan="${span}">${c.group||''}</th>`;
+});
+html += '</tr></thead>';
+
+/* tbody */
+html += '<tbody>';
+for(let r=1; r<=ROWS; r++){
+  html += '<tr>';
+  columns.forEach(c=>{
+    if(c.special==='rownum'){
+      html += `<td class="rownum mono" data-row="${r}" data-col="rownum">${r}</td>`;
+    } else if(c.special==='avatarcol'){
+      html += `<td class="cell colP default-icon" data-row="${r}" data-col="${c.id}"><div class="filled" data-default="1">${ICONS.human}</div></td>`;
+    } else {
+      const extraCls = c.billpay ? (' '+c.id + (r===WATERMARK_ROW?' billpay-mid':'')) : (c.prc ? ' prc' : '');
+      let inner = '';
+      if(c.billpay && r===WATERMARK_ROW){
+        inner = `<div class="billpay-watermark">${c.id==='billpayR'?ICONS.human:''}<span class="vlabel">Bill Pay</span></div>`;
+      }
+      let styleAttr = '';
+      if(c.billpay){
+        let b = '';
+        if(r>1) b += 'border-top:none;';
+        if(r<ROWS) b += 'border-bottom:none;';
+        if(b) styleAttr = ` style="${b}"`;
+      }
+      html += `<td class="cell${extraCls}" data-row="${r}" data-col="${c.id}"${styleAttr}>${inner}</td>`;
+    }
+  });
+  html += '</tr>';
+}
+html += '</tbody>';
+table.innerHTML = html;
+
+/* ---------- DRAG GHOST (icon only) ---------- */
+const dragGhost = document.createElement('div');
+dragGhost.className = 'drag-ghost';
+document.body.appendChild(dragGhost);
+
+let dragPayload = null;
+
+document.querySelectorAll('.item-card').forEach(card=>{
+  card.addEventListener('dragstart', e=>{
+    const type = card.dataset.type;
+    const color = card.dataset.color;
+    dragPayload = { type, color };
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', JSON.stringify(dragPayload));
+
+    dragGhost.style.color = COLORS[color] || COLORS.gray;
+    dragGhost.innerHTML = ICONS[type];
+    e.dataTransfer.setDragImage(dragGhost, 15, 15);
+
+    table.classList.add('dragging-active');
+  });
+  card.addEventListener('dragend', ()=>{
+    card.classList.remove('dragging');
+    table.classList.remove('dragging-active');
+    clearColHighlight();
+  });
+});
+
+function setCellContent(cell, payload){
+  cell.classList.remove('default-icon');
+  cell.classList.add('placed');
+  const colorVar = COLORS[payload.color] || COLORS.gray;
+  cell.innerHTML = `<div class="filled" style="color:${colorVar}">${ICONS[payload.type]}</div>`;
+}
+
+function clearCell(cell){
+  cell.classList.remove('placed','selected');
+  if(cell.classList.contains('colP')){
+    cell.classList.add('default-icon');
+    cell.innerHTML = `<div class="filled" data-default="1" style="color:var(--icon-gray)">${ICONS.human}</div>`;
+  } else if(cell.classList.contains('billpayL') || cell.classList.contains('billpayR')){
+    const r = +cell.dataset.row;
+    cell.innerHTML = (r===WATERMARK_ROW)
+      ? `<div class="billpay-watermark">${cell.classList.contains('billpayR')?ICONS.human:''}<span class="vlabel">Bill Pay</span></div>`
+      : '';
+  } else {
+    cell.innerHTML = '';
+  }
+}
+
+const ALLOWED_DROP_COLS = ['P','billpayL','billpayR'];
+const colIndexMap = {};
+columns.forEach((c,i)=>{ colIndexMap[c.id] = i; });
+function nearestAllowedCol(colId){
+  if(ALLOWED_DROP_COLS.includes(colId)) return colId;
+  const idx = colIndexMap[colId];
+  let best = ALLOWED_DROP_COLS[0], bestDist = Infinity;
+  ALLOWED_DROP_COLS.forEach(a=>{
+    const d = Math.abs(colIndexMap[a]-idx);
+    if(d < bestDist){ bestDist = d; best = a; }
+  });
+  return best;
+}
+
+let highlightedCol = null;
+function setColHighlight(colId){
+  if(highlightedCol === colId) return;
+  clearColHighlight();
+  table.querySelectorAll(`[data-col="${colId}"]`).forEach(el=>el.classList.add('col-drag-over'));
+  highlightedCol = colId;
+}
+function clearColHighlight(){
+  if(highlightedCol){
+    table.querySelectorAll(`[data-col="${highlightedCol}"]`).forEach(el=>el.classList.remove('col-drag-over'));
+    highlightedCol = null;
+  }
+}
+
+table.addEventListener('dragover', e=>{
+  const cell = e.target.closest('[data-col]');
+  if(!cell){ clearColHighlight(); return; }
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  setColHighlight(nearestAllowedCol(cell.dataset.col));
+});
+table.addEventListener('dragleave', e=>{
+  if(!table.contains(e.relatedTarget)) clearColHighlight();
+});
+table.addEventListener('drop', e=>{
+  const cell = e.target.closest('[data-col]');
+  clearColHighlight();
+  if(!cell) return;
+  e.preventDefault();
+  const row = cell.dataset.row;
+  if(!row) return; // dropped on a header cell — no row to place into
+  const targetColId = nearestAllowedCol(cell.dataset.col);
+  const targetCell = table.querySelector(`td.cell[data-row="${row}"][data-col="${targetColId}"]`);
+  if(!targetCell) return;
+  let payload = dragPayload;
+  try{
+    const raw = e.dataTransfer.getData('text/plain');
+    if(raw) payload = JSON.parse(raw);
+  }catch(err){}
+  if(payload) setCellContent(targetCell, payload);
+  dragPayload = null;
+});
+
+/* ---------- SELECT PLACED ICON + KEYBOARD DELETE ---------- */
+function deselectAll(){
+  document.querySelectorAll('td.cell.selected').forEach(td=>td.classList.remove('selected'));
+}
+table.addEventListener('click', e=>{
+  const placed = e.target.closest('td.cell.placed');
+  if(placed){
+    const already = placed.classList.contains('selected');
+    deselectAll();
+    if(!already) placed.classList.add('selected');
+  } else {
+    deselectAll();
+  }
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#gridTable')) deselectAll();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Delete' || e.key==='Backspace'){
+    const sel = document.querySelector('td.cell.selected');
+    if(sel){
+      e.preventDefault();
+      clearCell(sel);
+    }
+  }
+});
+
+/* ---------- RESET GRID ---------- */
+document.getElementById('resetGrid').addEventListener('click', ()=>{
+  deselectAll();
+  table.querySelectorAll('td.cell.placed').forEach(cell=> clearCell(cell));
+});
+document.querySelectorAll('.section-header[data-toggle]').forEach(h=>{
+  h.addEventListener('click', ()=>{
+    const body = document.getElementById(h.dataset.toggle);
+    const collapsed = h.classList.toggle('collapsed');
+    body.classList.toggle('collapsed', collapsed);
+  });
+});
+
+/* ---------- SEARCH FILTER ---------- */
+document.getElementById('searchInput').addEventListener('input', e=>{
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.item-card').forEach(card=>{
+    const match = card.textContent.trim().toLowerCase().includes(q);
+    card.style.display = match ? '' : 'none';
+  });
+  document.querySelectorAll('.cat-label').forEach(lab=>{
+    let el = lab.nextElementSibling;
+    let anyVisible = false;
+    while(el && el.classList && el.classList.contains('item-card')){
+      if(el.style.display !== 'none') anyVisible = true;
+      el = el.nextElementSibling;
+    }
+    lab.style.display = (anyVisible || !q) ? '' : 'none';
+  });
+});
+
+/* ---------- RAIL ACTIVE STATE ---------- */
+document.querySelectorAll('.rail-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.rail-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+/* ---------- SELECT / PAN TOGGLE ---------- */
+const btnSelect = document.getElementById('btnSelect');
+const btnPan = document.getElementById('btnPan');
+btnSelect.addEventListener('click', ()=>{ btnSelect.classList.add('selected'); btnPan.classList.remove('selected'); });
+btnPan.addEventListener('click', ()=>{ btnPan.classList.add('selected'); btnSelect.classList.remove('selected'); });
+
+/* ---------- RULER / PERSON TOGGLE ---------- */
+['btnRuler','btnPerson'].forEach(id=>{
+  document.getElementById(id).addEventListener('click', function(){ this.classList.toggle('active-dark'); });
+});
+
+/* ---------- ZOOM ---------- */
+let zoom = 1;
+function applyZoom(){ table.style.transform = `scale(${zoom})`; table.style.transformOrigin = 'top left'; }
+document.getElementById('btnZoomIn').addEventListener('click', ()=>{ zoom = Math.min(1.6, zoom+0.1); applyZoom(); });
+document.getElementById('btnZoomOut').addEventListener('click', ()=>{ zoom = Math.max(0.5, zoom-0.1); applyZoom(); });
+document.getElementById('btnReset').addEventListener('click', ()=>{ zoom = 1; applyZoom(); });
+
+/* ---------- TABS ---------- */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
