@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Completed — 1.04 / 1.05</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#12151c; --ink-2:#1b202b; --line:#2a3140; --line-soft:#212734;
+  --text:#e4e8f0; --muted:#7d879b; --accent:#6ee7b7; --accent-dim:#2f6b57;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--text);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.55;padding:0 0 100px}
+
+header{position:sticky;top:0;z-index:20;background:rgba(18,21,28,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:18px 32px 14px}
+.head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;max-width:900px;margin:0 auto;flex-wrap:wrap}
+h1{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.counter{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);white-space:nowrap}
+.counter b{color:var(--accent);font-weight:600}
+.bar{max-width:900px;margin:12px auto 0;height:3px;background:var(--line-soft);border-radius:2px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);width:0;transition:width .25s ease}
+.tools{max-width:900px;margin:12px auto 0;display:flex;gap:8px;flex-wrap:wrap}
+button.t{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;background:transparent;color:var(--muted);border:1px solid var(--line);padding:5px 11px;border-radius:5px;cursor:pointer;transition:.15s}
+button.t:hover{color:var(--text);border-color:var(--muted)}
+button.t:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+main{max-width:900px;margin:0 auto;padding:0 32px}
+.file{margin-top:46px}
+.file-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.file-num{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent-dim);font-weight:600}
+h2{font-size:18px;font-weight:600;letter-spacing:-.01em}
+.file-count{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+
+.sec{margin-top:22px}
+h3{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+
+.item{display:flex;gap:12px;align-items:flex-start;padding:8px 12px 8px 10px;margin-left:8px;border-radius:6px;cursor:pointer;transition:background .12s}
+.item:hover{background:var(--ink-2)}
+.item.on{opacity:.4}
+.item.on .txt{text-decoration:line-through;text-decoration-color:var(--muted)}
+.box{flex:0 0 16px;height:16px;margin-top:3px;border:1.5px solid var(--line);border-radius:4px;position:relative;transition:.15s}
+.item:hover .box{border-color:var(--muted)}
+.item.on .box{background:var(--accent);border-color:var(--accent)}
+.item.on .box::after{content:'';position:absolute;left:4.5px;top:1px;width:4px;height:8px;border:solid var(--ink);border-width:0 2px 2px 0;transform:rotate(43deg)}
+.txt{flex:1}
+.txt code{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--accent);background:rgba(110,231,183,.07);padding:1px 4px;border-radius:3px}
+
+footer{max-width:900px;margin:52px auto 0;padding:0 32px;font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+@media (max-width:640px){header{padding:14px 18px 12px}main,footer{padding:0 18px}.item{margin-left:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-row">
+    <div>
+      <h1>Completed since last call</h1>
+      <div class="sub">1.04 Process Diagram · 1.05 Activity Diagram</div>
+    </div>
+    <div class="counter"><b id="done">0</b> / <span id="total">0</span> reviewed</div>
+  </div>
+  <div class="bar"><span id="fill"></span></div>
+  <div class="tools">
+    <button class="t" id="hideDone">Hide reviewed</button>
+    <button class="t" id="reset">Reset</button>
+  </div>
+</header>
+
+<main id="root"></main>
+
+<footer>Checks are saved in this browser.</footer>
+
+<script>
+const DATA = [
+  {
+    num:"1.04", title:"Process Diagram",
+    sections:[
+      { name:"Sheet", items:[
+        "Renamed swim lanes: Copywriter, Voiceover, Sound engineer, Director, Editor",
+        "Horizontal lane lines made darker and continuous, top and bottom added",
+        "Vertical lines added on both sides, moved one column to the left",
+        "Dark border added around the outer edges of Bill Pay",
+        "Process ID inserted",
+        "Header updated: slashes, client, ID, annotations for type / title / ID",
+        "Panels removed",
+        "Duplicate Process Diagram title removed",
+        "Extra Multi element column removed"
+      ]},
+      { name:"Context Menus", items:[
+        "Task column deleted",
+        "Columns brought over from 1.03: Cooperators, Process entrance, Process body, Multi element",
+        "Old Multi element column deleted",
+        "Grid corrected from system to process",
+        "Rotate clockwise / counterclockwise and a single Flip added",
+        "Menus cleaned up: start event, intermediate, end event, gateway",
+        "Gateway: Link to entrance/exit, save / remove from library",
+        "Find &amp; replace: <code>contextion</code> → <code>selection</code>"
+      ]},
+      { name:"Element Interactions", items:[
+        "Process entrance/exit link column added"
+      ]},
+      { name:"Sheet Toolbar", items:[
+        "Tab pasted in from 1.03"
+      ]}
+    ]
+  },
+  {
+    num:"1.05", title:"Activity Diagram",
+    sections:[
+      { name:"Sheet", items:[
+        "Task shown with its full name",
+        "Blank state set up (participant name left empty) and completed state (Customer service agent)",
+        "Full participant card filled in"
+      ]},
+      { name:"Element Library", items:[
+        "Correct library put in place",
+        "Drawers checked: embodiments, entries"
+      ]},
+      { name:"Context Menus", items:[
+        "Find &amp; replace: <code>contexted</code> → <code>selected</code>, <code>contextion</code> → <code>selection</code>",
+        "Selected column and first column removed",
+        "Four columns created: Cooperator, Entry, Input/Output, Multi select",
+        "Show details → Edit details, Change subtype added with submenu arrow"
+      ]},
+      { name:"Sheet Toolbar", items:[
+        "Old unnecessary page deleted, new one marked incomplete"
+      ]}
+    ]
+  }
+];
+
+const KEY='call-review-completed-v1';
+let state={};
+try{state=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){state={}}
+let hide=false;
+const root=document.getElementById('root');
+
+function render(){
+  root.innerHTML='';
+  let done=0,total=0;
+
+  DATA.forEach((file,fi)=>{
+    const fEl=document.createElement('section');
+    fEl.className='file';
+    let fd=0,ft=0;
+    file.sections.forEach((s,si)=>s.items.forEach((_,ii)=>{ft++;if(state[fi+'-'+si+'-'+ii])fd++}));
+    done+=fd; total+=ft;
+
+    fEl.innerHTML=`<div class="file-head"><span class="file-num">${file.num}</span><h2>${file.title}</h2><span class="file-count">${fd}/${ft}</span></div>`;
+
+    file.sections.forEach((s,si)=>{
+      const visible=s.items.map((t,ii)=>({t,ii,on:!!state[fi+'-'+si+'-'+ii]})).filter(o=>!(hide&&o.on));
+      if(!visible.length) return;
+      const sEl=document.createElement('div');
+      sEl.className='sec';
+      sEl.innerHTML=`<h3>${s.name}</h3>`;
+      visible.forEach(o=>{
+        const k=fi+'-'+si+'-'+o.ii;
+        const d=document.createElement('div');
+        d.className='item'+(o.on?' on':'');
+        d.setAttribute('role','checkbox');
+        d.setAttribute('tabindex','0');
+        d.setAttribute('aria-checked',o.on);
+        d.innerHTML=`<div class="box"></div><div class="txt">${o.t}</div>`;
+        const toggle=()=>{state[k]=!state[k];save();render()};
+        d.addEventListener('click',toggle);
+        d.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();toggle()}});
+        sEl.appendChild(d);
+      });
+      fEl.appendChild(sEl);
+    });
+    root.appendChild(fEl);
+  });
+
+  document.getElementById('done').textContent=done;
+  document.getElementById('total').textContent=total;
+  document.getElementById('fill').style.width=(total?done/total*100:0)+'%';
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+document.getElementById('reset').addEventListener('click',()=>{if(confirm('Reset all checks?')){state={};save();render()}});
+document.getElementById('hideDone').addEventListener('click',e=>{hide=!hide;e.target.textContent=hide?'Show all':'Hide reviewed';render()});
+render();
+</script>
+</body>
+</html>
