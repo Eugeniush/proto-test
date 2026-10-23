@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask AI loading</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#2563EB;--brand50:#EFF4FF;--brand200:#B2CCFF;--g50:#FAFAFA;--g100:#F4F4F5;--g200:#E5E5E5;--g400:#A3A3A3;--g500:#737373;--g600:#525252;--g900:#171717;
+--shadow:0 12px 16px -4px rgba(16,24,40,.08),0 4px 6px -2px rgba(16,24,40,.03)}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;font-family:Inter,system-ui,sans-serif;color:var(--g900);-webkit-font-smoothing:antialiased}
+.page{max-width:1640px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:22px;font-weight:600;margin:0 0 6px}
+.lead{color:var(--g600);margin:0 0 28px;font-size:14px;line-height:1.5;max-width:760px}
+.row{display:flex;gap:24px;flex-wrap:nowrap;align-items:flex-start;overflow-x:auto;padding-bottom:16px}
+.col{flex:1 1 0;min-width:340px;max-width:510px}
+.col h2{font-size:14px;font-weight:600;margin:0 0 4px}
+.col p.why{font-size:13px;color:var(--g500);margin:0 0 12px;line-height:1.5;min-height:58px}
+
+.pop{width:100%;background:#fff;border:1px solid var(--g200);border-radius:16px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:16px}
+.in{display:flex;align-items:center;gap:8px;height:44px;border:1px solid var(--brand);box-shadow:0 0 0 4px var(--brand50);border-radius:8px;padding:0 6px 0 14px}
+.in span{flex:1;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.send{width:32px;height:32px;border-radius:8px;background:var(--brand);display:grid;place-items:center;opacity:.5;cursor:not-allowed}
+
+.sec{display:flex;flex-direction:column;gap:12px}
+.hdr{display:flex;flex-direction:column;gap:4px}
+.ttl{display:flex;align-items:center;gap:4px;color:var(--brand);font-size:12px;font-weight:600;line-height:18px}
+.ttl svg{width:16px;height:16px;overflow:visible}
+.spk g{transform-box:fill-box;transform-origin:center}
+/* D · Dots → stars: each star grows from a dot in turn, like a typing indicator */
+.anim-d .s-tl{animation:dg 1.6s ease-in-out infinite}
+.anim-d .s-big{animation:dg 1.6s ease-in-out .2s infinite}
+.anim-d .s-bl{animation:dg 1.6s ease-in-out .4s infinite}
+@keyframes dg{0%,100%{transform:scale(.35);opacity:.5}50%{transform:scale(1);opacity:1}}
+.dots::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4,end) infinite}
+
+.sk{background:linear-gradient(90deg,var(--g100) 0%,#ECECEE 40%,var(--g100) 80%);background-size:200% 100%;animation:shimmer 1.4s linear infinite;border-radius:6px}
+.line{height:12px}
+.card{border:1px solid var(--g200);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;background:#fff}
+.who{display:flex;align-items:center;gap:8px}
+.av{width:24px;height:24px;border-radius:50%}
+
+.acts{display:flex;align-items:center;gap:8px}
+.lnk{font:600 14px Inter;color:var(--g600);background:none;border:0;padding:6px 10px;border-radius:8px;cursor:pointer}
+.lnk:hover{background:var(--g50)}
+.hint{font-size:13px;color:var(--g500);line-height:1.5}
+
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+@media (prefers-reduced-motion:reduce){.sk,.spk g,.ttl,.dots::after{animation:none!important}}
+
+.send.on{opacity:1;cursor:pointer}
+.err{display:flex;gap:12px;border:1px solid #FECDCA;background:#FFFBFA;border-radius:12px;padding:16px}
+.err-ic{width:32px;height:32px;border-radius:50%;background:#FEE4E2;display:grid;place-items:center;flex:none;box-shadow:0 0 0 6px #FEF3F2}
+.err-t{font-size:14px;font-weight:600;color:#B42318;margin:0 0 4px}
+.err-b{font-size:14px;color:#B42318;opacity:.9;line-height:1.5;margin:0}
+.err-a{display:flex;gap:12px;margin-top:12px}
+.err-a button{font:600 14px Inter;background:none;border:0;padding:0;cursor:pointer}
+.err-a .pri{color:#B42318}.err-a .sec2{color:#912018;opacity:.75}
+.notes{margin-top:40px;border-top:1px solid var(--g200);padding-top:20px;font-size:13px;color:var(--g600);line-height:1.6;max-width:760px}
+.notes b{color:var(--g900)}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Ask AI — loading state</h1>
+  <p class="lead">Step between sending the request and the answer. Same layout as the answer (header + 3 cards) so nothing jumps when results arrive.</p>
+
+  <div class="row anim-d" id="row">
+    <!-- State 1 -->
+    <section class="col">
+      <h2>1 · Loading (0–15 s)</h2>
+      <p class="why">Header in the answer’s place with an animated label. Skeleton cards mirror the real card: title, time · customer, avatar + name. Send is disabled. No actions yet.</p>
+      <div class="pop">
+        <div class="in"><span>Find slots tomorrow for unscheduled installs</span><div class="send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></div></div>
+        <div class="sec">
+          <div class="hdr">
+            <div class="ttl"><svg class="spk" viewBox="0 0 24 24" fill="currentColor"><g class="s-big"><path d="M13 4c.5 3.6 2.4 5.5 6 6-3.6.5-5.5 2.4-6 6-.5-3.6-2.4-5.5-6-6 3.6-.5 5.5-2.4 6-6z"/></g><g class="s-tl"><path d="M6 2.5c.25 1.6 1 2.35 2.5 2.5-1.5.25-2.25 1-2.5 2.5-.25-1.5-1-2.25-2.5-2.5 1.5-.15 2.25-.9 2.5-2.5z"/></g><g class="s-bl"><path d="M6.5 15c.25 1.6 1 2.35 2.5 2.5-1.5.25-2.25 1-2.5 2.5-.25-1.5-1-2.25-2.5-2.5 1.5-.15 2.25-.9 2.5-2.5z"/></g></svg><span class="dots">Checking the calendar</span></div>
+            <div class="sk line" style="width:62%;height:14px;margin-top:3px"></div>
+          </div>
+          <div id="cards1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- State 2 -->
+    <section class="col">
+      <h2>2 · Taking longer (15 s+)</h2>
+      <p class="why">Same skeleton, plus a one-line hint and Cancel. Cancel stops the request and returns to the empty state with examples.</p>
+      <div class="pop">
+        <div class="in"><span>Find slots tomorrow for unscheduled installs</span><div class="send"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></div></div>
+        <div class="sec">
+          <div class="hdr">
+            <div class="ttl"><svg class="spk" viewBox="0 0 24 24" fill="currentColor"><g class="s-big"><path d="M13 4c.5 3.6 2.4 5.5 6 6-3.6.5-5.5 2.4-6 6-.5-3.6-2.4-5.5-6-6 3.6-.5 5.5-2.4 6-6z"/></g><g class="s-tl"><path d="M6 2.5c.25 1.6 1 2.35 2.5 2.5-1.5.25-2.25 1-2.5 2.5-.25-1.5-1-2.25-2.5-2.5 1.5-.15 2.25-.9 2.5-2.5z"/></g><g class="s-bl"><path d="M6.5 15c.25 1.6 1 2.35 2.5 2.5-1.5.25-2.25 1-2.5 2.5-.25-1.5-1-2.25-2.5-2.5 1.5-.15 2.25-.9 2.5-2.5z"/></g></svg><span class="dots">Still checking</span></div>
+            <div class="hint">This is taking longer than usual.</div>
+          </div>
+          <div id="cards2"></div>
+        </div>
+        <div class="acts"><button class="lnk">Cancel</button></div>
+      </div>
+    </section>
+
+    <!-- State 3 -->
+    <section class="col">
+      <h2>3 · Error (timeout at 90 s)</h2>
+      <p class="why">Nothing came back. Skeleton is replaced by an error alert in the same place. The query stays in the input and Send is active again, so the user can retry or edit the question.</p>
+      <div class="pop">
+        <div class="in"><span>Find slots tomorrow for unscheduled installs</span><div class="send on"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></div></div>
+        <div class="err" role="alert">
+          <div class="err-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D92D20" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+          <div>
+            <p class="err-t">Couldn’t get an answer</p>
+            <p class="err-b">The request timed out. Check your connection and try again.</p>
+            <div class="err-a"><button class="pri">Try again</button><button class="sec2">Dismiss</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="notes">
+    <b>Rules</b><br>
+    • 0–1 s: nothing changes visually (avoid flicker), but the request can’t be sent twice.<br>
+    • 1–15 s: state 1. One loader only — the header label; the send button is just disabled, no spinner.<br>
+    • 15 s+: state 2 with hint + Cancel. Timeout at 90 s → error in the same place with “Try again”, query kept in the input.<br>
+    • Skeleton count = 3 cards (typical answer). Real answer replaces the skeleton in place.<br>
+    • Respects “reduce motion”: animations stop, skeleton stays static.<br><br>
+    <b>Error cases (same alert, different text)</b><br>
+    • <b>Timeout</b> (most common, shown above): “The request timed out. Check your connection and try again.”<br>
+    • <b>No internet</b> (browser offline): “You’re offline. Reconnect and try again.” — show immediately, don’t wait 90 s.<br>
+    • <b>Server error</b> (5xx): “Something went wrong on our side. Try again in a moment.”<br>
+    • Try again = resend the same query (back to state 1). Dismiss = close the answer, keep the query in the input.<br>
+    • Never show raw error codes to the user; log them for support.
+  </div>
+</div>
+<script>
+const card=(w1,w2,w3)=>`<div class="card"><div class="sk line" style="width:${w1}%"></div><div class="sk line" style="width:${w2}%"></div><div class="who"><div class="sk av"></div><div class="sk line" style="width:${w3}%"></div></div></div>`;
+const set=[[38,58,26],[44,62,24],[34,54,28]];
+const html=`<div style="display:flex;flex-direction:column;gap:12px">${set.map(s=>card(...s)).join('')}</div>`;
+document.getElementById('cards1').innerHTML=html;document.getElementById('cards2').innerHTML=html;
+</script>
+</body>
+</html>
