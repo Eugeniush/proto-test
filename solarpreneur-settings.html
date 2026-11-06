@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Solarpreneur — Settings: Jobs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary-25:#F5F8FF; --primary-50:#EFF4FF; --primary-100:#D1E0FF; --primary-500:#155EEF; --primary-600:#0F4FDB; --primary-700:#0040C1;
+  --gray-25:#FCFCFD; --gray-50:#F9FAFB; --gray-100:#F2F4F7; --gray-200:#EAECF0; --gray-300:#D0D5DD; --gray-400:#98A2B3;
+  --gray-500:#667085; --gray-600:#475467; --gray-700:#344054; --gray-800:#1D2939; --gray-900:#101828;
+  --success-50:#ECFDF3; --success-500:#12B76A; --success-700:#027A48;
+  --warning-50:#FFFAEB; --warning-500:#F79009; --warning-700:#B54708;
+  --error-50:#FEF3F2; --error-500:#F04438; --error-700:#B42318;
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px;
+  --shadow-xs:0 1px 2px rgba(16,24,40,.05);
+  --shadow-lg:0 12px 16px -4px rgba(16,24,40,.08),0 4px 6px -2px rgba(16,24,40,.03);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--gray-900);background:var(--gray-50);font-size:14px}
+button{font-family:inherit}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* Sidebar */
+.sidebar{width:280px;min-width:280px;background:#fff;border-right:1px solid var(--gray-200);display:flex;flex-direction:column;overflow-y:auto}
+.sb-head{padding:20px 20px 14px;border-bottom:1px solid var(--gray-200)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:var(--gray-900);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.brand-name{font-weight:600}
+.brand-sub{font-size:12px;color:var(--gray-500)}
+.nav{flex:1 0 auto;padding:4px 12px 20px}
+.nav-tabs{display:flex;gap:4px;margin:12px 12px 0;padding:4px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px}
+.nav-tab{flex:1;text-align:center;padding:7px 6px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--gray-500);cursor:pointer;white-space:nowrap}
+.nav-tab:hover{color:var(--gray-700)}
+.nav-tab.active{background:#fff;color:var(--gray-900);box-shadow:0 1px 2px rgba(16,24,40,.08)}
+.stub-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:#FFFAEB;color:#B54708;border:1px solid #FEDF89;margin-bottom:14px}
+.stub-sec{padding:16px 0;border-top:1px solid var(--gray-200)}
+.stub-sec:first-of-type{border-top:0;padding-top:0}
+.stub-sec h4{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--gray-900)}
+.stub-sec p{margin:0;font-size:13.5px;line-height:1.6;color:var(--gray-600)}
+.stub-ui{position:relative;margin-top:16px}
+.stub-ui .stub-body{pointer-events:none;user-select:none;opacity:.6;filter:grayscale(.3)}
+.stub-ui .stub-lbl{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:8px}
+.stub-ph{margin-top:6px;border:1.5px dashed var(--gray-300);border-radius:10px;padding:28px;text-align:center;color:var(--gray-400);font-size:13px}
+.nav-group-title{font-size:11.5px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.03em;padding:14px 8px 6px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--gray-700);font-weight:500;font-size:13.5px;margin-bottom:1px}
+.nav-item:hover{background:var(--gray-50)}
+.nav-item.active{background:var(--primary-50);color:var(--primary-700)}
+.nav-item .count{margin-left:auto;font-size:12px;font-weight:600;color:var(--gray-600);background:var(--gray-100);padding:1px 8px;border-radius:20px}
+.nav-item.active .count{background:#fff}
+.sb-foot{padding:14px 20px;border-top:1px solid var(--gray-200);font-size:12px;color:var(--gray-500);line-height:1.5}
+.sb-foot b{color:var(--gray-700)}
+.sb-foot ul{margin:6px 0 0;padding-left:16px}
+
+/* Main */
+.main{flex:1;overflow-y:auto}
+.topbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--gray-200);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.crumb{font-size:12.5px;color:var(--gray-500);margin-bottom:4px}
+.crumb a{color:var(--gray-500);text-decoration:none;cursor:pointer}
+.crumb a:hover{color:var(--gray-700)}
+.title{font-size:18px;font-weight:600}
+.desc{font-size:13px;color:var(--gray-500);margin-top:2px}
+.content{max-width:920px;margin:0 auto;padding:28px 40px 120px}
+
+.panel{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);margin-bottom:20px;overflow:hidden}
+.panel-head{padding:16px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.panel-head h3{margin:0 0 2px;font-size:15px;font-weight:600}
+.panel-head p{margin:0;font-size:13px;color:var(--gray-500)}
+.panel-body{padding:20px 24px}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:12px;font-weight:500;color:var(--gray-500);padding:10px 16px;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+td{padding:13px 16px;border-bottom:1px solid var(--gray-100);color:var(--gray-700);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--gray-25)}
+.num{text-align:right}
+.strong{font-weight:500;color:var(--gray-900)}
+.muted{color:var(--gray-500);font-size:12.5px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-md);font-size:13.5px;font-weight:600;cursor:pointer;border:1px solid var(--gray-300);background:#fff;color:var(--gray-700);box-shadow:var(--shadow-xs);white-space:nowrap}
+.btn:hover{background:var(--gray-50)}
+.btn-primary{background:var(--primary-500);border-color:var(--primary-500);color:#fff}
+.btn-primary:hover{background:var(--primary-600)}
+.btn-primary:disabled{background:var(--primary-100);border-color:var(--primary-100);cursor:not-allowed}
+.btn-sm{padding:6px 10px;font-size:12.5px}
+.btn-link{border:none;background:none;box-shadow:none;color:var(--primary-600);padding:6px 0;font-weight:600}
+.btn-link:hover{background:none;color:var(--primary-700)}
+.icon-btn{border:none;background:none;cursor:pointer;color:var(--gray-400);padding:6px;border-radius:6px;display:inline-flex}
+.icon-btn:hover{background:var(--gray-100);color:var(--gray-600)}
+.icon-btn:disabled{opacity:.35;cursor:not-allowed;background:none}
+
+input[type=text],input[type=number],input[type=password],select,textarea{width:100%;padding:8px 12px;border:1px solid var(--gray-300);border-radius:var(--radius-md);font-family:inherit;font-size:13.5px;color:var(--gray-900);background:#fff;outline:none;box-shadow:var(--shadow-xs)}
+textarea{resize:vertical;min-height:70px}
+select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1L6 6L11 1' stroke='%23667085' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+input:focus,select:focus,textarea:focus{border-color:var(--primary-500);box-shadow:0 0 0 4px var(--primary-50)}
+input.err{border-color:var(--error-500)}
+.err-text{font-size:12px;color:var(--error-700);margin-top:5px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:6px}
+.field .hint{font-size:12px;color:var(--gray-500);margin-top:5px}
+.req{color:var(--primary-500)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+.affix{position:relative}
+.affix span{position:absolute;top:50%;transform:translateY(-50%);color:var(--gray-500);font-size:13.5px}
+.affix .pre{left:12px}.affix .pre+input{padding-left:26px}
+.affix .suf{right:12px}
+
+.row{display:flex;align-items:flex-start;gap:24px;padding:16px 0;border-bottom:1px solid var(--gray-100)}
+.row:last-child{border-bottom:none}
+.row .lbl{width:240px;flex-shrink:0}
+.row .lbl .n{font-size:13.5px;font-weight:500;color:var(--gray-700)}
+.row .lbl .h{font-size:12px;color:var(--gray-500);margin-top:3px;line-height:1.5}
+.row .ctl{flex:1;max-width:340px}
+
+.toggle{width:36px;height:20px;border-radius:20px;background:var(--gray-200);position:relative;cursor:pointer;flex-shrink:0;transition:background .15s;border:none;padding:0}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:var(--shadow-xs);transition:left .15s}
+.toggle.on{background:var(--primary-500)}
+.toggle.on::after{left:18px}
+
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:2px 9px;border-radius:20px;border:1px solid var(--gray-200);background:#fff;color:var(--gray-700);white-space:nowrap}
+.badge .dot{width:6px;height:6px;border-radius:50%}
+.badge-gray{background:var(--gray-100);border-color:var(--gray-100);color:var(--gray-600)}
+.badge-lock{background:var(--gray-50);color:var(--gray-500)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+
+.seg{display:inline-flex;border:1px solid var(--gray-300);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-xs)}
+.seg button{border:none;background:#fff;padding:8px 14px;font-size:13px;font-weight:600;color:var(--gray-600);cursor:pointer;border-right:1px solid var(--gray-300)}
+.seg button:last-child{border-right:none}
+.seg button.active{background:var(--gray-50);color:var(--gray-900)}
+
+.tabs{display:flex;gap:20px;border-bottom:1px solid var(--gray-200);margin-bottom:20px}
+.tabs button{border:none;background:none;padding:10px 2px;font-size:13.5px;font-weight:600;color:var(--gray-500);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.active{color:var(--primary-700);border-bottom-color:var(--primary-500)}
+
+.list-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--gray-200);border-radius:var(--radius-md);margin-bottom:8px;background:#fff}
+.list-row.locked{background:var(--gray-50)}
+.list-row .idx{width:24px;height:24px;border-radius:6px;border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gray-600);flex-shrink:0;background:#fff}
+.list-row .grow{flex:1;min-width:0}
+.list-row input[type=text]{box-shadow:none}
+
+.search{position:relative;max-width:300px;min-width:240px;flex:1}
+.search input{padding-left:34px}
+.search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--gray-400)}
+.toolbar{display:flex;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--gray-200);flex-wrap:wrap}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:5px 12px;border-radius:20px;border:1px solid var(--gray-300);font-size:12.5px;font-weight:500;color:var(--gray-600);cursor:pointer;background:#fff}
+.pill.active{background:var(--gray-900);border-color:var(--gray-900);color:#fff}
+
+.empty{text-align:center;padding:44px 20px}
+.empty .ico{width:48px;height:48px;border:1px solid var(--gray-200);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--gray-600);margin-bottom:12px;box-shadow:var(--shadow-xs)}
+.empty h4{margin:0 0 4px;font-size:15px}
+.empty p{margin:0 auto 16px;color:var(--gray-500);font-size:13.5px;max-width:360px;line-height:1.5}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px 18px;cursor:pointer;display:flex;flex-direction:column;gap:10px}
+.card:hover{border-color:var(--gray-300);box-shadow:var(--shadow-xs)}
+.card .top{display:flex;justify-content:space-between;gap:10px}
+.card .name{font-weight:600;font-size:14px}
+.card .meta{font-size:12.5px;color:var(--gray-500)}
+
+.colors{display:grid;grid-template-columns:repeat(8,24px);gap:8px}
+.swatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px var(--gray-200)}
+.swatch.sel{box-shadow:0 0 0 2px var(--primary-500)}
+
+.margin-bar{display:flex;height:10px;border-radius:10px;overflow:hidden;margin:6px 0 8px}
+.margin-bar div{height:100%}
+.legend{display:flex;justify-content:space-between;font-size:12px;color:var(--gray-500)}
+.preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+.banner{display:flex;gap:10px;padding:12px 14px;border-radius:var(--radius-md);font-size:13px;line-height:1.5;margin-bottom:18px;background:var(--primary-25);border:1px solid var(--primary-100);color:var(--primary-700)}
+
+/* Modal / drawer */
+.overlay{position:fixed;inset:0;background:rgba(52,64,84,.7);display:none;z-index:20;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;width:520px;max-width:calc(100vw - 32px);max-height:calc(100vh - 48px);display:flex;flex-direction:column;box-shadow:var(--shadow-lg)}
+.modal.wide{width:680px}
+.modal-head{padding:22px 24px 4px;display:flex;justify-content:space-between;gap:12px}
+.modal-head h3{margin:0;font-size:17px}
+.modal-head p{margin:4px 0 0;color:var(--gray-500);font-size:13.5px}
+.modal-body{padding:18px 24px;overflow-y:auto}
+.modal-foot{padding:16px 24px 22px;display:flex;justify-content:flex-end;gap:10px;align-items:center}
+.modal-foot .left{margin-right:auto}
+.confirm{width:420px}
+
+/* Toast — matches toasts in the Jobs designs */
+.toast{position:fixed;top:20px;right:20px;background:#fff;border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow-lg);padding:14px 16px;display:flex;gap:12px;align-items:flex-start;width:360px;z-index:40;opacity:0;transform:translateY(-8px);pointer-events:none;transition:all .2s}
+.toast.show{opacity:1;transform:none;pointer-events:auto}
+.toast .ok{width:32px;height:32px;border-radius:50%;border:6px solid var(--success-50);background:var(--success-50);color:var(--success-500);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.toast b{display:block;font-size:14px;margin-bottom:2px}
+.toast span{font-size:13.5px;color:var(--gray-600)}
+.toast .x{margin-left:auto}
+.sticky-save{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--gray-200);padding:12px 40px;display:none;justify-content:flex-end;gap:10px;align-items:center}
+.sticky-save.show{display:flex}
+.sticky-save .note{margin-right:auto;font-size:13px;color:var(--gray-500)}
+
+/* Assumption marker */
+.asm{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;line-height:1;padding:3px 7px;border-radius:20px;background:#F4F3FF;color:#5925DC;border:1px solid #D9D6FE;vertical-align:middle;margin-left:6px;cursor:help;position:relative;white-space:nowrap}
+.asm::before{content:"i";display:inline-flex;align-items:center;justify-content:center;width:11px;height:11px;border-radius:50%;background:#6938EF;color:#fff;font-size:8px;font-style:italic;font-family:Georgia,serif}
+.asm:hover::after,.asm:focus::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);width:280px;white-space:normal;background:var(--gray-900);color:#fff;font-weight:400;font-size:12px;line-height:1.5;padding:8px 10px;border-radius:8px;z-index:50;box-shadow:var(--shadow-lg)}
+/* Product / Service type cards */
+.type-card{display:flex;justify-content:space-between;gap:10px;padding:14px 16px;border:1px solid var(--gray-200);border-radius:var(--radius-lg);cursor:pointer;background:#fff}
+.type-card:hover{border-color:var(--gray-300)}
+.type-card.sel{border:2px solid var(--primary-500);padding:13px 15px}
+.type-card .radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--gray-300);flex-shrink:0;position:relative}
+.type-card.sel .radio{border-color:var(--primary-500);background:var(--primary-500)}
+.type-card.sel .radio::after{content:"";position:absolute;inset:4px;border-radius:50%;background:#fff}
+/* Role switch + read-only */
+.role-switch{margin-top:14px}
+.role-switch label{display:block;font-size:12px;color:var(--gray-500);margin-bottom:5px}
+.role-switch select{padding:6px 30px 6px 10px;font-size:13px}
+.nav-item .ro{margin-left:auto;font-size:11px;font-weight:600;color:var(--gray-500);background:var(--gray-100);padding:1px 7px;border-radius:20px}
+.nav-item .ro + .count{margin-left:6px}
+.banner-gray{background:var(--gray-50);border-color:var(--gray-200);color:var(--gray-600)}
+.readonly tr.click,.readonly .card{pointer-events:none}
+.readonly .ro-hide{display:none!important}
+.readonly .card{cursor:default}
+
+/* Profile */
+.avatar-row{display:flex;align-items:center;gap:16px}
+.avatar{width:64px;height:64px;border-radius:50%;background:var(--primary-50);color:var(--primary-700);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:20px;overflow:hidden;flex-shrink:0;border:1px solid var(--gray-200)}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.pw-rules{list-style:none;margin:8px 0 0;padding:0;font-size:12.5px;color:var(--gray-500)}
+.pw-rules li{display:flex;gap:6px;align-items:center;margin-bottom:4px}
+.pw-rules li.ok{color:var(--success-700)}
+.pw-rules .b{width:14px;height:14px;border-radius:50%;border:1.5px solid currentColor;display:inline-flex;align-items:center;justify-content:center;font-size:9px}
+.pw-wrap{position:relative}
+.pw-wrap button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--gray-500);font-size:12.5px;font-weight:600;cursor:pointer}
+
+/* Payment option tiles */
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pay-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.pay-card .top{display:flex;align-items:center;gap:12px}
+.pay-ico{width:40px;height:40px;border-radius:10px;border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.field-type{font-size:12px;color:var(--gray-500)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">Settings</div><div class="brand-sub" id="brandSub">Acme Corp</div></div></div>
+    </div>
+    <div class="nav-tabs" id="navTabs"></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sb-foot">
+      <div style="margin-bottom:10px"><span class="asm" style="margin-left:0">Assumption</span> = not in the designs or Ahmed's docs. Hover it for the reasoning.</div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="topbar">
+      <div><div class="crumb" id="crumb"></div><div class="title" id="pageTitle"></div><div class="desc" id="pageDesc"></div></div>
+      <div id="pageActions"></div>
+    </div>
+    <div class="content" id="content"></div>
+    <div class="sticky-save" id="stickySave"><div class="note">You have unsaved changes</div><button class="btn" onclick="discardForm()">Discard</button><button class="btn btn-primary" onclick="saveForm()">Save changes</button></div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"><div class="ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><div><b id="toastTitle"></b><span id="toastBody"></span></div><button class="icon-btn x" onclick="hideToast()">✕</button></div>
+
+<script>
+/* ---------------- Icons ---------------- */
+const I={
+  edit:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  trash:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>',
+  up:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m18 15-6-6-6 6"/></svg>',
+  down:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>',
+  lock:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  search:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+  x:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  layers:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 2 10 5-10 5L2 7Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>',
+  list:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  doc:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg>',
+  tag:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8Z"/><circle cx="7" cy="7" r="1.5"/></svg>',
+};
+
+/* ---------------- Data (from the Jobs designs) ---------------- */
+const COLORS=['#101828','#344054','#475467','#667085','#98A2B3','#D0D5DD','#EAECF0','#FFFFFF','#12B76A','#2E90FA','#6172F3','#9333EA','#D444F1','#EE46BC','#F04438','#EF6820'];
+let uid=100; const nid=()=>++uid;
+const S={
+  milestones:[
+    {id:1,name:'Installation',desc:'Install the system on site'},
+    {id:2,name:'Checking work',desc:'Quality check after installation'},
+    {id:3,name:'Inspection',desc:'Site or compliance inspection'},
+    {id:4,name:'Metering',desc:'Connect the system to the grid'},
+    {id:5,name:'Handover',desc:'Hand the system over to the customer'},
+    {id:6,name:'Service',desc:'Scheduled service visit'},
+  ],
+  jobTypes:[
+    {id:1,name:'Re-Flex',desc:'',milestones:[1,2],checklist:1,jobs:12},
+    {id:2,name:'Warranty',desc:'Warranty repair or replacement',milestones:[3,1,2],checklist:2,jobs:7},
+    {id:3,name:'Recall',desc:'',milestones:[3,1],checklist:null,jobs:3},
+    {id:4,name:'Complaint',desc:'',milestones:[3],checklist:null,jobs:1},
+  ],
+  categories:[
+    {id:1,kind:'Product',name:'Solar Panel',color:'#12B76A'},
+    {id:2,kind:'Product',name:'Inverter',color:'#9333EA'},
+    {id:3,kind:'Product',name:'Battery',color:'#EF6820'},
+    {id:4,kind:'Product',name:'Accessory',color:'#EE46BC'},
+    {id:5,kind:'Service',name:'Labour',color:'#2E90FA'},
+    {id:6,kind:'Service',name:'Admin',color:'#F04438'},
+  ],
+  catalog:[
+    {id:1,kind:'Product',name:'440W Tiger Neo',brand:'Jinko',sku:'440WRN',cat:1,unit:'each',cost:285,price:410,desc:'High-efficiency N-type monocrystalline panel, 440W output, 25-year product & performance warranty.'},
+    {id:2,kind:'Product',name:'Neon2 400W',brand:'LG',sku:'LG400N2W',cat:1,unit:'each',cost:285,price:420,desc:'25-year product & performance warranty. NeON 2 technology with Cello connection, black frame.'},
+    {id:3,kind:'Product',name:'HD-Wave 10kW',brand:'SolarEdge',sku:'SE10K-AU',cat:2,unit:'each',cost:1350,price:1800,desc:'Single-phase HD-Wave inverter, 10kW, 99% weighted efficiency, 12-year warranty.'},
+    {id:4,kind:'Product',name:'Primo 8.0-1',brand:'Fronius',sku:'FR-PRIMO-8',cat:2,unit:'each',cost:1100,price:1450,desc:'Single-phase string inverter, 8kW, dual MPPT, built-in Wi-Fi monitoring.'},
+    {id:5,kind:'Product',name:'Powerwall 3',brand:'Tesla',sku:'PW3-AC',cat:3,unit:'each',cost:8200,price:9990,desc:'13.5kWh home battery with integrated solar inverter, backup-ready, 10-year warranty.'},
+    {id:6,kind:'Product',name:'SBR 12.8kWh',brand:'Sungrow',sku:'SBR128',cat:3,unit:'each',cost:4600,price:5800,desc:'Modular high-voltage LFP battery, 12.8kWh, expandable in 3.2kWh steps.'},
+    {id:7,kind:'Product',name:'Rail mounting kit',brand:'Clenergy',sku:'CL-RAIL',cat:4,unit:'each',cost:120,price:180,desc:'Aluminium rail kit for tin and tile roofs, includes clamps and end caps.'},
+    {id:8,kind:'Service',name:'Solar Panel Installation',brand:'',sku:'',cat:5,unit:'hr',cost:85,price:150,desc:'Professional installation of solar panels, including site preparation, mounting, electrical connections, system testing and commissioning.'},
+    {id:9,kind:'Service',name:'Battery installation',brand:'',sku:'',cat:5,unit:'hr',cost:90,price:160,desc:'Battery mounting, wiring and commissioning by a licensed electrician.'},
+    {id:10,kind:'Service',name:'Council permit application',brand:'',sku:'',cat:6,unit:'flat',cost:60,price:120,desc:'Preparing and lodging the council permit application on the customer’s behalf.'},
+  ],
+  templates:[
+    {id:1,name:'Solar Panel Installation — Residential 6.6kW',jobTypes:[1],items:[{c:2,q:16},{c:3,q:1},{c:7,q:1},{c:8,q:1}]},
+    {id:2,name:'Grid-Connected Battery Storage Warranty',jobTypes:[2],items:[{c:2,q:16},{c:3,q:1}]},
+    {id:3,name:'Inverter Replacement — Warranty Claim',jobTypes:[2],items:[{c:4,q:1},{c:10,q:1}]},
+    {id:4,name:'Battery Retrofit Package',jobTypes:[1],items:[{c:6,q:1},{c:9,q:1},{c:10,q:1}]},
+  ],
+  checklists:[
+    {id:1,name:'Installation',items:['Gather necessary tools, equipment, and replacement parts','Inspect the malfunctioning equipment or area to identify the root cause of the issue','Schedule site inspection with homeowner']},
+    {id:2,name:'Warranty repair',items:['Review previous service history and notes','Use diagnostic tools to pinpoint the problem','Follow manufacturer repair protocol','Photograph the replaced part']},
+  ],
+  tags:[
+    {id:1,name:'Urgent',color:'#F04438',jobs:4},
+    {id:2,name:'Finance',color:'#12B76A',jobs:9},
+    {id:3,name:'Customer Callback',color:'#2E90FA',jobs:2},
+    {id:4,name:'Warranty',color:'#EF6820',jobs:6},
+    {id:5,name:'Business',color:'#9333EA',jobs:1},
+    {id:6,name:'Business',color:'#9333EA',jobs:0},
+    {id:7,name:'Sport',color:'#EE46BC',jobs:0},
+  ],
+  arrival:{options:[30,45,60,90],def:30},
+  pricing:{taxName:'GST',taxRate:10,afterDiscount:true,discountTypes:{percent:true,amount:true},discountNames:['Loyalty discount'],
+           totalModes:{system:true,custom:true}},
+  margin:{green:20,amber:10},
+  approval:{repDiscount:10,smDiscount:20,changeOrder:true},
+  profile:{first:'Sarah',last:'Mitchell',email:'sarah.mitchell@acmecorp.com.au',phone:'+61 412 345 678',photo:null},
+  leadForm:[
+    {sec:'Info',fields:[['Lead Owner','Team member'],['Sales Assistant','Team member'],['Contact Method','Dropdown'],['Solution','Dropdown',1],['Follow Up By','Date'],['Referred By','Dropdown']]},
+    {sec:'Campaign',fields:[['Campaign Name','Dropdown'],['Lead Source','Dropdown'],['Generated By','Team member'],['Audience','Dropdown'],['Goal','Dropdown']]},
+    {sec:'Qualification',fields:[['Budget','Dropdown'],['Decision Maker','Dropdown'],['Timeline','Dropdown'],['Decision Criteria','Dropdown'],['Received Quotes','Dropdown'],['Rating','Rating']]},
+    {sec:'Site Survey',fields:[['Existing solar','Dropdown'],['Inverter brand','Dropdown'],['Inverter model','Text'],['Panel count','Number'],['Panel brand','Text'],['System size (kW)','Text'],['Existing battery','Dropdown'],['Battery brand','Text'],['Install date','Date'],['Roof condition','Dropdown'],['Shading','Dropdown'],['DB board upgrade needed','Dropdown'],['Battery location','Dropdown'],['Inverter location','Dropdown'],['Asbestos risk','Dropdown'],['Note','Long text']],
+     photos:[['Roof layout',1],['Meter box',1],['Switchboard',1],['DB board',1],['Existing inverter',1],['Battery location',1],['Front of house',1],['Other',0]]},
+    {sec:'Energy Details',fields:[['Electricity','Dropdown'],['Hot Water','Dropdown'],['Consumption','Dropdown'],['Meterbox Age','Dropdown'],['NMI','Text'],['Sub-board','Dropdown']]},
+  ].map(s=>({sec:s.sec,fields:s.fields.map(f=>({id:nid(),name:f[0],type:f[1],show:true,req:!!f[2]})),photos:s.photos?s.photos.map(p=>({id:nid(),name:p[0],req:!!p[1]})):null})),
+  payOptions:{
+    card:{on:true,label:'Pay by Card',surcharge:'1.5',surType:'% of total',instr:''},
+    afterpay:{on:true,merchant:'',secret:'',env:'Live'},
+    paypal:{on:false,client:'',secret:'',env:'Live'},
+    bank:{on:false,account:'',bank:'',bsb:'',number:'',ref:'',instr:''},
+  },
+};
+
+/* ---------------- Helpers ---------------- */
+const A=t=>`<span class="asm" tabindex="0" data-tip="${t}">Assumption</span>`;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const money=n=>'$'+Number(n).toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2});
+const byId=(arr,id)=>arr.find(x=>x.id===id);
+const tagBadge=t=>`<span class="badge"><span class="dot" style="background:${t.color}"></span>${esc(t.name)}</span>`;
+const catBadge=c=>c?`<span class="badge"><span class="dot" style="background:${c.color}"></span>${esc(c.name)}</span>`:'';
+const tplTotal=t=>t.items.reduce((s,i)=>{const c=byId(S.catalog,i.c);return s+(c?c.price*i.q:0)},0);
+let toastT;
+function toast(title,body){$('#toastTitle').textContent=title;$('#toastBody').textContent=body||'';$('#toast').classList.add('show');clearTimeout(toastT);toastT=setTimeout(hideToast,3500)}
+function hideToast(){$('#toast').classList.remove('show')}
+
+/* ---------------- Navigation ---------------- */
+/* office = access for the Office Admin role (from "User Roles & Permissions"). Admin can edit everything. */
+const PAGES=[
+  {group:'Account'},
+  {id:'profile',label:'My Profile',office:'edit',desc:'Your personal details. Shown to your team on jobs, bookings and activity.'},
+  {id:'password',label:'Password',office:'edit',desc:'Change the password you use to sign in.'},
+  {group:'Leads'},
+  {id:'lead-form',label:'Lead Form',office:'hidden',desc:'Fields shown in each section of the Lead tab. Opened from “Customize” on a lead.'},
+  {group:'Jobs & Quotes'},
+  {id:'job-types',label:'Job Types',office:'hidden',count:()=>S.jobTypes.length,desc:'Picked when creating a quote or job. Decides which milestones and line item templates it gets.'},
+  {id:'milestones',label:'Milestone Types',office:'hidden',count:()=>S.milestones.length,desc:'Milestones you can add to job types. Start and Complete are added to every job automatically.'},
+  {id:'templates',label:'Line Item Templates',office:'hidden',count:()=>S.templates.length,desc:'Saved bundles of products and services. Shown under Add Items → From template.'},
+  {group:'Catalog'},
+  {id:'categories',label:'Categories',office:'view',count:()=>S.categories.length,desc:'Groups shown in the catalog picker.'},
+  {group:'Pricing'},
+  {id:'tax',label:'Tax & Discounts',office:'view',desc:'How tax and discounts are calculated in the Line Items block.'},
+  {id:'margin',label:'Margin Indicator',office:'hidden',desc:'Colour of the margin label. Sales Reps see only the colour, not the cost.'},
+  {id:'approvals',label:'Approval Limits',office:'hidden',desc:'When discounts and change orders need approval from a manager.'},
+  {group:'Invoices'},
+  {id:'payments',label:'Payment Options',office:'view',desc:'Ways customers can pay. Shown in the Payment Option block on every invoice.'},
+  {group:'Jobs & Quotes',tab:'consider'},
+  {id:'c-priority',tab:'consider',label:'Priority & Difficulty',desc:'Not included yet. Waiting for a decision.',stub:{
+    what:'Jobs have Priority and Difficulty fields with a fixed set of options in a dropdown.',
+    why:'In Settings, each company could set its own levels, e.g. add “Urgent” or use its own difficulty scale. Otherwise the list stays fixed by the dev team.'}},
+  {id:'c-jobid',tab:'consider',label:'Job ID format',desc:'Not included yet. Waiting for a decision.',stub:{
+    what:'The designs use numbers like Job #123, Quote #1 and INV123.',
+    why:'Some companies want their own prefix or starting number, e.g. when moving from another system or to match their accounting. This is usually set once in Settings.'}},
+  {id:'c-reasons',tab:'consider',label:'On Hold / Cancel reasons',desc:'Not included yet. Waiting for a decision.',stub:{
+    what:'A job can be moved to On Hold or Cancelled. It makes sense to record why.',
+    why:'A fixed list of reasons gives clean data for reports (why we lose jobs). Free text does not. Admin keeps the list relevant to the business.'}},
+  {id:'c-commission',tab:'consider',label:'Commission defaults',desc:'Not included yet. Waiting for a decision.',stub:{
+    what:'Quotes have Add Commission, and Job Costings shows e.g. “Sam Cam $3000 10% $300”. The rate is typed in by hand each time.',
+    why:'A default rate in Settings (company-wide or per role) saves time and reduces mistakes. The rate can still be changed on a quote.'}},
+  {group:'Timesheets',tab:'consider'},
+  {id:'c-timesheet',tab:'consider',label:'Timesheet types',desc:'Not included yet. Waiting for a decision.',stub:{
+    what:'The Add Time Entry modal has a type, e.g. Labour or Travel.',
+    why:'The type affects how time is counted in Job Costings (billable work, travel, etc.). Companies count this differently, so the list could be configurable.'}},
+  {group:'General',tab:'consider'},
+  {id:'c-currency',tab:'consider',label:'Currency',desc:'Not included yet. Waiting for a decision.',stub:{
+    what:'The designs use “$” and GST everywhere, i.e. Australia.',
+    why:'If the platform goes to other markets, currency should be a company setting. If Solarpreneur is Australia-only, this is not needed.'}},
+];
+let navTab='included';
+const _lst=(items,ph)=>items.map((x,i)=>`<div class="list-row"><div class="idx">${i+1}</div><div class="grow">${x}</div><button class="icon-btn">${I.edit}</button><button class="icon-btn">${I.trash}</button></div>`).join('')+`<div style="display:flex;gap:8px;margin-top:4px"><input type="text" placeholder="${ph}"><button class="btn">Add</button></div>`;
+const _panel=(t,d,body)=>`<div class="panel"><div class="panel-head"><div><h3>${t}</h3>${d?`<p>${d}</p>`:''}</div></div><div class="panel-body">${body}</div></div>`;
+const _badge=(t,bg,c)=>`<span class="badge" style="background:${bg};color:${c};border-color:${bg}">${t}</span>`;
+const STUB_UI={
+  'c-priority':()=>_panel('Priority','Options in the Priority dropdown on a job.',_lst([_badge('Low','#F2F4F7','#344054'),_badge('Medium','#EFF8FF','#175CD3'),_badge('High','#FFFAEB','#B54708'),_badge('Urgent','#FEF3F2','#B42318')],'New priority level'))
+    +_panel('Difficulty','Options in the Difficulty dropdown on a job.',_lst(['Easy','Standard','Complex'],'New difficulty level')),
+  'c-jobid':()=>_panel('Numbering','Prefix and next number for new records.',[['Jobs','JOB-',124],['Quotes','Q-',2],['Invoices','INV',124]].map(([n,pre,nx])=>`<div class="row"><div class="lbl"><div class="n">${n}</div><div class="h">Next: ${pre}${nx}</div></div><div class="ctl" style="display:flex;gap:8px"><input type="text" value="${pre}" style="width:110px"><input type="number" value="${nx}"></div></div>`).join('')),
+  'c-reasons':()=>_panel('On Hold reasons','Picked when a job is put On Hold.',_lst(['Waiting for customer','Waiting for approval (DNSP)','Stock delay','Weather'],'New reason'))
+    +_panel('Cancel reasons','Picked when a job is Cancelled. Shown in reports.',_lst(['Customer changed mind','Price too high','Went with competitor','Site not suitable'],'New reason'))
+    +_panel('Rules','',`<div class="row"><div class="lbl"><div class="n">Reason is required</div><div class="h">Can't change status without picking a reason.</div></div><div class="ctl"><button class="toggle on"></button></div></div>`),
+  'c-commission':()=>_panel('Default commission','Pre-filled in Add Commission on a quote. Can be changed there.',
+    `<div class="row"><div class="lbl"><div class="n">Calculated on</div></div><div class="ctl"><div class="pills"><span class="pill active">Sale amount</span><span class="pill">Gross profit</span></div></div></div>`
+    +[['Sales Rep',10],['Sales Manager',5]].map(([r,v])=>`<div class="row"><div class="lbl"><div class="n">${r}</div></div><div class="ctl"><div class="affix"><input type="number" value="${v}"><span class="suf">%</span></div></div></div>`).join('')),
+  'c-timesheet':()=>_panel('Time entry types','Options in Add Time Entry. Billable types count as labour in Job Costings.',
+    `<table><thead><tr><th>Type</th><th>Billable</th><th></th></tr></thead><tbody>${[['Labour',1],['Travel',0],['Site visit',1],['Admin',0]].map(([n,b])=>`<tr><td class="strong">${n}</td><td><button class="toggle ${b?'on':''}"></button></td><td class="num"><button class="icon-btn">${I.edit}</button><button class="icon-btn">${I.trash}</button></td></tr>`).join('')}</tbody></table>`),
+  'c-currency':()=>_panel('Currency','Used on quotes, invoices and reports.',
+    `<div class="row"><div class="lbl"><div class="n">Currency</div></div><div class="ctl"><select><option>AUD — Australian dollar ($)</option></select></div></div>
+     <div class="row"><div class="lbl"><div class="n">Number format</div></div><div class="ctl"><select><option>$1,234.56</option></select></div></div>
+     <div class="row"><div class="lbl"><div class="n">Preview</div></div><div class="ctl strong" style="padding-top:8px">$8,478.80</div></div>`),
+};
+const tabOf=id=>(PAGES.find(p=>p.id===id)?.tab)||'included';
+function setTab(t){
+  if(t===navTab)return;
+  const first=PAGES.find(p=>p.id&&(p.tab||'included')===t);
+  go(first.id);
+}
+function pStub(p){
+  setHeader(p.label,p.desc);
+  $('#content').innerHTML=`<div class="card"><div class="card-body" style="padding:24px">
+    <span class="stub-tag">Consider to include</span>
+    <div class="stub-sec"><h4>Where it comes from</h4><p>${esc(p.stub.what)}</p></div>
+    <div class="stub-sec"><h4>Why add it to Settings</h4><p>${esc(p.stub.why)}</p></div>
+    <div class="stub-sec"><h4>Decision needed</h4><p>Should this be a company setting, or a fixed value in the system?</p></div>
+  </div></div>
+  <div class="stub-ui"><div class="stub-lbl">${I.lock} Preview — disabled until confirmed</div><div class="stub-body">${(STUB_UI[p.id]||(()=>''))()}</div></div>`;
+  $('#content').querySelectorAll('input,select,button').forEach(el=>{el.disabled=true;el.tabIndex=-1});
+}
+let role='admin';
+let current='profile', sub=null; // sub = detail id for editors
+const access=id=>(role==='admin'||PAGES.find(p=>p.id===id)?.tab)?'edit':(PAGES.find(p=>p.id===id)?.office||'hidden');
+const isRO=()=>access(current)==='view';
+function setRole(r){
+  if(dirty){setDirty(false)}
+  role=r; $('#brandSub').textContent='Acme Corp · '+(r==='admin'?'Admin':'Office Admin');
+  if(access(current)==='hidden'){current='profile';sub=null;location.hash='profile'}
+  render();
+}
+
+function renderNav(){
+  const out=[];let group=null,items=[];
+  const flush=()=>{if(group&&items.length)out.push(`<div class="nav-group-title">${group}</div>`+items.join(''));items=[]};
+  navTab=tabOf(current);
+  $('#navTabs').innerHTML=[['included','Included'],['consider','Consider to include']].map(([k,l])=>`<div class="nav-tab ${navTab===k?'active':''}" onclick="setTab('${k}')">${l}</div>`).join('');
+  PAGES.forEach(p=>{
+    if((p.tab||'included')!==navTab)return;
+    if(p.group){flush();group=p.group;return}
+    const a=p.tab?'edit':access(p.id); if(a==='hidden')return;
+    items.push(`<div class="nav-item ${current===p.id?'active':''}" onclick="go('${p.id}')">${p.label}${a==='view'?'<span class="ro">View</span>':''}${p.count?`<span class="count">${p.count()}</span>`:''}</div>`);
+  });
+  flush(); $('#nav').innerHTML=out.join('');
+}
+function go(id,detail){
+  if(dirty && !confirmLeave(()=>go(id,detail))) return;
+  current=id; sub=detail??null; location.hash=id; render();
+  $('#main').scrollTop=0;
+}
+function setHeader(title,desc,actions,crumbHtml){
+  $('#pageTitle').textContent=title; $('#pageDesc').textContent=desc||'';
+  $('#pageActions').innerHTML=isRO()?'':(actions||''); $('#crumb').innerHTML=crumbHtml||'Settings';
+}
+function render(){
+  renderNav();
+  const p=PAGES.find(x=>x.id===current);
+  setDirty(false);
+  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'payments':pPayments}[current]||pStub;
+  fn(p);
+  applyReadOnly();
+}
+function applyReadOnly(){
+  const c=$('#content'); c.classList.toggle('readonly',isRO());
+  if(!isRO())return;
+  c.querySelectorAll('input,select,textarea,.toggle').forEach(el=>{if(!el.closest('.search'))el.disabled=true});
+  c.querySelectorAll('.icon-btn,.btn').forEach(el=>el.classList.add('ro-hide'));
+  c.querySelectorAll('.pill,.swatch').forEach(el=>el.style.pointerEvents='auto');
+  c.insertAdjacentHTML('afterbegin',`<div class="banner banner-gray">${I.lock}&nbsp;<span>View only. Only an Admin can change these settings.</span></div>`);
+}
+
+/* ---------------- Unsaved changes (forms) ---------------- */
+let dirty=false, saveFn=null, discardFn=null;
+function setDirty(v){dirty=v;$('#stickySave').classList.toggle('show',v)}
+function saveForm(){if(saveFn)saveFn();}
+function discardForm(){setDirty(false);render()}
+function confirmLeave(next){
+  openModal(`<div class="modal-head"><div><h3>Unsaved changes</h3><p>Do you want to save or discard changes?</p></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div>
+  <div class="modal-foot" style="justify-content:stretch"><button class="btn" style="flex:1;justify-content:center" id="cDiscard">Discard</button><button class="btn btn-primary" style="flex:1;justify-content:center" id="cSave">Save changes</button></div>`,'confirm');
+  $('#cDiscard').onclick=()=>{closeModal();setDirty(false);next()};
+  $('#cSave').onclick=()=>{closeModal();if(saveFn)saveFn(true);setDirty(false);next()};
+  return false;
+}
+
+/* ---------------- Modal ---------------- */
+function openModal(html,cls){const m=$('#modal');m.className='modal '+(cls||'');m.innerHTML=html;$('#overlay').classList.add('show')}
+function closeModal(){$('#overlay').classList.remove('show')}
+$('#overlay').addEventListener('mousedown',e=>{if(e.target.id==='overlay')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+function confirmDelete(title,text,onYes){
+  openModal(`<div class="modal-head"><div><h3>${title}</h3><p>${text}</p></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div>
+  <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" style="background:var(--error-500);border-color:var(--error-500)" id="yesDel">Delete</button></div>`,'confirm');
+  $('#yesDel').onclick=()=>{closeModal();onYes()};
+}
+function emptyState(icon,title,text,btn){return `<div class="empty"><div class="ico">${icon}</div><h4>${title}</h4><p>${text}</p>${btn||''}</div>`}
+
+/* ================= JOB TYPES ================= */
+function pJobTypes(p){
+  if(sub) return pJobTypeEdit(sub);
+  setHeader(p.label,p.desc,`<button class="btn btn-primary" onclick="go('job-types','new')">${I.plus} Add job type</button>`);
+  if(!S.jobTypes.length){$('#content').innerHTML=`<div class="panel">${emptyState(I.layers,'No job types yet','A job type is required to create a job. Add your first one to get started.',`<button class="btn" onclick="go('job-types','new')">${I.plus} Add job type</button>`)}</div>`;return}
+  $('#content').innerHTML=`<div class="panel"><table><thead><tr><th>Job type</th><th>Milestones</th><th class="num">Templates</th><th class="num">Jobs</th><th></th></tr></thead><tbody>
+  ${S.jobTypes.map(t=>{const tpl=S.templates.filter(x=>x.jobTypes.includes(t.id)).length;const ch=byId(S.checklists,t.checklist);
+    return `<tr class="click" onclick="go('job-types',${t.id})"><td><div class="strong">${esc(t.name)}</div>${t.desc?`<div class="muted">${esc(t.desc)}</div>`:''}</td>
+    <td><span class="muted">Start → </span>${t.milestones.map(m=>esc(byId(S.milestones,m)?.name)).join(' → ')}<span class="muted"> → Complete</span></td>
+    <td class="num">${tpl}</td><td class="num">${t.jobs}</td>
+    <td class="num" onclick="event.stopPropagation()"><button class="icon-btn" title="Delete" onclick="delJobType(${t.id})">${I.trash}</button></td></tr>`}).join('')}
+  </tbody></table></div>`;
+}
+function delJobType(id){
+  const t=byId(S.jobTypes,id);
+  if(t.jobs>0){openModal(`<div class="modal-head"><div><h3>Can't delete “${esc(t.name)}”</h3><p>${t.jobs} job${t.jobs>1?'s use':' uses'} this job type. Change the job type on those jobs first.</p></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div><div class="modal-foot"><button class="btn" onclick="closeModal()">OK</button></div>`,'confirm');return}
+  confirmDelete(`Delete “${esc(t.name)}”?`,'Templates linked to this job type stay in the list but are no longer suggested for it.',()=>{S.jobTypes=S.jobTypes.filter(x=>x.id!==id);S.templates.forEach(x=>x.jobTypes=x.jobTypes.filter(j=>j!==id));render();toast('Job type deleted',t.name)});
+}
+function pJobTypeEdit(id){
+  const isNew=id==='new';
+  const src=isNew?{name:'',desc:'',milestones:[],checklist:null}:byId(S.jobTypes,id);
+  const f=JSON.parse(JSON.stringify(src));
+  setHeader(isNew?'New job type':src.name,isNew?'Set the milestones a new job of this type gets.':'Changes apply to new jobs only. Existing jobs keep their milestones.','',
+    `<a onclick="go('job-types')">Job Types</a> / ${isNew?'New':esc(src.name)}`);
+  const draw=()=>{
+    const linked=isNew?[]:S.templates.filter(x=>x.jobTypes.includes(src.id));
+    const avail=S.milestones.filter(m=>!f.milestones.includes(m.id));
+    $('#content').innerHTML=`
+    <div class="panel"><div class="panel-head"><div><h3>General</h3></div></div><div class="panel-body">
+      <div class="field"><label>Name <span class="req">*</span></label><input type="text" id="jtName" value="${esc(f.name)}" placeholder="e.g. Warranty"><div id="jtErr"></div></div>
+      <div class="field" style="margin-bottom:0"><label>Description ${A("Not in the designs. Optional note so admins know what each job type is for.")}</label><input type="text" id="jtDesc" value="${esc(f.desc)}" placeholder="Optional"></div>
+    </div></div>
+
+    <div class="panel"><div class="panel-head"><div><h3>Milestones ${A("Confirmed: Admin configures milestone types and they auto-populate by Job Type; Start and Complete are locked. Assumption: changes apply to new jobs only.")}</h3><p>Added to the job in this order when this job type is selected.</p></div></div><div class="panel-body">
+      <div class="list-row locked"><div class="idx">1</div><div class="grow strong">Start</div><span class="badge badge-lock">${I.lock} Always first</span></div>
+      ${f.milestones.map((mid,i)=>{const m=byId(S.milestones,mid);return `<div class="list-row"><div class="idx">${i+2}</div><div class="grow strong">${esc(m.name)}</div>
+        <button class="icon-btn" ${i===0?'disabled':''} onclick="jtMove(${i},-1)">${I.up}</button><button class="icon-btn" ${i===f.milestones.length-1?'disabled':''} onclick="jtMove(${i},1)">${I.down}</button>
+        <button class="icon-btn" onclick="jtRemove(${i})">${I.trash}</button></div>`}).join('')}
+      <div class="list-row locked"><div class="idx">${f.milestones.length+2}</div><div class="grow strong">Complete</div><span class="badge badge-lock">${I.lock} Always last</span></div>
+      ${avail.length?`<div style="display:flex;gap:10px;margin-top:6px"><select id="jtAdd"><option value="">Add milestone…</option>${avail.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select><button class="btn" onclick="jtAddMs()">Add</button></div>`:''}
+      <div style="margin-top:8px"><button class="btn-link btn" onclick="go('milestones')">Manage milestone types →</button></div>
+    </div></div>
+
+
+    ${isNew?'':`<div class="panel"><div class="panel-head"><div><h3>Line item templates ${A("The link between templates and job types is inferred from the template drawer empty state: No templates for this job type.")}</h3><p>Shown under Add Items → From template on jobs of this type.</p></div><button class="btn btn-sm" onclick="go('templates')">Manage</button></div><div class="panel-body">
+      ${linked.length?`<div class="chips">${linked.map(t=>`<span class="badge badge-gray">${esc(t.name)}</span>`).join('')}</div>`:'<span class="muted">No templates for this job type.</span>'}
+    </div></div>`}
+    `;
+    $('#jtName').oninput=e=>{f.name=e.target.value;setDirty(true);$('#jtErr').innerHTML='';$('#jtName').classList.remove('err')};
+    $('#jtDesc').oninput=e=>{f.desc=e.target.value;setDirty(true)};
+  };
+  window.jtMove=(i,d)=>{const a=f.milestones;[a[i],a[i+d]]=[a[i+d],a[i]];setDirty(true);draw()};
+  window.jtRemove=i=>{f.milestones.splice(i,1);setDirty(true);draw()};
+  window.jtAddMs=()=>{const v=+$('#jtAdd').value;if(!v)return;f.milestones.push(v);setDirty(true);draw()};
+  saveFn=(silent)=>{
+    const name=f.name.trim();
+    if(!name){$('#jtName').classList.add('err');$('#jtErr').innerHTML='<div class="err-text">Enter a name</div>';return}
+    if(S.jobTypes.some(x=>x.name.toLowerCase()===name.toLowerCase()&&x.id!==src.id)){$('#jtName').classList.add('err');$('#jtErr').innerHTML='<div class="err-text">A job type with this name already exists</div>';return}
+    if(isNew){S.jobTypes.push({...f,name,id:nid(),jobs:0});toast('Job type added',name)}
+    else{Object.assign(src,f,{name});toast('Job type updated',name)}
+    setDirty(false); if(!silent){sub=null;render()}
+  };
+  draw();
+  setTimeout(()=>{ $('#pageActions').innerHTML=`<button class="btn" onclick="go('job-types')">Cancel</button> <button class="btn btn-primary" onclick="saveForm()">${isNew?'Add job type':'Save changes'}</button>`; setDirty(false); },0);
+}
+
+/* ================= MILESTONE TYPES ================= */
+function pMilestones(p){
+  setHeader(p.label,p.desc,`<button class="btn btn-primary" onclick="editMs()">${I.plus} Add milestone</button>`);
+  const used=id=>S.jobTypes.filter(t=>t.milestones.includes(id)).map(t=>t.name);
+  $('#content').innerHTML=`<div class="banner">${I.lock}&nbsp;<span><b>Start</b> and <b>Complete</b> are system milestones. They are added to every job and can't be edited. Job milestones also become rows in <b>Payment milestones</b> on invoices.</span></div>
+  <div class="panel"><table><thead><tr><th>Milestone</th><th>Used in job types</th><th></th></tr></thead><tbody>
+  ${S.milestones.map(m=>`<tr class="click" onclick="editMs(${m.id})"><td><div class="strong">${esc(m.name)}</div>${m.desc?`<div class="muted">${esc(m.desc)}</div>`:''}</td>
+   <td>${used(m.id).length?`<div class="chips">${used(m.id).map(n=>`<span class="badge badge-gray">${esc(n)}</span>`).join('')}</div>`:'<span class="muted">Not used</span>'}</td>
+   <td class="num" onclick="event.stopPropagation()"><button class="icon-btn" onclick="editMs(${m.id})">${I.edit}</button><button class="icon-btn" onclick="delMs(${m.id})">${I.trash}</button></td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function editMs(id){
+  const m=id?byId(S.milestones,id):{name:'',desc:''};
+  openModal(`<div class="modal-head"><div><h3>${id?'Edit milestone':'Add milestone'}</h3><p>Milestones are added to jobs through job types.</p></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div>
+  <div class="modal-body"><div class="field"><label>Name <span class="req">*</span></label><input type="text" id="msName" value="${esc(m.name)}" placeholder="e.g. Final inspection"><div id="msErr"></div></div>
+  <div class="field" style="margin:0"><label>Description ${A("Not in the designs. Optional helper text for admins.")}</label><input type="text" id="msDesc" value="${esc(m.desc)}" placeholder="Optional"></div></div>
+  <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="msSave">${id?'Save changes':'Add'}</button></div>`);
+  $('#msName').focus();
+  $('#msSave').onclick=()=>{const n=$('#msName').value.trim();
+    if(!n){$('#msName').classList.add('err');$('#msErr').innerHTML='<div class="err-text">Enter a name</div>';return}
+    if(['start','complete'].includes(n.toLowerCase())||S.milestones.some(x=>x.name.toLowerCase()===n.toLowerCase()&&x.id!==id)){$('#msName').classList.add('err');$('#msErr').innerHTML='<div class="err-text">This name is already used</div>';return}
+    if(id){m.name=n;m.desc=$('#msDesc').value.trim();toast('Milestone updated',n)}else{S.milestones.push({id:nid(),name:n,desc:$('#msDesc').value.trim()});toast('Milestone added',n)}
+    closeModal();render()};
+}
+function delMs(id){const m=byId(S.milestones,id);const used=S.jobTypes.filter(t=>t.milestones.includes(id));
+  confirmDelete(`Delete “${esc(m.name)}”?`,used.length?`It will be removed from ${used.map(t=>esc(t.name)).join(', ')}. Existing jobs keep it.`:'This milestone is not used in any job type.',()=>{S.milestones=S.milestones.filter(x=>x.id!==id);S.jobTypes.forEach(t=>t.milestones=t.milestones.filter(x=>x!==id));render();toast('Milestone deleted',m.name)})}
+
+/* ================= LINE ITEM TEMPLATES ================= */
+let tplFilter='all';
+function pTemplates(p){
+  if(sub) return pTemplateEdit(sub);
+  setHeader(p.label,p.desc,`<button class="btn btn-primary" onclick="go('templates','new')">${I.plus} Create template</button>`);
+  const list=S.templates.filter(t=>tplFilter==='all'||t.jobTypes.includes(+tplFilter));
+  $('#content').innerHTML=`<div class="pills" style="margin-bottom:16px"><span class="pill ${tplFilter==='all'?'active':''}" onclick="tplFilter='all';render()">All job types</span>${S.jobTypes.map(j=>`<span class="pill ${tplFilter==j.id?'active':''}" onclick="tplFilter=${j.id};render()">${esc(j.name)}</span>`).join('')}</div>
+  ${list.length?`<div class="cards">${list.map(t=>`<div class="card" onclick="go('templates',${t.id})"><div class="top"><div class="name">${esc(t.name)}</div><div style="text-align:right;white-space:nowrap"><div class="meta">${t.items.length} items</div><div class="strong">${money(tplTotal(t))}</div></div></div>
+    <div class="chips">${t.jobTypes.length?t.jobTypes.map(j=>`<span class="badge badge-gray">${esc(byId(S.jobTypes,j)?.name)}</span>`).join(''):'<span class="muted">No job type — not shown on any job</span>'}</div></div>`).join('')}</div>`
+  :`<div class="panel">${emptyState(I.doc,'No templates for this job type','Create a template to add a saved set of line items to a job in one click.',`<button class="btn" onclick="go('templates','new')">${I.plus} Create template</button>`)}</div>`}`;
+}
+function pTemplateEdit(id){
+  const isNew=id==='new'; const src=isNew?{name:'',jobTypes:tplFilter!=='all'?[+tplFilter]:[],items:[]}:byId(S.templates,id);
+  const f=JSON.parse(JSON.stringify(src));
+  setHeader(isNew?'New template':src.name,'Prices come from the catalog. Changing a template does not change jobs it was already added to.','',`<a onclick="go('templates')">Line Item Templates</a> / ${isNew?'New':esc(src.name)}`);
+  const draw=()=>{
+    const rows=f.items.map((it,i)=>{const c=byId(S.catalog,it.c);return `<tr><td><div class="strong">${esc(c.name)}</div><div class="muted">${c.kind}${c.brand?' · '+esc(c.brand):''}</div></td>
+      <td style="width:110px"><input type="number" min="1" value="${it.q}" onchange="tplQty(${i},this.value)"></td><td class="num">${money(c.price)}</td><td class="num strong">${money(c.price*it.q)}</td>
+      <td class="num"><button class="icon-btn" onclick="tplDel(${i})">${I.trash}</button></td></tr>`}).join('');
+    $('#content').innerHTML=`
+    <div class="panel"><div class="panel-head"><div><h3>General</h3></div></div><div class="panel-body">
+      <div class="field"><label>Template name <span class="req">*</span></label><input type="text" id="tName" value="${esc(f.name)}" placeholder="e.g. Battery Retrofit Package"><div id="tErr"></div></div>
+      <div class="field" style="margin:0"><label>Job types ${A("Inferred from the template drawer: it filters templates by the job type and shows No templates for this job type.")}</label><div class="chips">${S.jobTypes.map(j=>`<span class="pill ${f.jobTypes.includes(j.id)?'active':''}" onclick="tplJT(${j.id})">${esc(j.name)}</span>`).join('')}</div><div class="hint">The template is offered only on jobs of these types.</div></div>
+    </div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Items</h3><p>Products and services from the catalog.</p></div>
+      <div style="display:flex;gap:8px"><select id="tAdd" style="width:260px"><option value="">Add from catalog…</option>${['Product','Service'].map(k=>`<optgroup label="${k}s">${S.catalog.filter(c=>c.kind===k).map(c=>`<option value="${c.id}">${esc(c.name)} — ${money(c.price)}</option>`).join('')}</optgroup>`).join('')}</select><button class="btn" onclick="tplAdd()">Add</button></div></div>
+      ${f.items.length?`<table><thead><tr><th>Item</th><th>Units</th><th class="num">Unit price</th><th class="num">Total</th><th></th></tr></thead><tbody>${rows}
+        <tr><td colspan="3" class="strong">Total (excl. tax)</td><td class="num strong">${money(tplTotal(f))}</td><td></td></tr></tbody></table>`
+       :emptyState(I.list,'No items yet','Add products and services from the catalog.')}
+    </div>
+    ${isNew?'':`<button class="btn" style="color:var(--error-700)" onclick="delTpl(${src.id})">${I.trash} Delete template</button>`}`;
+    $('#tName').oninput=e=>{f.name=e.target.value;setDirty(true);$('#tErr').innerHTML='';$('#tName').classList.remove('err')};
+  };
+  window.tplQty=(i,v)=>{f.items[i].q=Math.max(1,parseInt(v)||1);setDirty(true);draw()};
+  window.tplDel=i=>{f.items.splice(i,1);setDirty(true);draw()};
+  window.tplAdd=()=>{const v=+$('#tAdd').value;if(!v)return;const ex=f.items.find(x=>x.c===v);ex?ex.q++:f.items.push({c:v,q:1});setDirty(true);draw()};
+  window.tplJT=j=>{f.jobTypes=f.jobTypes.includes(j)?f.jobTypes.filter(x=>x!==j):[...f.jobTypes,j];setDirty(true);draw()};
+  saveFn=(silent)=>{const n=f.name.trim();
+    if(!n){$('#tName').classList.add('err');$('#tErr').innerHTML='<div class="err-text">Enter a name</div>';return}
+    if(isNew){S.templates.push({...f,name:n,id:nid()});toast('Template created',n)}else{Object.assign(src,f,{name:n});toast('Template updated',n)}
+    setDirty(false);if(!silent){sub=null;render()}};
+  draw();
+  setTimeout(()=>{$('#pageActions').innerHTML=`<button class="btn" onclick="go('templates')">Cancel</button> <button class="btn btn-primary" onclick="saveForm()">${isNew?'Create template':'Save changes'}</button>`;setDirty(false)},0);
+}
+function delTpl(id){const t=byId(S.templates,id);confirmDelete(`Delete “${esc(t.name)}”?`,'Jobs it was already added to keep their line items.',()=>{S.templates=S.templates.filter(x=>x.id!==id);setDirty(false);sub=null;render();toast('Template deleted',t.name)})}
+
+/* ================= CATEGORIES ================= */
+function pCategories(p){
+  setHeader(p.label,p.desc,`<button class="btn btn-primary" onclick="editCat()">${I.plus} Add category</button>`);
+  const n=id=>S.catalog.filter(c=>c.cat===id).length;
+  $('#content').innerHTML=['Product','Service'].map(k=>`<div class="panel"><div class="panel-head"><div><h3>${k}s</h3></div></div><table><thead><tr><th>Category</th><th class="num">Items</th><th></th></tr></thead><tbody>
+  ${S.categories.filter(c=>c.kind===k).map(c=>`<tr><td>${catBadge(c)}</td><td class="num">${n(c.id)}</td><td class="num"><button class="icon-btn" onclick="editCat(${c.id})">${I.edit}</button><button class="icon-btn" onclick="delCat(${c.id})">${I.trash}</button></td></tr>`).join('')||'<tr><td colspan="3" class="muted">No categories</td></tr>'}
+  </tbody></table></div>`).join('');
+}
+function editCat(id){
+  const c=id?byId(S.categories,id):{kind:'Product',name:'',color:COLORS[8]};let color=c.color,kind=c.kind;
+  openModal(`<div class="modal-head"><div><h3>${id?'Edit category':'Add category'}</h3></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div>
+  <div class="modal-body">${id?'':`<div class="field"><div class="seg" id="cSeg"><button class="active" data-k="Product">Product</button><button data-k="Service">Service</button></div></div>`}
+  <div class="field"><label>Name <span class="req">*</span></label><input type="text" id="cgName" value="${esc(c.name)}"><div id="cgErr"></div></div>
+  <div class="field" style="margin:0"><label>Color ${A("Category badges have colors in the catalog design. Picking the color here is my assumption.")}</label><div class="colors" id="cgCol">${COLORS.slice(8).map(x=>`<div class="swatch ${x===color?'sel':''}" data-c="${x}" style="background:${x}"></div>`).join('')}</div></div></div>
+  <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="cgSave">${id?'Save changes':'Add'}</button></div>`);
+  if(!id)$('#cSeg').onclick=e=>{const k=e.target.dataset.k;if(!k)return;kind=k;[...$('#cSeg').children].forEach(b=>b.classList.toggle('active',b.dataset.k===k))};
+  $('#cgCol').onclick=e=>{const x=e.target.dataset.c;if(!x)return;color=x;[...$('#cgCol').children].forEach(s=>s.classList.toggle('sel',s.dataset.c===x))};
+  $('#cgSave').onclick=()=>{const nm=$('#cgName').value.trim();if(!nm){$('#cgName').classList.add('err');$('#cgErr').innerHTML='<div class="err-text">Enter a name</div>';return}
+    if(id){c.name=nm;c.color=color;toast('Category updated',nm)}else{S.categories.push({id:nid(),kind,name:nm,color});toast('Category added',nm)}closeModal();render()};
+}
+function delCat(id){const c=byId(S.categories,id);const n=S.catalog.filter(x=>x.cat===id).length;
+  if(n){openModal(`<div class="modal-head"><div><h3>Can't delete “${esc(c.name)}”</h3><p>${n} item${n>1?'s are':' is'} in this category. Move them to another category first.</p></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div><div class="modal-foot"><button class="btn" onclick="closeModal()">OK</button></div>`,'confirm');return}
+  confirmDelete(`Delete “${esc(c.name)}”?`,'This category has no items.',()=>{S.categories=S.categories.filter(x=>x.id!==id);render();toast('Category deleted',c.name)})}
+
+/* ================= TAX & DISCOUNTS ================= */
+function pTax(p){
+  setHeader(p.label,p.desc);
+  const f=JSON.parse(JSON.stringify(S.pricing));
+  const draw=()=>{
+    const sub=9400, disc=f.discountTypes.percent?sub*0.18:0, base=f.afterDiscount?sub-disc:sub, tax=base*f.taxRate/100;
+    $('#content').innerHTML=`
+    <div class="panel"><div class="panel-head"><div><h3>Tax ${A("The design shows a fixed GST 10%. Ahmed wireframe has an Add Tax Rate button on the document, so the rate may be chosen per document instead of set here.")}</h3></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Tax name</div><div class="h">Shown in totals, e.g. “GST 10%”.</div></div><div class="ctl"><input type="text" id="tN" value="${esc(f.taxName)}"></div></div>
+      <div class="row"><div class="lbl"><div class="n">Tax rate</div></div><div class="ctl"><div class="affix"><input type="number" id="tR" min="0" max="100" step="0.1" value="${f.taxRate}"><span class="suf">%</span></div></div></div>
+      <div class="row"><div class="lbl"><div class="n">Apply tax after discount ${A("The design only shows the text: applied after discount. The toggle is my addition.")}</div><div class="h">Off: tax is calculated on the subtotal before discounts.</div></div><div class="ctl"><button class="toggle ${f.afterDiscount?'on':''}" id="tA"></button></div></div>
+      <div class="row"><div class="lbl"><div class="n">Preview ${A("My addition to show how the settings change the total. Numbers are taken from the Line Items design.")}</div></div><div class="ctl" style="font-size:13px;line-height:1.9">
+        <div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>${money(sub)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span>Discount 18%</span><span style="color:var(--success-700)">-${money(disc)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span><b>${esc(f.taxName)} ${f.taxRate}%</b> ${f.afterDiscount?'applied after discount':'applied before discount'}</span><span>${money(tax)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-weight:600;border-top:1px solid var(--gray-200);margin-top:4px;padding-top:4px"><span>TOTAL inc. ${esc(f.taxName)}</span><span>${money(base+tax+(f.afterDiscount?0:-disc))}</span></div></div></div>
+    </div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Discounts</h3></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Discount types ${A("Percent and Amount exist in the design dropdown. Turning them on or off here is my assumption.")}</div><div class="h">Options in the discount dropdown on a job.</div></div><div class="ctl">
+        <label style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" id="dP" ${f.discountTypes.percent?'checked':''}> Percent</label>
+        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="dA" ${f.discountTypes.amount?'checked':''}> Amount</label><div id="dErr"></div></div></div>
+      <div class="row"><div class="lbl"><div class="n">Discount names ${A("Invented from the single label Loyalty discount in the design.")}</div><div class="h">Labels the team can pick, e.g. “Loyalty discount”.</div></div><div class="ctl">
+        ${f.discountNames.map((n,i)=>`<div class="list-row"><div class="grow">${esc(n)}</div><button class="icon-btn" onclick="dnDel(${i})">${I.trash}</button></div>`).join('')}
+        <div style="display:flex;gap:8px"><input type="text" id="dnNew" placeholder="New discount name"><button class="btn" onclick="dnAdd()">Add</button></div></div></div>
+    </div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Total</h3></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Allow Custom Prices ${A("The design always offers Custom Prices. The toggle is my addition.")}</div><div class="h">Lets the team override the System Generated total on a job. The fixed total overrides the calculated price; line items stay visible for cost tracking.</div></div><div class="ctl"><button class="toggle ${f.totalModes.custom?'on':''}" id="tC"></button></div></div>
+    </div></div>`;
+    const ch=()=>setDirty(true);
+    $('#tN').oninput=e=>{f.taxName=e.target.value;ch()};$('#tN').onchange=draw;
+    $('#tR').oninput=e=>{f.taxRate=Math.max(0,Math.min(100,+e.target.value||0));ch()};$('#tR').onchange=draw;
+    $('#tA').onclick=()=>{f.afterDiscount=!f.afterDiscount;ch();draw()};
+    $('#tC').onclick=()=>{f.totalModes.custom=!f.totalModes.custom;ch();draw()};
+    const dt=(k,el)=>{f.discountTypes[k]=el.checked;if(!f.discountTypes.percent&&!f.discountTypes.amount){f.discountTypes[k]=true;el.checked=true;$('#dErr').innerHTML='<div class="err-text">Keep at least one type</div>';return}ch();draw()};
+    $('#dP').onchange=e=>dt('percent',e.target);$('#dA').onchange=e=>dt('amount',e.target);
+    $('#dnNew').onkeydown=e=>{if(e.key==='Enter')dnAdd()};
+  };
+  window.dnDel=i=>{f.discountNames.splice(i,1);setDirty(true);draw()};
+  window.dnAdd=()=>{const v=$('#dnNew').value.trim();if(!v||f.discountNames.includes(v))return;f.discountNames.push(v);setDirty(true);draw()};
+  saveFn=()=>{S.pricing=f;setDirty(false);toast('Settings saved','Tax & discounts updated')};
+  draw();
+}
+
+/* ================= MARGIN ================= */
+function pMargin(p){
+  setHeader(p.label,p.desc);
+  const f={...S.margin};
+  const draw=()=>{
+    const err=f.amber>=f.green;
+    const col=m=>m>=f.green?['#ECFDF3','#027A48']:m>=f.amber?['#FFFAEB','#B54708']:['#FEF3F2','#B42318'];
+    $('#content').innerHTML=`<div class="panel"><div class="panel-head"><div><h3>Thresholds ${A("Confirmed: Sales Reps see a green / amber / red margin indicator (roles doc). Assumption: thresholds are configurable; the 20% and 10% defaults are mine.")}</h3><p>Margin = (price − cost) ÷ price.</p></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n"><span class="badge" style="background:#ECFDF3;color:#027A48;border-color:#ECFDF3">Green</span></div><div class="h">Margin is healthy.</div></div><div class="ctl"><div class="affix"><span class="pre" style="left:12px">≥</span><input type="number" id="mG" value="${f.green}" style="padding-left:28px"><span class="suf">%</span></div></div></div>
+      <div class="row"><div class="lbl"><div class="n"><span class="badge" style="background:#FFFAEB;color:#B54708;border-color:#FFFAEB">Amber</span></div><div class="h">Margin is low — worth a look.</div></div><div class="ctl"><div class="affix"><span class="pre" style="left:12px">≥</span><input type="number" id="mA" value="${f.amber}" class="${err?'err':''}" style="padding-left:28px"><span class="suf">%</span></div>${err?'<div class="err-text">Must be lower than the green threshold</div>':''}</div></div>
+      <div class="row"><div class="lbl"><div class="n"><span class="badge" style="background:#FEF3F2;color:#B42318;border-color:#FEF3F2">Red</span></div><div class="h">Below ${f.amber}%.</div></div><div class="ctl muted" style="padding-top:8px">Anything below amber</div></div>
+      <div class="row"><div class="lbl"><div class="n">Preview</div></div><div class="ctl">
+        <div class="preview">${[35,22,15,8,-5].map(m=>{const c=col(m);return `<span class="badge" style="background:${c[0]};color:${c[1]};border-color:${c[0]}">${m}% margin</span>`}).join('')}</div></div></div>
+    </div></div>`;
+    $('#mG').onchange=e=>{f.green=+e.target.value;setDirty(true);draw()};
+    $('#mA').onchange=e=>{f.amber=+e.target.value;setDirty(true);draw()};
+  };
+  saveFn=()=>{if(f.amber>=f.green)return;S.margin=f;setDirty(false);toast('Settings saved','Margin thresholds updated')};
+  draw();
+}
+
+/* ================= APPROVALS ================= */
+function pApprovals(p){
+  setHeader(p.label,p.desc);
+  const f={...S.approval};
+  const draw=()=>{
+    const err=f.repDiscount>f.smDiscount;
+    $('#content').innerHTML=`<div class="panel"><div class="panel-head"><div><h3>Discount limits ${A("Confirmed in the roles doc: Admin sets approval limits, Sales Rep and Sales Manager have their own limits. The default values are mine.")}</h3><p>A bigger discount is sent for approval. Managers and Admins have no limit.</p></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Sales Rep</div><div class="h">Above this, approval from a Sales Manager or Manager.</div></div><div class="ctl"><div class="affix"><input type="number" id="aR" min="0" max="100" value="${f.repDiscount}"><span class="suf">%</span></div></div></div>
+      <div class="row"><div class="lbl"><div class="n">Sales Manager</div><div class="h">Above this, approval from a Manager.</div></div><div class="ctl"><div class="affix"><input type="number" id="aS" min="0" max="100" value="${f.smDiscount}" class="${err?'err':''}"><span class="suf">%</span></div>${err?'<div class="err-text">Must be equal to or higher than the Sales Rep limit</div>':''}</div></div>
+    </div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Change orders</h3></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Require approval ${A("The design always requires approval (Submit for Approval). The toggle is my addition.")}</div><div class="h">On: the job shows “Submit for Approval” and a Manager approves the change. Off: changes are saved straight to the job.</div></div><div class="ctl"><button class="toggle ${f.changeOrder?'on':''}" id="aC"></button></div></div>
+    </div></div>`;
+    $('#aR').onchange=e=>{f.repDiscount=+e.target.value;setDirty(true);draw()};
+    $('#aS').onchange=e=>{f.smDiscount=+e.target.value;setDirty(true);draw()};
+    $('#aC').onclick=()=>{f.changeOrder=!f.changeOrder;setDirty(true);draw()};
+  };
+  saveFn=()=>{if(f.repDiscount>f.smDiscount)return;S.approval=f;setDirty(false);toast('Settings saved','Approval limits updated')};
+  draw();
+}
+
+/* ================= MY PROFILE ================= */
+function pProfile(p){
+  setHeader(p.label,p.desc);
+  const f={...S.profile};
+  const initials=()=>((f.first[0]||'')+(f.last[0]||'')).toUpperCase()||'?';
+  const draw=()=>{
+    $('#content').innerHTML=`<div class="panel"><div class="panel-head"><div><h3>Personal info</h3></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Photo ${A("Not in the designs. Standard for profile settings; avatars already appear on bookings, timesheets and activity.")}</div><div class="h">Shown next to your name. JPG or PNG.</div></div><div class="ctl" style="max-width:none">
+        <div class="avatar-row"><div class="avatar">${f.photo?`<img src="${f.photo}" alt="">`:initials()}</div>
+        <label class="btn btn-sm" style="cursor:pointer">Upload<input type="file" accept="image/png,image/jpeg" id="pfPhoto" hidden></label>
+        ${f.photo?`<button class="btn btn-sm btn-link" style="color:var(--error-700)" id="pfDel">Remove</button>`:''}</div></div></div>
+      <div class="row"><div class="lbl"><div class="n">Name <span class="req">*</span></div></div><div class="ctl" style="max-width:460px"><div class="grid2">
+        <div><input type="text" id="pfFirst" value="${esc(f.first)}" placeholder="First name"></div><div><input type="text" id="pfLast" value="${esc(f.last)}" placeholder="Last name"></div></div><div id="pfNameErr"></div></div></div>
+      <div class="row"><div class="lbl"><div class="n">Email <span class="req">*</span></div><div class="h">Used to sign in and for notifications.</div></div><div class="ctl"><input type="text" id="pfEmail" value="${esc(f.email)}"><div id="pfEmailErr"></div></div></div>
+      <div class="row"><div class="lbl"><div class="n">Phone ${A("Not in the designs. Common contact field; can be dropped if not needed.")}</div></div><div class="ctl"><input type="text" id="pfPhone" value="${esc(f.phone)}"></div></div>
+      <div class="row"><div class="lbl"><div class="n">Role</div><div class="h">Set by an Admin.</div></div><div class="ctl" style="padding-top:6px"><span class="badge badge-gray">${role==='admin'?'Admin':'Office Admin'}</span></div></div>
+    </div></div>`;
+    const bind=(id,k)=>$(id).oninput=e=>{f[k]=e.target.value;setDirty(true);$('#pfNameErr').innerHTML='';$('#pfEmailErr').innerHTML='';document.querySelectorAll('.err').forEach(x=>x.classList.remove('err'))};
+    bind('#pfFirst','first');bind('#pfLast','last');bind('#pfEmail','email');bind('#pfPhone','phone');
+    $('#pfPhoto').onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{f.photo=r.result;setDirty(true);draw()};r.readAsDataURL(file)};
+    if($('#pfDel'))$('#pfDel').onclick=()=>{f.photo=null;setDirty(true);draw()};
+  };
+  saveFn=()=>{
+    let bad=false;
+    if(!f.first.trim()||!f.last.trim()){$('#pfNameErr').innerHTML='<div class="err-text">Enter your first and last name</div>';(!f.first.trim()?$('#pfFirst'):$('#pfLast')).classList.add('err');bad=true}
+    if(!/^\S+@\S+\.\S+$/.test(f.email.trim())){$('#pfEmailErr').innerHTML='<div class="err-text">Enter a valid email</div>';$('#pfEmail').classList.add('err');bad=true}
+    if(bad)return;
+    S.profile={...f,first:f.first.trim(),last:f.last.trim(),email:f.email.trim()};setDirty(false);toast('Profile updated','Your changes have been saved');
+  };
+  draw();
+}
+
+/* ================= PASSWORD ================= */
+function pPassword(p){
+  setHeader(p.label,p.desc);
+  const f={cur:'',nw:'',cf:''};
+  const rules=[['At least 8 characters',v=>v.length>=8],['One uppercase letter',v=>/[A-Z]/.test(v)],['One number',v=>/\d/.test(v)]];
+  $('#content').innerHTML=`<div class="panel"><div class="panel-head"><div><h3>Change password</h3><p>You'll stay signed in on this device.</p></div></div><div class="panel-body">
+    <div class="row"><div class="lbl"><div class="n">Current password</div></div><div class="ctl"><div class="pw-wrap"><input type="password" id="pwCur" autocomplete="current-password"><button type="button" data-t="pwCur">Show</button></div><div id="pwCurErr"></div></div></div>
+    <div class="row"><div class="lbl"><div class="n">New password</div></div><div class="ctl"><div class="pw-wrap"><input type="password" id="pwNew" autocomplete="new-password"><button type="button" data-t="pwNew">Show</button></div>
+      <ul class="pw-rules" id="pwRules"></ul></div></div>
+    <div class="row"><div class="lbl"><div class="n">Confirm new password</div></div><div class="ctl"><div class="pw-wrap"><input type="password" id="pwCf" autocomplete="new-password"><button type="button" data-t="pwCf">Show</button></div><div id="pwCfErr"></div></div></div>
+    <div class="row"><div class="lbl"></div><div class="ctl"><button class="btn btn-primary" id="pwSave" disabled>Update password</button>
+      <div class="muted" style="margin-top:10px">Forgot your current password? Sign out and use “Forgot password” on the sign-in page.</div></div></div>
+  </div></div>`;
+  const upd=()=>{
+    $('#pwRules').innerHTML=rules.map(([t,fn])=>`<li class="${fn(f.nw)?'ok':''}"><span class="b">${fn(f.nw)?'✓':''}</span>${t}</li>`).join('');
+    const mism=f.cf&&f.cf!==f.nw;
+    $('#pwCfErr').innerHTML=mism?'<div class="err-text">Passwords don’t match</div>':'';
+    $('#pwCf').classList.toggle('err',!!mism);
+    $('#pwSave').disabled=!(f.cur&&rules.every(r=>r[1](f.nw))&&f.cf===f.nw);
+    setDirty(false); // password form saves with its own button
+  };
+  [['#pwCur','cur'],['#pwNew','nw'],['#pwCf','cf']].forEach(([id,k])=>$(id).oninput=e=>{f[k]=e.target.value;if(k==='cur'){$('#pwCurErr').innerHTML='';$('#pwCur').classList.remove('err')}upd()});
+  document.querySelectorAll('.pw-wrap button').forEach(b=>b.onclick=()=>{const i=$('#'+b.dataset.t);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Show':'Hide'});
+  $('#pwSave').onclick=()=>{
+    if(f.cur===f.nw){$('#pwCfErr').innerHTML='<div class="err-text">New password must be different from the current one</div>';return}
+    // Prototype: "wrong" simulates a wrong current password
+    if(f.cur.toLowerCase()==='wrong'){$('#pwCur').classList.add('err');$('#pwCurErr').innerHTML='<div class="err-text">Current password is incorrect</div>';return}
+    toast('Password updated','Use your new password next time you sign in');pPassword(p);
+  };
+  upd();
+}
+
+/* ================= LEAD FORM ================= */
+let lfTab=0;
+function pLeadForm(p){
+  setHeader(p.label,p.desc);
+  const f=JSON.parse(JSON.stringify(S.leadForm));
+  const draw=()=>{
+    const s=f[lfTab];
+    $('#content').innerHTML=`<div class="tabs">${f.map((x,i)=>`<button class="${i===lfTab?'active':''}" onclick="lfGo(${i})">${esc(x.sec)}</button>`).join('')}</div>
+    <div class="panel"><div class="panel-head"><div><h3>${esc(s.sec)} fields ${A("Confirmed: the Customize tooltip on the Lead says it opens Settings to add or remove fields. My additions: the Required toggle, reordering and custom field types.")}</h3><p>Hidden fields don’t show on the lead. Required fields must be filled before saving the section.</p></div><button class="btn btn-sm" onclick="lfAdd()">${I.plus} Add field</button></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Show</th><th>Required</th><th></th></tr></thead><tbody>
+    ${s.fields.map((x,i)=>`<tr style="${x.show?'':'opacity:.55'}"><td class="strong">${esc(x.name)}${x.custom?' <span class="badge badge-gray" style="margin-left:6px">Custom</span>':''}</td><td class="field-type">${x.type}</td>
+      <td><button class="toggle ${x.show?'on':''}" onclick="lfT(${i},'show')"></button></td><td><button class="toggle ${x.req?'on':''}" ${x.show?'':'disabled'} onclick="lfT(${i},'req')"></button></td>
+      <td class="num"><button class="icon-btn" ${i===0?'disabled':''} onclick="lfMove(${i},-1)">${I.up}</button><button class="icon-btn" ${i===s.fields.length-1?'disabled':''} onclick="lfMove(${i},1)">${I.down}</button>${x.custom?`<button class="icon-btn" onclick="lfDel(${i})">${I.trash}</button>`:''}</td></tr>`).join('')}
+    </tbody></table></div>
+    ${s.photos?`<div class="panel"><div class="panel-head"><div><h3>Site photos ${A("Photo slots and Required / Optional come from the Site Survey design. Making them configurable here is my assumption.")}</h3><p>Photo slots in the Site Survey section. Shown as “${s.photos.filter(x=>x.req).length} of ${s.photos.length} Required” on the lead.</p></div><button class="btn btn-sm" onclick="lfPhotoAdd()">${I.plus} Add photo slot</button></div>
+      <table><thead><tr><th>Photo</th><th>Required</th><th></th></tr></thead><tbody>${s.photos.map((x,i)=>`<tr><td class="strong">${esc(x.name)}</td><td><button class="toggle ${x.req?'on':''}" onclick="lfPhotoReq(${i})"></button></td><td class="num"><button class="icon-btn" onclick="lfPhotoDel(${i})">${I.trash}</button></td></tr>`).join('')}</tbody></table></div>`:''}`;
+  };
+  window.lfGo=i=>{lfTab=i;draw();applyReadOnly()};
+  window.lfT=(i,k)=>{const x=f[lfTab].fields[i];x[k]=!x[k];if(k==='show'&&!x.show)x.req=false;setDirty(true);draw()};
+  window.lfMove=(i,d)=>{const a=f[lfTab].fields;[a[i],a[i+d]]=[a[i+d],a[i]];setDirty(true);draw()};
+  window.lfDel=i=>{f[lfTab].fields.splice(i,1);setDirty(true);draw()};
+  window.lfPhotoReq=i=>{const x=f[lfTab].photos[i];x.req=!x.req;setDirty(true);draw()};
+  window.lfPhotoDel=i=>{f[lfTab].photos.splice(i,1);setDirty(true);draw()};
+  window.lfPhotoAdd=()=>{
+    openModal(`<div class="modal-head"><div><h3>Add photo slot</h3></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div>
+    <div class="modal-body"><div class="field"><label>Name <span class="req">*</span></label><input type="text" id="phN" placeholder="e.g. Roof access"><div id="phE"></div></div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" id="phR" checked> Required</label></div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="phS">Add</button></div>`);
+    $('#phN').focus();
+    $('#phS').onclick=()=>{const n=$('#phN').value.trim();if(!n){$('#phN').classList.add('err');$('#phE').innerHTML='<div class="err-text">Enter a name</div>';return}
+      f[lfTab].photos.push({id:nid(),name:n,req:$('#phR').checked});setDirty(true);closeModal();draw()};
+  };
+  window.lfAdd=()=>{
+    openModal(`<div class="modal-head"><div><h3>Add field</h3><p>Added to the ${esc(f[lfTab].sec)} section of every lead.</p></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div>
+    <div class="modal-body"><div class="field"><label>Field name <span class="req">*</span></label><input type="text" id="afN" placeholder="e.g. Preferred install month"><div id="afE"></div></div>
+    <div class="field"><label>Type</label><select id="afT">${['Text','Long text','Number','Date','Dropdown','Team member'].map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div class="field" id="afOptW" style="display:none"><label>Options</label><textarea id="afO" placeholder="One option per line"></textarea></div>
+    <label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" id="afR"> Required</label></div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="afS">Add field</button></div>`);
+    $('#afN').focus();
+    $('#afT').onchange=e=>$('#afOptW').style.display=e.target.value==='Dropdown'?'':'none';
+    $('#afS').onclick=()=>{const n=$('#afN').value.trim();
+      if(!n||f[lfTab].fields.some(x=>x.name.toLowerCase()===n.toLowerCase())){$('#afN').classList.add('err');$('#afE').innerHTML=`<div class="err-text">${n?'This section already has a field with this name':'Enter a field name'}</div>`;return}
+      f[lfTab].fields.push({id:nid(),name:n,type:$('#afT').value,show:true,req:$('#afR').checked,custom:true});setDirty(true);closeModal();draw()};
+  };
+  saveFn=()=>{S.leadForm=f;setDirty(false);toast('Lead form updated','Changes apply to all leads')};
+  draw();
+}
+
+/* ================= PAYMENT OPTIONS ================= */
+const PAY={
+  card:{name:'Card',ico:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+    fields:[['label','Display label','text','Shown as the payment option on the invoice.'],['surcharge','Surcharge','number'],['surType','Surcharge type','select',null,['% of total','Fixed amount']],['instr','Payment instructions','textarea','e.g. Please call us on (02) 1234 5678 to process your card payment over the phone.']]},
+  afterpay:{name:'Afterpay',ico:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/></svg>',
+    fields:[['merchant','Merchant ID','text'],['secret','Secret key','password'],['env','Environment','select',null,['Live','Sandbox (testing)']]]},
+  paypal:{name:'PayPal',ico:'<b style="color:#003087;font-size:16px">P</b>',
+    fields:[['client','Client ID','text'],['secret','Secret key','password'],['env','Environment','select',null,['Live','Sandbox (testing)']]]},
+  bank:{name:'Bank Transfer',ico:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h18L12 4Z"/><path d="M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/></svg>',
+    fields:[['account','Account name','text'],['bank','Bank name','text'],['bsb','BSB','text'],['number','Account number','text'],['ref','Payment reference','text','e.g. Invoice number'],['instr','Payment instructions','textarea','e.g. Please use your invoice number as the payment reference and allow 1–2 business days for processing.']]},
+};
+function paySummary(k,o){
+  if(k==='card')return `${esc(o.label||'Card')} · ${o.surcharge?`${esc(o.surcharge)}${o.surType==='% of total'?'%':' $'} surcharge`:'No surcharge'}`;
+  if(k==='bank')return o.bsb&&o.number?`BSB ${esc(o.bsb)} · Acc ••••${esc(String(o.number).slice(-4))}`:'Bank details not set';
+  const id=o.merchant||o.client; return id?`${k==='paypal'?'Client':'Merchant'} ID set · ${esc(o.env)}`:'Not connected';
+}
+function pPayments(p){
+  setHeader(p.label,p.desc);
+  $('#content').innerHTML=`<div class="banner">${I.lock}&nbsp;<span>Only enabled options can be added to an invoice. Keys and bank details are entered here once, not on each invoice. ${A("In the design keys and bank details are entered on each invoice. Moving them to Settings is my proposal, not agreed with Ahmed.")}</span></div>
+  <div class="pay-grid">${Object.entries(PAY).map(([k,d])=>{const o=S.payOptions[k];return `<div class="pay-card"><div class="top"><div class="pay-ico">${d.ico}</div>
+    <div style="flex:1"><div class="strong">${d.name}</div><div class="muted">${paySummary(k,o)}</div></div>
+    <button class="toggle ${o.on?'on':''}" onclick="payToggle('${k}')" title="${o.on?'Enabled':'Disabled'}"></button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center"><span class="badge ${o.on?'':'badge-gray'}" ${o.on?'style="background:var(--success-50);color:var(--success-700);border-color:var(--success-50)"':''}>${o.on?'Enabled':'Disabled'}</span>
+    <button class="btn btn-sm" onclick="payEdit('${k}')">Configure</button></div></div>`}).join('')}</div>`;
+}
+function payToggle(k){
+  const o=S.payOptions[k];
+  if(!o.on){const missing=PAY[k].fields.filter(f=>['merchant','client','secret','account','bsb','number'].includes(f[0])&&!o[f[0]]);
+    if(missing.length){payEdit(k,true);return}}
+  o.on=!o.on;render();toast(o.on?'Payment option enabled':'Payment option disabled',PAY[k].name);
+}
+function payEdit(k,enableAfter){
+  const d=PAY[k],o=S.payOptions[k];
+  const req=['merchant','client','secret','account','bsb','number'];
+  openModal(`<div class="modal-head"><div><h3>${d.name}</h3><p>${enableAfter?'Fill in the details to enable this option.':'Configure how customers pay with '+d.name+'.'}</p></div><button class="icon-btn" onclick="closeModal()">${I.x}</button></div>
+  <div class="modal-body">${d.fields.map(([key,label,type,hint,opts])=>`<div class="field"><label>${label}${req.includes(key)?' <span class="req">*</span>':''}</label>
+    ${type==='select'?`<select data-k="${key}">${opts.map(x=>`<option ${o[key]===x?'selected':''}>${x}</option>`).join('')}</select>`
+    :type==='textarea'?`<textarea data-k="${key}" placeholder="${esc(hint||'')}">${esc(o[key])}</textarea>`
+    :key==='surcharge'?`<div class="affix"><input type="number" min="0" step="0.1" data-k="${key}" value="${esc(o[key])}"></div>`
+    :`<input type="${type}" data-k="${key}" value="${esc(o[key])}" placeholder="${type==='text'&&hint&&!hint.startsWith('Shown')?esc(hint):''}">`}
+    ${hint&&hint.startsWith('Shown')?`<div class="hint">${hint}</div>`:''}</div>`).join('')}<div id="payErr"></div></div>
+  <div class="modal-foot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="paySave">${enableAfter?'Save and enable':'Save changes'}</button></div>`,'wide');
+  $('#paySave').onclick=()=>{
+    const v={};document.querySelectorAll('#modal [data-k]').forEach(el=>v[el.dataset.k]=el.value.trim());
+    const miss=d.fields.filter(f=>req.includes(f[0])&&!v[f[0]]).map(f=>f[1]);
+    if(miss.length){$('#payErr').innerHTML=`<div class="err-text">Fill in: ${miss.join(', ')}</div>`;return}
+    Object.assign(o,v); if(enableAfter)o.on=true; closeModal(); render(); toast('Payment option updated',d.name);
+  };
+}
+
+/* ---------------- Start ---------------- */
+const h=location.hash.slice(1); if(PAGES.some(p=>p.id===h)) current=h; if(access(current)==='hidden') current='profile'; $('#brandSub').textContent='Acme Corp · Admin';
+window.addEventListener('hashchange',()=>{const x=location.hash.slice(1);if(x!==current&&PAGES.some(p=>p.id===x)&&access(x)!=='hidden'){current=x;sub=null;render()}});
+render();
+</script>
+</body>
+</html>
