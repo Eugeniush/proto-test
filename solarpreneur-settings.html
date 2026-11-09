@@ -31,19 +31,6 @@ button{font-family:inherit}
 .brand-name{font-weight:600}
 .brand-sub{font-size:12px;color:var(--gray-500)}
 .nav{flex:1 0 auto;padding:4px 12px 20px}
-.nav-tabs{display:flex;gap:4px;margin:12px 12px 0;padding:4px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px}
-.nav-tab{flex:1;text-align:center;padding:7px 6px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--gray-500);cursor:pointer;white-space:nowrap}
-.nav-tab:hover{color:var(--gray-700)}
-.nav-tab.active{background:#fff;color:var(--gray-900);box-shadow:0 1px 2px rgba(16,24,40,.08)}
-.stub-tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;background:#FFFAEB;color:#B54708;border:1px solid #FEDF89;margin-bottom:14px}
-.stub-sec{padding:16px 0;border-top:1px solid var(--gray-200)}
-.stub-sec:first-of-type{border-top:0;padding-top:0}
-.stub-sec h4{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--gray-900)}
-.stub-sec p{margin:0;font-size:13.5px;line-height:1.6;color:var(--gray-600)}
-.stub-ui{position:relative;margin-top:16px}
-.stub-ui .stub-body{pointer-events:none;user-select:none;opacity:.6;filter:grayscale(.3)}
-.stub-ui .stub-lbl{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:8px}
-.stub-ph{margin-top:6px;border:1.5px dashed var(--gray-300);border-radius:10px;padding:28px;text-align:center;color:var(--gray-400);font-size:13px}
 .nav-group-title{font-size:11.5px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.03em;padding:14px 8px 6px}
 .nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--gray-700);font-weight:500;font-size:13.5px;margin-bottom:1px}
 .nav-item:hover{background:var(--gray-50)}
@@ -244,7 +231,6 @@ input.err{border-color:var(--error-500)}
     <div class="sb-head">
       <div class="brand"><div class="brand-mark">✦</div><div><div class="brand-name">Settings</div><div class="brand-sub" id="brandSub">Acme Corp</div></div></div>
     </div>
-    <div class="nav-tabs" id="navTabs"></div>
     <nav class="nav" id="nav"></nav>
     <div class="sb-foot">
       <div style="margin-bottom:10px"><span class="asm" style="margin-left:0">Assumption</span> = not in the designs or Ahmed's docs. Hover it for the reasoning.</div>
@@ -285,6 +271,15 @@ const I={
 const COLORS=['#101828','#344054','#475467','#667085','#98A2B3','#D0D5DD','#EAECF0','#FFFFFF','#12B76A','#2E90FA','#6172F3','#9333EA','#D444F1','#EE46BC','#F04438','#EF6820'];
 let uid=100; const nid=()=>++uid;
 const S={
+  priority:[{id:1,name:'Low',color:'gray'},{id:2,name:'Medium',color:'blue'},{id:3,name:'High',color:'amber'},{id:4,name:'Urgent',color:'red'}],
+  difficulty:[{id:1,name:'Easy'},{id:2,name:'Standard'},{id:3,name:'Complex'}],
+  holdReasons:[{id:1,name:'Waiting for customer'},{id:2,name:'Waiting for network approval'},{id:3,name:'Stock delay'},{id:4,name:'Weather'}],
+  cancelReasons:[{id:1,name:'Customer changed mind'},{id:2,name:'Price too high'},{id:3,name:'Went with a competitor'},{id:4,name:'Site not suitable'}],
+  reasonRequired:true,
+  numbering:{job:{pre:'JOB-',next:124},quote:{pre:'Q-',next:58},invoice:{pre:'INV-',next:124}},
+  commission:{basis:'sale',rep:10,manager:5},
+  timeTypes:[{id:1,name:'Labour',billable:true},{id:2,name:'Travel',billable:false},{id:3,name:'Site visit',billable:true},{id:4,name:'Admin',billable:false}],
+  currency:{code:'AUD',format:'1,234.56'},
   milestones:[
     {id:1,name:'Installation',desc:'Install the system on site'},
     {id:2,name:'Checking work',desc:'Quality check after installation'},
@@ -379,83 +374,32 @@ const PAGES=[
   {group:'Account'},
   {id:'profile',label:'My Profile',office:'edit',desc:'Your personal details. Shown to your team on jobs, bookings and activity.'},
   {id:'password',label:'Password',office:'edit',desc:'Change the password you use to sign in.'},
+  {group:'General'},
+  {id:'currency',label:'Currency',office:'hidden',desc:'Currency and number format used on quotes, invoices and reports.'},
+  {id:'numbering',label:'Numbering',office:'hidden',desc:'Prefix and next number for jobs, quotes and invoices.'},
   {group:'Leads'},
   {id:'lead-form',label:'Lead Form',office:'hidden',desc:'Fields shown in each section of the Lead tab. Opened from “Customize” on a lead.'},
   {group:'Jobs & Quotes'},
   {id:'job-types',label:'Job Types',office:'hidden',count:()=>S.jobTypes.length,desc:'Picked when creating a quote or job. Decides which milestones and line item templates it gets.'},
   {id:'milestones',label:'Milestone Types',office:'hidden',count:()=>S.milestones.length,desc:'Milestones you can add to job types. Start and Complete are added to every job automatically.'},
+  {id:'priority',label:'Priority & Difficulty',office:'hidden',desc:'Options in the Priority and Difficulty dropdowns on a job.'},
+  {id:'reasons',label:'On Hold / Cancel Reasons',office:'hidden',desc:'Reasons picked when a job is put On Hold or Cancelled. Used in reports.'},
   {id:'templates',label:'Line Item Templates',office:'hidden',count:()=>S.templates.length,desc:'Saved bundles of products and services. Shown under Add Items → From template.'},
   {group:'Catalog'},
   {id:'categories',label:'Categories',office:'view',count:()=>S.categories.length,desc:'Groups shown in the catalog picker.'},
   {group:'Pricing'},
   {id:'tax',label:'Tax & Discounts',office:'view',desc:'How tax and discounts are calculated in the Line Items block.'},
   {id:'margin',label:'Margin Indicator',office:'hidden',desc:'Colour of the margin label. Sales Reps see only the colour, not the cost.'},
+  {id:'commission',label:'Commission',office:'hidden',desc:'Default commission pre-filled in Add Commission on a quote.'},
   {id:'approvals',label:'Approval Limits',office:'hidden',desc:'When discounts and change orders need approval from a manager.'},
   {group:'Invoices'},
   {id:'payments',label:'Payment Options',office:'view',desc:'Ways customers can pay. Shown in the Payment Option block on every invoice.'},
-  {group:'Jobs & Quotes',tab:'consider'},
-  {id:'c-priority',tab:'consider',label:'Priority & Difficulty',desc:'Not included yet. Waiting for a decision.',stub:{
-    what:'Jobs have Priority and Difficulty fields with a fixed set of options in a dropdown.',
-    why:'In Settings, each company could set its own levels, e.g. add “Urgent” or use its own difficulty scale. Otherwise the list stays fixed by the dev team.'}},
-  {id:'c-jobid',tab:'consider',label:'Job ID format',desc:'Not included yet. Waiting for a decision.',stub:{
-    what:'The designs use numbers like Job #123, Quote #1 and INV123.',
-    why:'Some companies want their own prefix or starting number, e.g. when moving from another system or to match their accounting. This is usually set once in Settings.'}},
-  {id:'c-reasons',tab:'consider',label:'On Hold / Cancel reasons',desc:'Not included yet. Waiting for a decision.',stub:{
-    what:'A job can be moved to On Hold or Cancelled. It makes sense to record why.',
-    why:'A fixed list of reasons gives clean data for reports (why we lose jobs). Free text does not. Admin keeps the list relevant to the business.'}},
-  {id:'c-commission',tab:'consider',label:'Commission defaults',desc:'Not included yet. Waiting for a decision.',stub:{
-    what:'Quotes have Add Commission, and Job Costings shows e.g. “Sam Cam $3000 10% $300”. The rate is typed in by hand each time.',
-    why:'A default rate in Settings (company-wide or per role) saves time and reduces mistakes. The rate can still be changed on a quote.'}},
-  {group:'Timesheets',tab:'consider'},
-  {id:'c-timesheet',tab:'consider',label:'Timesheet types',desc:'Not included yet. Waiting for a decision.',stub:{
-    what:'The Add Time Entry modal has a type, e.g. Labour or Travel.',
-    why:'The type affects how time is counted in Job Costings (billable work, travel, etc.). Companies count this differently, so the list could be configurable.'}},
-  {group:'General',tab:'consider'},
-  {id:'c-currency',tab:'consider',label:'Currency',desc:'Not included yet. Waiting for a decision.',stub:{
-    what:'The designs use “$” and GST everywhere, i.e. Australia.',
-    why:'If the platform goes to other markets, currency should be a company setting. If Solarpreneur is Australia-only, this is not needed.'}},
+  {group:'Timesheets'},
+  {id:'timesheet',label:'Time Entry Types',office:'hidden',desc:'Options in Add Time Entry. Billable types count as labour in Job Costings.'},
 ];
-let navTab='included';
-const _lst=(items,ph)=>items.map((x,i)=>`<div class="list-row"><div class="idx">${i+1}</div><div class="grow">${x}</div><button class="icon-btn">${I.edit}</button><button class="icon-btn">${I.trash}</button></div>`).join('')+`<div style="display:flex;gap:8px;margin-top:4px"><input type="text" placeholder="${ph}"><button class="btn">Add</button></div>`;
-const _panel=(t,d,body)=>`<div class="panel"><div class="panel-head"><div><h3>${t}</h3>${d?`<p>${d}</p>`:''}</div></div><div class="panel-body">${body}</div></div>`;
-const _badge=(t,bg,c)=>`<span class="badge" style="background:${bg};color:${c};border-color:${bg}">${t}</span>`;
-const STUB_UI={
-  'c-priority':()=>_panel('Priority','Options in the Priority dropdown on a job.',_lst([_badge('Low','#F2F4F7','#344054'),_badge('Medium','#EFF8FF','#175CD3'),_badge('High','#FFFAEB','#B54708'),_badge('Urgent','#FEF3F2','#B42318')],'New priority level'))
-    +_panel('Difficulty','Options in the Difficulty dropdown on a job.',_lst(['Easy','Standard','Complex'],'New difficulty level')),
-  'c-jobid':()=>_panel('Numbering','Prefix and next number for new records.',[['Jobs','JOB-',124],['Quotes','Q-',2],['Invoices','INV',124]].map(([n,pre,nx])=>`<div class="row"><div class="lbl"><div class="n">${n}</div><div class="h">Next: ${pre}${nx}</div></div><div class="ctl" style="display:flex;gap:8px"><input type="text" value="${pre}" style="width:110px"><input type="number" value="${nx}"></div></div>`).join('')),
-  'c-reasons':()=>_panel('On Hold reasons','Picked when a job is put On Hold.',_lst(['Waiting for customer','Waiting for approval (DNSP)','Stock delay','Weather'],'New reason'))
-    +_panel('Cancel reasons','Picked when a job is Cancelled. Shown in reports.',_lst(['Customer changed mind','Price too high','Went with competitor','Site not suitable'],'New reason'))
-    +_panel('Rules','',`<div class="row"><div class="lbl"><div class="n">Reason is required</div><div class="h">Can't change status without picking a reason.</div></div><div class="ctl"><button class="toggle on"></button></div></div>`),
-  'c-commission':()=>_panel('Default commission','Pre-filled in Add Commission on a quote. Can be changed there.',
-    `<div class="row"><div class="lbl"><div class="n">Calculated on</div></div><div class="ctl"><div class="pills"><span class="pill active">Sale amount</span><span class="pill">Gross profit</span></div></div></div>`
-    +[['Sales Rep',10],['Sales Manager',5]].map(([r,v])=>`<div class="row"><div class="lbl"><div class="n">${r}</div></div><div class="ctl"><div class="affix"><input type="number" value="${v}"><span class="suf">%</span></div></div></div>`).join('')),
-  'c-timesheet':()=>_panel('Time entry types','Options in Add Time Entry. Billable types count as labour in Job Costings.',
-    `<table><thead><tr><th>Type</th><th>Billable</th><th></th></tr></thead><tbody>${[['Labour',1],['Travel',0],['Site visit',1],['Admin',0]].map(([n,b])=>`<tr><td class="strong">${n}</td><td><button class="toggle ${b?'on':''}"></button></td><td class="num"><button class="icon-btn">${I.edit}</button><button class="icon-btn">${I.trash}</button></td></tr>`).join('')}</tbody></table>`),
-  'c-currency':()=>_panel('Currency','Used on quotes, invoices and reports.',
-    `<div class="row"><div class="lbl"><div class="n">Currency</div></div><div class="ctl"><select><option>AUD — Australian dollar ($)</option></select></div></div>
-     <div class="row"><div class="lbl"><div class="n">Number format</div></div><div class="ctl"><select><option>$1,234.56</option></select></div></div>
-     <div class="row"><div class="lbl"><div class="n">Preview</div></div><div class="ctl strong" style="padding-top:8px">$8,478.80</div></div>`),
-};
-const tabOf=id=>(PAGES.find(p=>p.id===id)?.tab)||'included';
-function setTab(t){
-  if(t===navTab)return;
-  const first=PAGES.find(p=>p.id&&(p.tab||'included')===t);
-  go(first.id);
-}
-function pStub(p){
-  setHeader(p.label,p.desc);
-  $('#content').innerHTML=`<div class="card"><div class="card-body" style="padding:24px">
-    <span class="stub-tag">Consider to include</span>
-    <div class="stub-sec"><h4>Where it comes from</h4><p>${esc(p.stub.what)}</p></div>
-    <div class="stub-sec"><h4>Why add it to Settings</h4><p>${esc(p.stub.why)}</p></div>
-    <div class="stub-sec"><h4>Decision needed</h4><p>Should this be a company setting, or a fixed value in the system?</p></div>
-  </div></div>
-  <div class="stub-ui"><div class="stub-lbl">${I.lock} Preview — disabled until confirmed</div><div class="stub-body">${(STUB_UI[p.id]||(()=>''))()}</div></div>`;
-  $('#content').querySelectorAll('input,select,button').forEach(el=>{el.disabled=true;el.tabIndex=-1});
-}
 let role='admin';
 let current='profile', sub=null; // sub = detail id for editors
-const access=id=>(role==='admin'||PAGES.find(p=>p.id===id)?.tab)?'edit':(PAGES.find(p=>p.id===id)?.office||'hidden');
+const access=id=>role==='admin'?'edit':(PAGES.find(p=>p.id===id)?.office||'hidden');
 const isRO=()=>access(current)==='view';
 function setRole(r){
   if(dirty){setDirty(false)}
@@ -467,12 +411,9 @@ function setRole(r){
 function renderNav(){
   const out=[];let group=null,items=[];
   const flush=()=>{if(group&&items.length)out.push(`<div class="nav-group-title">${group}</div>`+items.join(''));items=[]};
-  navTab=tabOf(current);
-  $('#navTabs').innerHTML=[['included','Included'],['consider','Consider to include']].map(([k,l])=>`<div class="nav-tab ${navTab===k?'active':''}" onclick="setTab('${k}')">${l}</div>`).join('');
   PAGES.forEach(p=>{
-    if((p.tab||'included')!==navTab)return;
     if(p.group){flush();group=p.group;return}
-    const a=p.tab?'edit':access(p.id); if(a==='hidden')return;
+    const a=access(p.id); if(a==='hidden')return;
     items.push(`<div class="nav-item ${current===p.id?'active':''}" onclick="go('${p.id}')">${p.label}${a==='view'?'<span class="ro">View</span>':''}${p.count?`<span class="count">${p.count()}</span>`:''}</div>`);
   });
   flush(); $('#nav').innerHTML=out.join('');
@@ -490,7 +431,7 @@ function render(){
   renderNav();
   const p=PAGES.find(x=>x.id===current);
   setDirty(false);
-  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'payments':pPayments}[current]||pStub;
+  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'payments':pPayments,'priority':pPriority,'reasons':pReasons,'numbering':pNumbering,'commission':pCommission,'timesheet':pTimesheet,'currency':pCurrency}[current];
   fn(p);
   applyReadOnly();
 }
@@ -905,6 +846,122 @@ function paySummary(k,o){
   if(k==='bank')return o.bsb&&o.number?`BSB ${esc(o.bsb)} · Acc ••••${esc(String(o.number).slice(-4))}`:'Bank details not set';
   const id=o.merchant||o.client; return id?`${k==='paypal'?'Client':'Merchant'} ID set · ${esc(o.env)}`:'Not connected';
 }
+
+/* ================= LIST EDITOR (shared) ================= */
+const PCOL={gray:['#F2F4F7','#344054'],blue:['#EFF8FF','#175CD3'],amber:['#FFFAEB','#B54708'],red:['#FEF3F2','#B42318'],green:['#ECFDF3','#027A48'],purple:['#F4F3FF','#5925DC']};
+const LE={};
+function listEditor(key,items,{ph,colors,onChange}){
+  LE[key]={items,onChange,colors};
+  return `<div id="le-${key}">${items.map((x,i)=>`<div class="list-row"><div class="idx">${i+1}</div>
+    <div class="grow" style="display:flex;align-items:center;gap:8px">${colors?`<select style="width:110px" onchange="leColor('${key}',${x.id},this.value)">${Object.keys(PCOL).map(c=>`<option value="${c}" ${x.color===c?'selected':''}>${c[0].toUpperCase()+c.slice(1)}</option>`).join('')}</select><span class="badge" style="background:${PCOL[x.color][0]};color:${PCOL[x.color][1]};border-color:${PCOL[x.color][0]}">${esc(x.name)}</span>`:''}
+      <input type="text" value="${esc(x.name)}" onchange="leRename('${key}',${x.id},this.value)" style="${colors?'flex:1':''}"></div>
+    <button class="icon-btn" title="Move up" onclick="leMove('${key}',${i},-1)" ${i===0?'disabled':''}>↑</button>
+    <button class="icon-btn" onclick="leDel('${key}',${x.id})">${I.trash}</button></div>`).join('')}
+    <div style="display:flex;gap:8px;margin-top:4px"><input type="text" id="leNew-${key}" placeholder="${ph}" onkeydown="if(event.key==='Enter')leAdd('${key}')"><button class="btn" onclick="leAdd('${key}')">Add</button></div><div id="leErr-${key}"></div></div>`;
+}
+function leRename(k,id,v){const L=LE[k];v=v.trim();if(!v)return L.onChange();byId(L.items,id).name=v;setDirty(true);L.onChange()}
+function leColor(k,id,v){const L=LE[k];byId(L.items,id).color=v;setDirty(true);L.onChange()}
+function leMove(k,i,d){const L=LE[k];const a=L.items;[a[i],a[i+d]]=[a[i+d],a[i]];setDirty(true);L.onChange()}
+function leDel(k,id){const L=LE[k];if(L.items.length<=1){$('#leErr-'+k).innerHTML='<div class="err-text">Keep at least one option</div>';return}L.items.splice(L.items.findIndex(x=>x.id===id),1);setDirty(true);L.onChange()}
+function leAdd(k){const L=LE[k];const el=$('#leNew-'+k);const v=el.value.trim();if(!v)return;
+  if(L.items.some(x=>x.name.toLowerCase()===v.toLowerCase())){$('#leErr-'+k).innerHTML='<div class="err-text">This option already exists</div>';return}
+  L.items.push(L.colors?{id:nid(),name:v,color:'gray'}:{id:nid(),name:v});setDirty(true);L.onChange()}
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+/* ================= PRIORITY & DIFFICULTY ================= */
+function pPriority(p){
+  setHeader(p.label,p.desc);
+  const f={priority:clone(S.priority),difficulty:clone(S.difficulty)};
+  const draw=()=>{$('#content').innerHTML=`
+    <div class="panel"><div class="panel-head"><div><h3>Priority ${A("Confirmed by Ahmed. The levels and colours are my example defaults.")}</h3><p>Shown as a coloured badge on jobs. The order here is the order in the dropdown.</p></div></div><div class="panel-body">${listEditor('prio',f.priority,{ph:'New priority level',colors:true,onChange:draw})}</div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Difficulty ${A("Confirmed by Ahmed. The levels are my example defaults.")}</h3><p>Helps when assigning installers to a job.</p></div></div><div class="panel-body">${listEditor('diff',f.difficulty,{ph:'New difficulty level',onChange:draw})}</div></div>`};
+  saveFn=()=>{S.priority=f.priority;S.difficulty=f.difficulty;setDirty(false);toast('Settings saved','Priority & Difficulty updated');render()};
+  draw();
+}
+
+/* ================= ON HOLD / CANCEL REASONS ================= */
+function pReasons(p){
+  setHeader(p.label,p.desc);
+  const f={hold:clone(S.holdReasons),cancel:clone(S.cancelReasons),req:S.reasonRequired};
+  const draw=()=>{$('#content').innerHTML=`
+    <div class="panel"><div class="panel-head"><div><h3>On Hold reasons ${A("Confirmed by Ahmed. The reasons are my example defaults.")}</h3><p>Picked when a job is put On Hold.</p></div></div><div class="panel-body">${listEditor('hold',f.hold,{ph:'New reason',onChange:draw})}</div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Cancel reasons</h3><p>Picked when a job is Cancelled. Shown in reports.</p></div></div><div class="panel-body">${listEditor('cancel',f.cancel,{ph:'New reason',onChange:draw})}</div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Rules</h3></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Reason is required ${A("My addition: whether picking a reason is mandatory.")}</div><div class="h">Off: the reason can be skipped. Changing a reason here doesn't change jobs that already have it.</div></div><div class="ctl"><button class="toggle ${f.req?'on':''}" id="rReq"></button></div></div></div></div>`;
+    $('#rReq').onclick=()=>{f.req=!f.req;setDirty(true);draw()}};
+  saveFn=()=>{S.holdReasons=f.hold;S.cancelReasons=f.cancel;S.reasonRequired=f.req;setDirty(false);toast('Settings saved','Reasons updated')};
+  draw();
+}
+
+/* ================= NUMBERING ================= */
+function pNumbering(p){
+  setHeader(p.label,p.desc);
+  const f=clone(S.numbering);
+  const rows=[['job','Jobs'],['quote','Quotes'],['invoice','Invoices']];
+  const draw=()=>{$('#content').innerHTML=`<div class="banner">${I.lock}&nbsp;<span>Changes apply to new records only. Existing numbers stay the same.</span></div>
+    <div class="panel"><div class="panel-head"><div><h3>Number format ${A("Confirmed by Ahmed. Prefixes and next numbers are example values.")}</h3><p>Prefix + number. The number goes up by 1 for each new record.</p></div></div><div class="panel-body">
+    ${rows.map(([k,l])=>{const low=f[k].next<1;return `<div class="row"><div class="lbl"><div class="n">${l}</div><div class="h">Next: <b>${esc(f[k].pre)}${f[k].next}</b></div></div>
+      <div class="ctl" style="display:flex;gap:8px;max-width:340px"><div class="field" style="margin:0;width:120px"><label style="font-size:12px">Prefix</label><input type="text" maxlength="8" value="${esc(f[k].pre)}" data-k="${k}" data-f="pre"></div>
+      <div class="field" style="margin:0;flex:1"><label style="font-size:12px">Next number</label><input type="number" min="1" value="${f[k].next}" data-k="${k}" data-f="next" class="${low?'err':''}">${low?'<div class="err-text">Must be 1 or more</div>':''}</div></div></div>`}).join('')}
+    </div></div>`;
+    $('#content').querySelectorAll('input[data-k]').forEach(el=>el.onchange=()=>{const k=el.dataset.k;f[k][el.dataset.f]=el.dataset.f==='next'?Math.floor(+el.value||0):el.value.trim().toUpperCase();setDirty(true);draw()})};
+  saveFn=()=>{if(rows.some(([k])=>f[k].next<1))return;S.numbering=f;setDirty(false);toast('Settings saved','Numbering updated')};
+  draw();
+}
+
+/* ================= COMMISSION ================= */
+function pCommission(p){
+  setHeader(p.label,p.desc);
+  const f=clone(S.commission);
+  const draw=()=>{const base=f.basis==='sale'?10000:3300;$('#content').innerHTML=`
+    <div class="panel"><div class="panel-head"><div><h3>Default commission ${A("Confirmed by Ahmed. Basis options and rates are my example defaults.")}</h3><p>Pre-filled in Add Commission on a quote. Can still be changed there.</p></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Calculated on</div></div><div class="ctl"><div class="pills"><span class="pill ${f.basis==='sale'?'active':''}" data-b="sale">Sale amount</span><span class="pill ${f.basis==='profit'?'active':''}" data-b="profit">Gross profit</span></div></div></div>
+      ${[['rep','Sales Rep'],['manager','Sales Manager']].map(([k,l])=>`<div class="row"><div class="lbl"><div class="n">${l}</div></div><div class="ctl"><div class="affix"><input type="number" min="0" max="100" value="${f[k]}" data-k="${k}"><span class="suf">%</span></div></div></div>`).join('')}
+      <div class="row"><div class="lbl"><div class="n">Example</div><div class="h">Job with $10,000 sale and $3,300 gross profit.</div></div><div class="ctl" style="font-size:13px;line-height:1.9">
+        Sales Rep: <b>$${(base*f.rep/100).toLocaleString()}</b><br>Sales Manager: <b>$${(base*f.manager/100).toLocaleString()}</b></div></div>
+    </div></div>`;
+    $('#content').querySelectorAll('.pill[data-b]').forEach(el=>el.onclick=()=>{f.basis=el.dataset.b;setDirty(true);draw()});
+    $('#content').querySelectorAll('input[data-k]').forEach(el=>el.onchange=()=>{f[el.dataset.k]=Math.max(0,Math.min(100,+el.value||0));setDirty(true);draw()})};
+  saveFn=()=>{S.commission=f;setDirty(false);toast('Settings saved','Commission defaults updated')};
+  draw();
+}
+
+/* ================= TIME ENTRY TYPES ================= */
+function pTimesheet(p){
+  setHeader(p.label,p.desc);
+  const f=clone(S.timeTypes);
+  const draw=()=>{$('#content').innerHTML=`
+    <div class="panel"><div class="panel-head"><div><h3>Time entry types ${A("Confirmed by Ahmed. The types and billable flags are my example defaults.")}</h3><p>Billable types count as labour cost in Job Costings.</p></div></div>
+    <table><thead><tr><th>Type</th><th>Billable</th><th></th></tr></thead><tbody>
+    ${f.map(t=>`<tr><td><input type="text" value="${esc(t.name)}" data-id="${t.id}" style="max-width:260px"></td><td><button class="toggle ${t.billable?'on':''}" data-t="${t.id}"></button></td><td class="num"><button class="icon-btn" data-d="${t.id}">${I.trash}</button></td></tr>`).join('')}
+    </tbody></table>
+    <div class="panel-body" style="display:flex;gap:8px"><input type="text" id="ttNew" placeholder="New type" style="max-width:260px"><button class="btn" id="ttAdd">Add</button><div id="ttErr"></div></div></div>`;
+    const c=$('#content');
+    c.querySelectorAll('input[data-id]').forEach(el=>el.onchange=()=>{const v=el.value.trim();if(v){byId(f,+el.dataset.id).name=v;setDirty(true)}draw()});
+    c.querySelectorAll('[data-t]').forEach(el=>el.onclick=()=>{const t=byId(f,+el.dataset.t);t.billable=!t.billable;setDirty(true);draw()});
+    c.querySelectorAll('[data-d]').forEach(el=>el.onclick=()=>{if(f.length<=1){$('#ttErr').innerHTML='<div class="err-text">Keep at least one type</div>';return}f.splice(f.findIndex(x=>x.id===+el.dataset.d),1);setDirty(true);draw()});
+    $('#ttAdd').onclick=()=>{const v=$('#ttNew').value.trim();if(!v)return;if(f.some(x=>x.name.toLowerCase()===v.toLowerCase())){$('#ttErr').innerHTML='<div class="err-text">This type already exists</div>';return}f.push({id:nid(),name:v,billable:true});setDirty(true);draw()}};
+  saveFn=()=>{S.timeTypes=f;setDirty(false);toast('Settings saved','Time entry types updated')};
+  draw();
+}
+
+/* ================= CURRENCY ================= */
+function pCurrency(p){
+  setHeader(p.label,p.desc);
+  const f=clone(S.currency);
+  const CUR={AUD:['Australian dollar','$'],NZD:['New Zealand dollar','$'],USD:['US dollar','$'],GBP:['British pound','£'],EUR:['Euro','€']};
+  const fmt=(n)=>{const [i,d]=n.toFixed(2).split('.');const g=f.format==='1,234.56'?[',','.']:f.format==='1.234,56'?['.',',']:[' ',','];return CUR[f.code][1]+i.replace(/\B(?=(\d{3})+(?!\d))/g,g[0])+g[1]+d};
+  const draw=()=>{$('#content').innerHTML=`<div class="banner">${I.lock}&nbsp;<span>Changing currency doesn't convert existing amounts. Set it before you create quotes.</span></div>
+    <div class="panel"><div class="panel-head"><div><h3>Currency ${A("Confirmed by Ahmed. The currency list and formats are example options.")}</h3><p>Used on quotes, invoices and reports.</p></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Currency</div></div><div class="ctl"><select id="cC">${Object.entries(CUR).map(([k,v])=>`<option value="${k}" ${f.code===k?'selected':''}>${k} — ${v[0]} (${v[1]})</option>`).join('')}</select></div></div>
+      <div class="row"><div class="lbl"><div class="n">Number format</div></div><div class="ctl"><select id="cF">${['1,234.56','1.234,56','1 234,56'].map(x=>`<option ${f.format===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+      <div class="row"><div class="lbl"><div class="n">Preview</div></div><div class="ctl strong" style="padding-top:8px">${fmt(8478.8)}</div></div>
+    </div></div>`;
+    $('#cC').onchange=e=>{f.code=e.target.value;setDirty(true);draw()};$('#cF').onchange=e=>{f.format=e.target.value;setDirty(true);draw()}};
+  saveFn=()=>{S.currency=f;setDirty(false);toast('Settings saved','Currency updated')};
+  draw();
+}
+
 function pPayments(p){
   setHeader(p.label,p.desc);
   $('#content').innerHTML=`<div class="banner">${I.lock}&nbsp;<span>Only enabled options can be added to an invoice. Keys and bank details are entered here once, not on each invoice. ${A("In the design keys and bank details are entered on each invoice. Moving them to Settings is my proposal, not agreed with Ahmed.")}</span></div>
