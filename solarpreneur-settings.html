@@ -294,7 +294,7 @@ const S={
   commission:{basis:'sale',rep:10,manager:5},
   timeTypes:[{id:1,name:'Labour',billable:true},{id:2,name:'Travel',billable:false},{id:3,name:'Site visit',billable:true},{id:4,name:'Admin',billable:false}],
   company:{name:'Suncore Solar Pty Ltd',abn:'51 824 753 556',address:'Unit 3, 18 Industrial Rd, Moorebank NSW 2170',phone:'(02) 1234 5678',email:'info@suncoresolar.com.au'},
-  regional:{code:'AUD',format:'1,234.56',lang:'English (Australia)',date:'DD/MM/YYYY',tz:'AEST'},
+  regional:{code:'AUD',lang:'English (Australia)',date:'DD/MM/YYYY',tz:'AEST'},
   milestones:[
     {id:1,name:'Installation',desc:'Install the system on site'},
     {id:2,name:'Checking work',desc:'Quality check after installation'},
@@ -994,19 +994,18 @@ function pRegional(p){
   const LANG=['English (Australia)','English (US)','English (UK)'];
   const DATE=['DD/MM/YYYY','MM/DD/YYYY','YYYY-MM-DD'];
   const TZ={AEST:'Australian Eastern (AEST) UTC+10:00',ACST:'Australian Central (ACST) UTC+09:30',AWST:'Australian Western (AWST) UTC+08:00',NZST:'New Zealand (NZST) UTC+12:00'};
-  const money=n=>{const [i,d]=n.toFixed(2).split('.');const g=f.format==='1,234.56'?[',','.']:f.format==='1.234,56'?['.',',']:[' ',','];return CUR[f.code][1]+i.replace(/\B(?=(\d{3})+(?!\d))/g,g[0])+g[1]+d};
+  const money=n=>{const [i,d]=n.toFixed(2).split('.');return CUR[f.code][1]+i.replace(/\B(?=(\d{3})+(?!\d))/g,',')+'.'+d}; // number format follows Language (all English variants: 1,234.56)
   const date=()=>({'DD/MM/YYYY':'09/11/2026','MM/DD/YYYY':'11/09/2026','YYYY-MM-DD':'2026-11-09'})[f.date];
   const sel=(id,opts,val)=>`<select id="${id}">${opts.map(([v,l])=>`<option value="${v}" ${v===val?'selected':''}>${l}</option>`).join('')}</select>`;
   const draw=()=>{$('#content').innerHTML=`
     <div class="panel"><div class="panel-head"><div><h3>Regional settings</h3><p>How amounts, dates and times look across the platform and on documents.</p></div></div><div class="panel-body">
       <div class="row"><div class="lbl"><div class="n">Currency</div><div class="h">Used on quotes, invoices and reports. Changing it doesn't convert existing amounts.</div></div><div class="ctl">${sel('rgC',Object.entries(CUR).map(([k,v])=>[k,`${k} — ${v[0]} (${v[1]})`]),f.code)}</div></div>
-      <div class="row"><div class="lbl"><div class="n">Number format</div></div><div class="ctl">${sel('rgF',['1,234.56','1.234,56','1 234,56'].map(x=>[x,x]),f.format)}</div></div>
       <div class="row"><div class="lbl"><div class="n">Language</div><div class="h">Default language for the interface and documents.</div></div><div class="ctl">${sel('rgL',LANG.map(x=>[x,x]),f.lang)}</div></div>
       <div class="row"><div class="lbl"><div class="n">Date format</div></div><div class="ctl">${sel('rgD',DATE.map(x=>[x,x]),f.date)}</div></div>
       <div class="row"><div class="lbl"><div class="n">Time zone</div><div class="h">Company default for bookings, reminders and due dates. Each user can set their own in My Profile.</div></div><div class="ctl">${sel('rgT',Object.entries(TZ),f.tz)}</div></div>
       <div class="row"><div class="lbl"><div class="n">Preview</div></div><div class="ctl" style="font-size:13px;line-height:1.9">Total: <b>${money(8478.8)}</b><br>Due date: <b>${date()}</b></div></div>
     </div></div>`;
-    [['rgC','code'],['rgF','format'],['rgL','lang'],['rgD','date'],['rgT','tz']].forEach(([id,k])=>$('#'+id).onchange=e=>{f[k]=e.target.value;setDirty(true);draw()})};
+    [['rgC','code'],['rgL','lang'],['rgD','date'],['rgT','tz']].forEach(([id,k])=>$('#'+id).onchange=e=>{f[k]=e.target.value;setDirty(true);draw()})};
   saveFn=()=>{S.regional={...f};setDirty(false);toast('Regional settings updated','Your changes have been saved')};
   draw();
 }
