@@ -279,7 +279,8 @@ const S={
   numbering:{job:{pre:'JOB-',next:124},quote:{pre:'Q-',next:58},invoice:{pre:'INV-',next:124}},
   commission:{basis:'sale',rep:10,manager:5},
   timeTypes:[{id:1,name:'Labour',billable:true},{id:2,name:'Travel',billable:false},{id:3,name:'Site visit',billable:true},{id:4,name:'Admin',billable:false}],
-  currency:{code:'AUD',format:'1,234.56'},
+  company:{name:'Suncore Solar Pty Ltd',abn:'51 824 753 556',address:'Unit 3, 18 Industrial Rd, Moorebank NSW 2170',phone:'(02) 1234 5678',email:'info@suncoresolar.com.au'},
+  regional:{code:'AUD',format:'1,234.56',lang:'English (Australia)',date:'DD/MM/YYYY',tz:'AEST'},
   milestones:[
     {id:1,name:'Installation',desc:'Install the system on site'},
     {id:2,name:'Checking work',desc:'Quality check after installation'},
@@ -375,7 +376,8 @@ const PAGES=[
   {id:'profile',label:'My Profile',office:'edit',desc:'Your personal details. Shown to your team on jobs, bookings and activity.'},
   {id:'password',label:'Password',office:'edit',desc:'Change the password you use to sign in.'},
   {group:'General'},
-  {id:'currency',label:'Currency',office:'hidden',desc:'Currency and number format used on quotes, invoices and reports.'},
+  {id:'company',label:'Company Profile',office:'hidden',desc:'Your business details. Shown on all quotes and invoices sent to customers.'},
+  {id:'regional',label:'Regional',office:'hidden',desc:'Currency, language, date format and time zone for the whole company.'},
   {id:'numbering',label:'Numbering',office:'hidden',desc:'Prefix and next number for jobs, quotes and invoices.'},
   {group:'Leads'},
   {id:'lead-form',label:'Lead Form',office:'hidden',desc:'Fields shown in each section of the Lead tab. Opened from “Customize” on a lead.'},
@@ -431,7 +433,7 @@ function render(){
   renderNav();
   const p=PAGES.find(x=>x.id===current);
   setDirty(false);
-  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'payments':pPayments,'priority':pPriority,'reasons':pReasons,'numbering':pNumbering,'commission':pCommission,'timesheet':pTimesheet,'currency':pCurrency}[current];
+  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'payments':pPayments,'priority':pPriority,'reasons':pReasons,'numbering':pNumbering,'commission':pCommission,'timesheet':pTimesheet,'company':pCompany,'regional':pRegional}[current];
   fn(p);
   applyReadOnly();
 }
@@ -946,19 +948,46 @@ function pTimesheet(p){
 }
 
 /* ================= CURRENCY ================= */
-function pCurrency(p){
+function pCompany(p){
   setHeader(p.label,p.desc);
-  const f=clone(S.currency);
-  const CUR={AUD:['Australian dollar','$'],NZD:['New Zealand dollar','$'],USD:['US dollar','$'],GBP:['British pound','£'],EUR:['Euro','€']};
-  const fmt=(n)=>{const [i,d]=n.toFixed(2).split('.');const g=f.format==='1,234.56'?[',','.']:f.format==='1.234,56'?['.',',']:[' ',','];return CUR[f.code][1]+i.replace(/\B(?=(\d{3})+(?!\d))/g,g[0])+g[1]+d};
-  const draw=()=>{$('#content').innerHTML=`<div class="banner">${I.lock}&nbsp;<span>Changing currency doesn't convert existing amounts. Set it before you create quotes.</span></div>
-    <div class="panel"><div class="panel-head"><div><h3>Currency ${A("Confirmed by Ahmed. The currency list and formats are example options.")}</h3><p>Used on quotes, invoices and reports.</p></div></div><div class="panel-body">
-      <div class="row"><div class="lbl"><div class="n">Currency</div></div><div class="ctl"><select id="cC">${Object.entries(CUR).map(([k,v])=>`<option value="${k}" ${f.code===k?'selected':''}>${k} — ${v[0]} (${v[1]})</option>`).join('')}</select></div></div>
-      <div class="row"><div class="lbl"><div class="n">Number format</div></div><div class="ctl"><select id="cF">${['1,234.56','1.234,56','1 234,56'].map(x=>`<option ${f.format===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
-      <div class="row"><div class="lbl"><div class="n">Preview</div></div><div class="ctl strong" style="padding-top:8px">${fmt(8478.8)}</div></div>
+  const f={...S.company};
+  const rows=[['name','Company name',true,'Legal or trading name.'],['abn','ABN / Tax number',true,'Required on tax invoices.'],['address','Address',true,'Business address printed on documents.'],['phone','Phone',false,'Shown to customers on quotes, invoices and emails.'],['email','Email',true,'Customers reply to this address.']];
+  $('#content').innerHTML=`<div class="banner">${I.lock}&nbsp;<span>Changes apply to new quotes and invoices. Documents already sent keep the old details.</span></div>
+    <div class="panel"><div class="panel-head"><div><h3>Company details</h3><p>Appears on all quotes and invoices sent to customers.</p></div></div><div class="panel-body">
+    ${rows.map(([k,l,req,h])=>`<div class="row"><div class="lbl"><div class="n">${l}${req?' <span class="req">*</span>':''}</div><div class="h">${h}</div></div><div class="ctl"><input type="text" id="co_${k}" value="${esc(f[k])}"><div id="coErr_${k}"></div></div></div>`).join('')}
     </div></div>`;
-    $('#cC').onchange=e=>{f.code=e.target.value;setDirty(true);draw()};$('#cF').onchange=e=>{f.format=e.target.value;setDirty(true);draw()}};
-  saveFn=()=>{S.currency=f;setDirty(false);toast('Settings saved','Currency updated')};
+  rows.forEach(([k])=>$('#co_'+k).oninput=e=>{f[k]=e.target.value;setDirty(true);$('#coErr_'+k).innerHTML='';e.target.classList.remove('err')});
+  saveFn=()=>{let bad=false;
+    rows.forEach(([k,l,req])=>{const v=f[k].trim();let m='';
+      if(req&&!v)m=`Enter ${l.toLowerCase()}`;
+      else if(k==='email'&&v&&!/^\S+@\S+\.\S+$/.test(v))m='Enter a valid email';
+      else if(k==='abn'&&v&&v.replace(/\s/g,'').length!==11)m='ABN must have 11 digits';
+      if(m){$('#coErr_'+k).innerHTML=`<div class="err-text">${m}</div>`;$('#co_'+k).classList.add('err');bad=true}});
+    if(bad)return;
+    Object.keys(f).forEach(k=>f[k]=f[k].trim());S.company={...f};setDirty(false);toast('Company profile updated','Your changes have been saved')};
+}
+
+function pRegional(p){
+  setHeader(p.label,p.desc);
+  const f={...S.regional};
+  const CUR={AUD:['Australian dollar','$'],NZD:['New Zealand dollar','$'],USD:['US dollar','$'],GBP:['British pound','£'],EUR:['Euro','€']};
+  const LANG=['English (Australia)','English (US)','English (UK)'];
+  const DATE=['DD/MM/YYYY','MM/DD/YYYY','YYYY-MM-DD'];
+  const TZ={AEST:'Australian Eastern (AEST) UTC+10:00',ACST:'Australian Central (ACST) UTC+09:30',AWST:'Australian Western (AWST) UTC+08:00',NZST:'New Zealand (NZST) UTC+12:00'};
+  const money=n=>{const [i,d]=n.toFixed(2).split('.');const g=f.format==='1,234.56'?[',','.']:f.format==='1.234,56'?['.',',']:[' ',','];return CUR[f.code][1]+i.replace(/\B(?=(\d{3})+(?!\d))/g,g[0])+g[1]+d};
+  const date=()=>({'DD/MM/YYYY':'09/11/2026','MM/DD/YYYY':'11/09/2026','YYYY-MM-DD':'2026-11-09'})[f.date];
+  const sel=(id,opts,val)=>`<select id="${id}">${opts.map(([v,l])=>`<option value="${v}" ${v===val?'selected':''}>${l}</option>`).join('')}</select>`;
+  const draw=()=>{$('#content').innerHTML=`
+    <div class="panel"><div class="panel-head"><div><h3>Regional settings</h3><p>How amounts, dates and times look across the platform and on documents.</p></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Currency</div><div class="h">Used on quotes, invoices and reports. Changing it doesn't convert existing amounts.</div></div><div class="ctl">${sel('rgC',Object.entries(CUR).map(([k,v])=>[k,`${k} — ${v[0]} (${v[1]})`]),f.code)}</div></div>
+      <div class="row"><div class="lbl"><div class="n">Number format</div></div><div class="ctl">${sel('rgF',['1,234.56','1.234,56','1 234,56'].map(x=>[x,x]),f.format)}</div></div>
+      <div class="row"><div class="lbl"><div class="n">Language</div><div class="h">Default language for the interface and documents.</div></div><div class="ctl">${sel('rgL',LANG.map(x=>[x,x]),f.lang)}</div></div>
+      <div class="row"><div class="lbl"><div class="n">Date format</div></div><div class="ctl">${sel('rgD',DATE.map(x=>[x,x]),f.date)}</div></div>
+      <div class="row"><div class="lbl"><div class="n">Time zone</div><div class="h">Company default for bookings, reminders and due dates. Each user can set their own in My Profile.</div></div><div class="ctl">${sel('rgT',Object.entries(TZ),f.tz)}</div></div>
+      <div class="row"><div class="lbl"><div class="n">Preview</div></div><div class="ctl" style="font-size:13px;line-height:1.9">Total: <b>${money(8478.8)}</b><br>Due date: <b>${date()}</b></div></div>
+    </div></div>`;
+    [['rgC','code'],['rgF','format'],['rgL','lang'],['rgD','date'],['rgT','tz']].forEach(([id,k])=>$('#'+id).onchange=e=>{f[k]=e.target.value;setDirty(true);draw()})};
+  saveFn=()=>{S.regional={...f};setDirty(false);toast('Regional settings updated','Your changes have been saved')};
   draw();
 }
 
