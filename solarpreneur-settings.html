@@ -223,10 +223,13 @@ input.err{border-color:var(--error-500)}
 .avatar-row{display:flex;align-items:center;gap:16px}
 .avatar{width:64px;height:64px;border-radius:50%;background:var(--primary-50);color:var(--primary-700);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:20px;overflow:hidden;flex-shrink:0;border:1px solid var(--gray-200)}
 .avatar img{width:100%;height:100%;object-fit:cover}
-.pw-rules{list-style:none;margin:8px 0 0;padding:0;font-size:12.5px;color:var(--gray-500)}
-.pw-rules li{display:flex;gap:6px;align-items:center;margin-bottom:4px}
-.pw-rules li.ok{color:var(--success-700)}
-.pw-rules .b{width:14px;height:14px;border-radius:50%;border:1.5px solid currentColor;display:inline-flex;align-items:center;justify-content:center;font-size:9px}
+.pw-form{display:flex;flex-direction:column;gap:20px}
+.pwf label{display:block;font-size:14px;font-weight:500;color:var(--gray-700);margin-bottom:6px}
+.pw-rules{list-style:none;margin:8px 0 0;padding:0;font-size:14px;color:var(--gray-600)}
+.pw-rules li{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.pw-rules li svg{color:var(--gray-400);flex-shrink:0}
+.pw-rules li.ok svg{color:var(--success-500)}
+.pw-actions{display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--gray-200);padding-top:20px}
 .pw-wrap{position:relative}
 .pw-wrap button{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--gray-500);font-size:12.5px;font-weight:600;cursor:pointer}
 
@@ -762,28 +765,29 @@ function pProfile(p){
 function pPassword(p){
   setHeader(p.label,p.desc);
   const f={cur:'',nw:'',cf:''};
-  const rules=[['At least 8 characters',v=>v.length>=8],['One uppercase letter',v=>/[A-Z]/.test(v)],['One number',v=>/\d/.test(v)]];
-  $('#content').innerHTML=`<div class="panel"><div class="panel-head"><div><h3>Change password</h3><p>You'll stay signed in on this device.</p></div></div><div class="panel-body">
-    <div class="row"><div class="lbl"><div class="n">Current password</div></div><div class="ctl"><div class="pw-wrap"><input type="password" id="pwCur" autocomplete="current-password"><button type="button" data-t="pwCur">Show</button></div><div id="pwCurErr"></div></div></div>
-    <div class="row"><div class="lbl"><div class="n">New password</div></div><div class="ctl"><div class="pw-wrap"><input type="password" id="pwNew" autocomplete="new-password"><button type="button" data-t="pwNew">Show</button></div>
-      <ul class="pw-rules" id="pwRules"></ul></div></div>
-    <div class="row"><div class="lbl"><div class="n">Confirm new password</div></div><div class="ctl"><div class="pw-wrap"><input type="password" id="pwCf" autocomplete="new-password"><button type="button" data-t="pwCf">Show</button></div><div id="pwCfErr"></div></div></div>
-    <div class="row"><div class="lbl"></div><div class="ctl"><button class="btn btn-primary" id="pwSave" disabled>Update password</button>
-      <div class="muted" style="margin-top:10px">Forgot your current password? Sign out and use “Forgot password” on the sign-in page.</div></div></div>
-  </div></div>`;
+  const rules=[['Must be at least 8 characters',v=>v.length>=8],['Must contain one uppercase letter',v=>/[A-Z]/.test(v)],['Must contain one number',v=>/\d/.test(v)],['Must contain one special character',v=>/[^A-Za-z0-9\s]/.test(v)]];
+  const fld=(id,label,ph,ac,extra)=>`<div class="pwf"><label for="${id}">${label} <span class="req">*</span></label><input type="password" id="${id}" placeholder="${ph}" autocomplete="${ac}">${extra||''}<div id="${id}Err"></div></div>`;
+  $('#content').innerHTML=`<div class="pw-form">
+    ${fld('pwCur','Current password','Enter current password','current-password')}
+    ${fld('pwNew','New password','Enter new password','new-password','<ul class="pw-rules" id="pwRules"></ul>')}
+    ${fld('pwCf','Confirm new password','Re-enter new password','new-password')}
+    <div class="pw-actions"><button class="btn" id="pwCancel" disabled>Cancel</button><button class="btn btn-primary" id="pwSave" disabled>Save</button></div>
+  </div>`;
+  const ok=v=>rules.every(r=>r[1](v));
   const upd=()=>{
-    $('#pwRules').innerHTML=rules.map(([t,fn])=>`<li class="${fn(f.nw)?'ok':''}"><span class="b">${fn(f.nw)?'✓':''}</span>${t}</li>`).join('');
+    $('#pwRules').innerHTML=rules.map(([t,fn])=>{const m=fn(f.nw);return `<li class="${m?'ok':''}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" ${m?'fill="currentColor"':'stroke="currentColor" stroke-width="1.33"'}/><path d="M5 8.2l2 2 4-4.2" stroke="${m?'#fff':'currentColor'}" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/></svg>${t}</li>`}).join('');
     const mism=f.cf&&f.cf!==f.nw;
     $('#pwCfErr').innerHTML=mism?'<div class="err-text">Passwords don’t match</div>':'';
     $('#pwCf').classList.toggle('err',!!mism);
-    $('#pwSave').disabled=!(f.cur&&rules.every(r=>r[1](f.nw))&&f.cf===f.nw);
-    setDirty(false); // password form saves with its own button
+    $('#pwSave').disabled=!(f.cur&&ok(f.nw)&&f.cf===f.nw);
+    $('#pwCancel').disabled=!(f.cur||f.nw||f.cf);
+    setDirty(false); // password form saves with its own buttons
   };
-  [['#pwCur','cur'],['#pwNew','nw'],['#pwCf','cf']].forEach(([id,k])=>$(id).oninput=e=>{f[k]=e.target.value;if(k==='cur'){$('#pwCurErr').innerHTML='';$('#pwCur').classList.remove('err')}upd()});
-  document.querySelectorAll('.pw-wrap button').forEach(b=>b.onclick=()=>{const i=$('#'+b.dataset.t);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Show':'Hide'});
+  [['#pwCur','cur'],['#pwNew','nw'],['#pwCf','cf']].forEach(([id,k])=>$(id).oninput=e=>{f[k]=e.target.value;if(k==='cur'){$('#pwCurErr').innerHTML='';$('#pwCur').classList.remove('err')}if(k==='nw'){$('#pwNewErr').innerHTML='';$('#pwNew').classList.remove('err')}upd()});
+  $('#pwCancel').onclick=()=>pPassword(p);
   $('#pwSave').onclick=()=>{
-    if(f.cur===f.nw){$('#pwCfErr').innerHTML='<div class="err-text">New password must be different from the current one</div>';return}
-    // Prototype: "wrong" simulates a wrong current password
+    if(f.cur===f.nw){$('#pwNew').classList.add('err');$('#pwNewErr').innerHTML='<div class="err-text">New password must be different from the current one</div>';return}
+    // Prototype: typing "wrong" as the current password simulates a wrong current password
     if(f.cur.toLowerCase()==='wrong'){$('#pwCur').classList.add('err');$('#pwCurErr').innerHTML='<div class="err-text">Current password is incorrect</div>';return}
     toast('Password updated','Use your new password next time you sign in');pPassword(p);
   };
