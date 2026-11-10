@@ -349,7 +349,7 @@ const S={
   pricing:{taxName:'GST',taxRate:10,afterDiscount:true,discountTypes:{percent:true,amount:true},discountNames:['Loyalty discount'],
            totalModes:{system:true,custom:true}},
   margin:{green:20,amber:10},
-  approval:{repDiscount:10,smDiscount:20,changeOrder:true},
+  approval:{repDiscount:10,smDiscount:20},
   profile:{first:'Sarah',last:'Mitchell',email:'sarah.mitchell@acmecorp.com.au',phone:'+61 412 345 678',photo:null},
   leadForm:[
     {sec:'Info',fields:[['Lead Owner','Team member'],['Sales Assistant','Team member'],['Contact Method','Dropdown'],['Solution','Dropdown',1],['Follow Up By','Date'],['Referred By','Dropdown']]},
@@ -397,7 +397,6 @@ const PAGES=[
   {id:'milestones',label:'Milestone Types',office:'hidden',count:()=>S.milestones.length,desc:'Milestones you can add to job types. Start and Complete are added to every job automatically.'},
   {id:'priority',label:'Priority Levels',office:'hidden',desc:'Options in the Priority dropdown on a job.'},
   {id:'reasons',label:'On Hold / Cancel Reasons',office:'hidden',desc:'Reasons picked when a job is put On Hold or Cancelled. Used in reports.'},
-  {id:'change-orders',label:'Change Orders',office:'hidden',desc:'Whether changes to a job need a Manager’s approval.'},
   {group:'Templates'},
   {id:'templates',label:'Line Item Templates',office:'hidden',count:()=>S.templates.length,desc:'Saved bundles of products and services. Shown under Add Items → From template.'},
   {group:'Catalog'},
@@ -445,7 +444,7 @@ function render(){
   renderNav();
   const p=PAGES.find(x=>x.id===current);
   setDirty(false);
-  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'change-orders':pApprovals,'payments':pPayments,'priority':pPriority,'reasons':pReasons,'numbering':pNumbering,'commission':pCommission,'timesheet':pTimesheet,'company':pCompany,'regional':pRegional}[current];
+  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'payments':pPayments,'priority':pPriority,'reasons':pReasons,'numbering':pNumbering,'commission':pCommission,'timesheet':pTimesheet,'company':pCompany,'regional':pRegional}[current];
   fn(p);
   applyReadOnly();
 }
@@ -716,10 +715,6 @@ function pApprovals(p){
   const f={...S.approval};
   const draw=()=>{
     const err=f.repDiscount>f.smDiscount;
-    const co=`<div class="panel"><div class="panel-head"><div><h3>Change orders</h3></div></div><div class="panel-body">
-      <div class="row"><div class="lbl"><div class="n">Require approval ${A("The design always requires approval (Submit for Approval). The toggle is my addition.")}</div><div class="h">On: the job shows “Submit for Approval” and a Manager approves the change. Off: changes are saved straight to the job.</div></div><div class="ctl"><button class="toggle ${f.changeOrder?'on':''}" id="aC"></button></div></div>
-    </div></div>`;
-    if(p.id==='change-orders'){$('#content').innerHTML=co;$('#aC').onclick=()=>{f.changeOrder=!f.changeOrder;setDirty(true);draw()};return}
     $('#content').innerHTML=`<div class="panel"><div class="panel-head"><div><h3>Discount limits ${A("Confirmed in the roles doc: Admin sets approval limits, Sales Rep and Sales Manager have their own limits. The default values are mine.")}</h3><p>A bigger discount is sent for approval. Managers and Admins have no limit.</p></div></div><div class="panel-body">
       <div class="row"><div class="lbl"><div class="n">Sales Rep</div><div class="h">Above this, approval from a Sales Manager or Manager.</div></div><div class="ctl"><div class="affix"><input type="number" id="aR" min="0" max="100" value="${f.repDiscount}"><span class="suf">%</span></div></div></div>
       <div class="row"><div class="lbl"><div class="n">Sales Manager</div><div class="h">Above this, approval from a Manager.</div></div><div class="ctl"><div class="affix"><input type="number" id="aS" min="0" max="100" value="${f.smDiscount}" class="${err?'err':''}"><span class="suf">%</span></div>${err?'<div class="err-text">Must be equal to or higher than the Sales Rep limit</div>':''}</div></div>
@@ -727,7 +722,7 @@ function pApprovals(p){
     $('#aR').onchange=e=>{f.repDiscount=+e.target.value;setDirty(true);draw()};
     $('#aS').onchange=e=>{f.smDiscount=+e.target.value;setDirty(true);draw()};
   };
-  saveFn=()=>{if(f.repDiscount>f.smDiscount)return;S.approval=f;setDirty(false);toast('Settings saved',p.id==='change-orders'?'Change order setting updated':'Discount limits updated')};
+  saveFn=()=>{if(f.repDiscount>f.smDiscount)return;S.approval=f;setDirty(false);toast('Settings saved','Discount limits updated')};
   draw();
 }
 
