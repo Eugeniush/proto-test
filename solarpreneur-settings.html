@@ -285,8 +285,8 @@ const COLORS=['#101828','#344054','#475467','#667085','#98A2B3','#D0D5DD','#EAEC
 let uid=100; const nid=()=>++uid;
 const S={
   priority:[{id:1,name:'Low',color:'gray'},{id:2,name:'Medium',color:'blue'},{id:3,name:'High',color:'amber'},{id:4,name:'Urgent',color:'red'}],
-  holdReasons:[{id:1,name:'Waiting for customer'},{id:2,name:'Waiting for network approval'},{id:3,name:'Stock delay'},{id:4,name:'Weather'}],
-  cancelReasons:[{id:1,name:'Customer changed mind'},{id:2,name:'Price too high'},{id:3,name:'Went with a competitor'},{id:4,name:'Site not suitable'}],
+  holdReasons:[{id:1,name:'Awaiting council/permit approval'},{id:2,name:'Awaiting network (DNSP) approval'},{id:3,name:'Awaiting stock/parts'},{id:4,name:'Awaiting customer (decision, payment, access)'},{id:5,name:'Other',locked:true,note:'Note is mandatory'}],
+  cancelReasons:[{id:1,name:'Customer withdrew'},{id:2,name:'Finance declined'},{id:3,name:'Site not feasible'}],
   reasonRequired:true,
   numbering:{job:{pre:'JOB-',next:124},quote:{pre:'Q-',next:58},invoice:{pre:'INV-',next:124}},
   commission:{basis:'sale',rep:10,manager:5},
@@ -878,7 +878,9 @@ const PCOL={gray:['#F2F4F7','#344054'],blue:['#EFF8FF','#175CD3'],amber:['#FFFAE
 const LE={};
 function listEditor(key,items,{ph,colors,onChange}){
   LE[key]={items,onChange,colors};
-  return `<div id="le-${key}">${items.map((x,i)=>`<div class="list-row"><div class="idx">${i+1}</div>
+  return `<div id="le-${key}">${items.map((x,i)=>x.locked?`<div class="list-row"><div class="idx">${i+1}</div>
+    <div class="grow" style="display:flex;align-items:center;gap:8px"><input type="text" value="${esc(x.name)}" disabled style="flex:1"><span class="badge" title="System option. Can't be renamed, moved or deleted.">System</span>${x.note?`<span style="white-space:nowrap;font-size:13px;color:var(--gray-500)">${esc(x.note)}</span>`:''}</div>
+    <span style="width:72px"></span></div>`:`<div class="list-row"><div class="idx">${i+1}</div>
     <div class="grow" style="display:flex;align-items:center;gap:8px">${colors?`<select style="width:110px" onchange="leColor('${key}',${x.id},this.value)">${Object.keys(PCOL).map(c=>`<option value="${c}" ${x.color===c?'selected':''}>${c[0].toUpperCase()+c.slice(1)}</option>`).join('')}</select><span class="badge" style="background:${PCOL[x.color][0]};color:${PCOL[x.color][1]};border-color:${PCOL[x.color][0]}">${esc(x.name)}</span>`:''}
       <input type="text" value="${esc(x.name)}" onchange="leRename('${key}',${x.id},this.value)" style="${colors?'flex:1':''}"></div>
     <button class="icon-btn" title="Move up" onclick="leMove('${key}',${i},-1)" ${i===0?'disabled':''}>↑</button>
@@ -891,7 +893,7 @@ function leMove(k,i,d){const L=LE[k];const a=L.items;[a[i],a[i+d]]=[a[i+d],a[i]]
 function leDel(k,id){const L=LE[k];if(L.items.length<=1){$('#leErr-'+k).innerHTML='<div class="err-text">Keep at least one option</div>';return}L.items.splice(L.items.findIndex(x=>x.id===id),1);setDirty(true);L.onChange()}
 function leAdd(k){const L=LE[k];const el=$('#leNew-'+k);const v=el.value.trim();if(!v)return;
   if(L.items.some(x=>x.name.toLowerCase()===v.toLowerCase())){$('#leErr-'+k).innerHTML='<div class="err-text">This option already exists</div>';return}
-  L.items.push(L.colors?{id:nid(),name:v,color:'gray'}:{id:nid(),name:v});setDirty(true);L.onChange()}
+  const it=L.colors?{id:nid(),name:v,color:'gray'}:{id:nid(),name:v};const li=L.items.findIndex(x=>x.locked);li<0?L.items.push(it):L.items.splice(li,0,it);setDirty(true);L.onChange()}
 const clone=o=>JSON.parse(JSON.stringify(o));
 
 /* ================= PRIORITY & DIFFICULTY ================= */
@@ -909,8 +911,8 @@ function pReasons(p){
   setHeader(p.label,p.desc);
   const f={hold:clone(S.holdReasons),cancel:clone(S.cancelReasons),req:S.reasonRequired};
   const draw=()=>{$('#content').innerHTML=`
-    <div class="panel"><div class="panel-head"><div><h3>On Hold reasons ${A("Confirmed by Ahmed. The reasons are my example defaults.")}</h3><p>Picked when a job is put On Hold.</p></div></div><div class="panel-body">${listEditor('hold',f.hold,{ph:'New reason',onChange:draw})}</div></div>
-    <div class="panel"><div class="panel-head"><div><h3>Cancel reasons</h3><p>Picked when a job is Cancelled. Shown in reports.</p></div></div><div class="panel-body">${listEditor('cancel',f.cancel,{ph:'New reason',onChange:draw})}</div></div>
+    <div class="panel"><div class="panel-head"><div><h3>On Hold reasons ${A("Reasons are from Ahmed (Oct 28). Editing the list in Settings is my assumption. 'Other' is a fixed system option with a mandatory note.")}</h3><p>Picked when a job is put On Hold.</p></div></div><div class="panel-body">${listEditor('hold',f.hold,{ph:'New reason',onChange:draw})}</div></div>
+    <div class="panel"><div class="panel-head"><div><h3>Cancel reasons ${A("Reasons are from Ahmed (Oct 29). Editing the list in Settings is my assumption.")}</h3><p>Picked when a job is Cancelled. Shown in reports.</p></div></div><div class="panel-body">${listEditor('cancel',f.cancel,{ph:'New reason',onChange:draw})}</div></div>
     <div class="panel"><div class="panel-head"><div><h3>Rules</h3></div></div><div class="panel-body">
       <div class="row"><div class="lbl"><div class="n">Reason is required ${A("My addition: whether picking a reason is mandatory.")}</div><div class="h">Off: the reason can be skipped. Changing a reason here doesn't change jobs that already have it.</div></div><div class="ctl"><button class="toggle ${f.req?'on':''}" id="rReq"></button></div></div></div></div>`;
     $('#rReq').onclick=()=>{f.req=!f.req;setDirty(true);draw()}};
