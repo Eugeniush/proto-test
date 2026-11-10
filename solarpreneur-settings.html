@@ -394,19 +394,22 @@ const PAGES=[
   {id:'numbering',label:'Numbering',office:'hidden',desc:'Prefix and next number for jobs, quotes and invoices.'},
   {group:'Leads'},
   {id:'lead-form',label:'Lead Form',office:'hidden',desc:'Fields shown in each section of the Lead tab. Opened from “Customize” on a lead.'},
-  {group:'Jobs & Quotes'},
+  {group:'Jobs'},
   {id:'job-types',label:'Job Types',office:'hidden',count:()=>S.jobTypes.length,desc:'Picked when creating a quote or job. Decides which milestones and line item templates it gets.'},
   {id:'milestones',label:'Milestone Types',office:'hidden',count:()=>S.milestones.length,desc:'Milestones you can add to job types. Start and Complete are added to every job automatically.'},
   {id:'priority',label:'Priority & Difficulty',office:'hidden',desc:'Options in the Priority and Difficulty dropdowns on a job.'},
   {id:'reasons',label:'On Hold / Cancel Reasons',office:'hidden',desc:'Reasons picked when a job is put On Hold or Cancelled. Used in reports.'},
+  {id:'change-orders',label:'Change Orders',office:'hidden',desc:'Whether changes to a job need a Manager’s approval.'},
+  {group:'Quotes'},
+  {id:'margin',label:'Margin Indicator',office:'hidden',desc:'Colour of the margin label. Sales Reps see only the colour, not the cost.'},
+  {id:'approvals',label:'Discount Approval',office:'hidden',desc:'Discount limits per role on quotes. A bigger discount is sent to a manager for approval.'},
+  {id:'commission',label:'Commission',office:'hidden',desc:'Default commission pre-filled in Add Commission on a quote.'},
+  {group:'Templates'},
   {id:'templates',label:'Line Item Templates',office:'hidden',count:()=>S.templates.length,desc:'Saved bundles of products and services. Shown under Add Items → From template.'},
   {group:'Catalog'},
   {id:'categories',label:'Categories',office:'view',count:()=>S.categories.length,desc:'Groups shown in the catalog picker.'},
   {group:'Pricing'},
   {id:'tax',label:'Tax & Discounts',office:'view',desc:'How tax and discounts are calculated in the Line Items block.'},
-  {id:'margin',label:'Margin Indicator',office:'hidden',desc:'Colour of the margin label. Sales Reps see only the colour, not the cost.'},
-  {id:'commission',label:'Commission',office:'hidden',desc:'Default commission pre-filled in Add Commission on a quote.'},
-  {id:'approvals',label:'Approval Limits',office:'hidden',desc:'When discounts and change orders need approval from a manager.'},
   {group:'Invoices'},
   {id:'payments',label:'Payment Options',office:'view',desc:'Ways customers can pay. Shown in the Payment Option block on every invoice.'},
   {group:'Timesheets'},
@@ -446,7 +449,7 @@ function render(){
   renderNav();
   const p=PAGES.find(x=>x.id===current);
   setDirty(false);
-  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'payments':pPayments,'priority':pPriority,'reasons':pReasons,'numbering':pNumbering,'commission':pCommission,'timesheet':pTimesheet,'company':pCompany,'regional':pRegional}[current];
+  const fn={'profile':pProfile,'password':pPassword,'lead-form':pLeadForm,'job-types':pJobTypes,'milestones':pMilestones,'templates':pTemplates,'categories':pCategories,'tax':pTax,'margin':pMargin,'approvals':pApprovals,'change-orders':pApprovals,'payments':pPayments,'priority':pPriority,'reasons':pReasons,'numbering':pNumbering,'commission':pCommission,'timesheet':pTimesheet,'company':pCompany,'regional':pRegional}[current];
   fn(p);
   applyReadOnly();
 }
@@ -717,18 +720,18 @@ function pApprovals(p){
   const f={...S.approval};
   const draw=()=>{
     const err=f.repDiscount>f.smDiscount;
+    const co=`<div class="panel"><div class="panel-head"><div><h3>Change orders</h3></div></div><div class="panel-body">
+      <div class="row"><div class="lbl"><div class="n">Require approval ${A("The design always requires approval (Submit for Approval). The toggle is my addition.")}</div><div class="h">On: the job shows “Submit for Approval” and a Manager approves the change. Off: changes are saved straight to the job.</div></div><div class="ctl"><button class="toggle ${f.changeOrder?'on':''}" id="aC"></button></div></div>
+    </div></div>`;
+    if(p.id==='change-orders'){$('#content').innerHTML=co;$('#aC').onclick=()=>{f.changeOrder=!f.changeOrder;setDirty(true);draw()};return}
     $('#content').innerHTML=`<div class="panel"><div class="panel-head"><div><h3>Discount limits ${A("Confirmed in the roles doc: Admin sets approval limits, Sales Rep and Sales Manager have their own limits. The default values are mine.")}</h3><p>A bigger discount is sent for approval. Managers and Admins have no limit.</p></div></div><div class="panel-body">
       <div class="row"><div class="lbl"><div class="n">Sales Rep</div><div class="h">Above this, approval from a Sales Manager or Manager.</div></div><div class="ctl"><div class="affix"><input type="number" id="aR" min="0" max="100" value="${f.repDiscount}"><span class="suf">%</span></div></div></div>
       <div class="row"><div class="lbl"><div class="n">Sales Manager</div><div class="h">Above this, approval from a Manager.</div></div><div class="ctl"><div class="affix"><input type="number" id="aS" min="0" max="100" value="${f.smDiscount}" class="${err?'err':''}"><span class="suf">%</span></div>${err?'<div class="err-text">Must be equal to or higher than the Sales Rep limit</div>':''}</div></div>
-    </div></div>
-    <div class="panel"><div class="panel-head"><div><h3>Change orders</h3></div></div><div class="panel-body">
-      <div class="row"><div class="lbl"><div class="n">Require approval ${A("The design always requires approval (Submit for Approval). The toggle is my addition.")}</div><div class="h">On: the job shows “Submit for Approval” and a Manager approves the change. Off: changes are saved straight to the job.</div></div><div class="ctl"><button class="toggle ${f.changeOrder?'on':''}" id="aC"></button></div></div>
     </div></div>`;
     $('#aR').onchange=e=>{f.repDiscount=+e.target.value;setDirty(true);draw()};
     $('#aS').onchange=e=>{f.smDiscount=+e.target.value;setDirty(true);draw()};
-    $('#aC').onclick=()=>{f.changeOrder=!f.changeOrder;setDirty(true);draw()};
   };
-  saveFn=()=>{if(f.repDiscount>f.smDiscount)return;S.approval=f;setDirty(false);toast('Settings saved','Approval limits updated')};
+  saveFn=()=>{if(f.repDiscount>f.smDiscount)return;S.approval=f;setDirty(false);toast('Settings saved',p.id==='change-orders'?'Change order setting updated':'Discount limits updated')};
   draw();
 }
 
