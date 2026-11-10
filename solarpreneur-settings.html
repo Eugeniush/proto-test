@@ -765,7 +765,7 @@ function pProfile(p){
 function pPassword(p){
   setHeader(p.label,p.desc);
   const f={cur:'',nw:'',cf:''};
-  const rules=[['Must be at least 8 characters',v=>v.length>=8],['Must contain one uppercase letter',v=>/[A-Z]/.test(v)],['Must contain one number',v=>/\d/.test(v)],['Must contain one special character',v=>/[^A-Za-z0-9\s]/.test(v)]];
+  const rules=[['At least 8 characters',v=>v.length>=8],['Uppercase letter',v=>/[A-Z]/.test(v)],['Number',v=>/\d/.test(v)],['Special character, e.g. ! @ # ?',v=>/[^A-Za-z0-9\s]/.test(v)]];
   const fld=(id,label,ph,ac,extra)=>`<div class="pwf"><label for="${id}">${label} <span class="req">*</span></label><input type="password" id="${id}" placeholder="${ph}" autocomplete="${ac}">${extra||''}<div id="${id}Err"></div></div>`;
   $('#content').innerHTML=`<div class="pw-form">
     ${fld('pwCur','Current password','Enter current password','current-password')}
