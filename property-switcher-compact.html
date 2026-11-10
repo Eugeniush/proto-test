@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Property switcher — compact variants</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--g25:#FCFCFD;--g50:#F9FAFB;--g100:#F2F4F7;--g200:#EAECF0;--g300:#D0D5DD;--g400:#98A2B3;--g500:#667085;--g600:#475467;--g700:#344054;--g900:#101828;--p50:#EFF8FF;--p100:#D1E9FF;--p600:#1570EF;--p700:#175CD3;--sh:0 12px 16px -4px rgba(16,24,40,.08),0 4px 6px -2px rgba(16,24,40,.03);--xs:0 1px 2px rgba(16,24,40,.05)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:14px;color:var(--g900);background:var(--g50)}
+button{font:inherit;cursor:pointer}
+.switch{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--g200);padding:12px 32px;display:flex;align-items:center;gap:16px}
+.switch b{font-size:13px;color:var(--g500);font-weight:500}
+.seg{display:flex;gap:4px;padding:4px;background:var(--g50);border:1px solid var(--g200);border-radius:10px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:7px;font-weight:600;color:var(--g500)}
+.seg button.on{background:#fff;color:var(--g900);box-shadow:var(--xs)}
+.note{max-width:1240px;margin:20px auto 0;padding:14px 18px;background:#fff;border:1px solid var(--g200);border-radius:12px;color:var(--g600);line-height:1.6}
+.note h3{margin:0 0 4px;font-size:15px;color:var(--g900)}
+.note ul{margin:6px 0 0;padding-left:18px}
+.page{max-width:1240px;margin:16px auto 40px;background:#fff;border:1px solid var(--g200);border-radius:16px;display:flex;overflow:visible}
+.crumbs{max-width:1240px;margin:16px auto 0;display:flex;align-items:center;gap:8px;color:var(--g600);font-weight:500}
+.crumbs .sep{color:var(--g300)}
+.crumbs .cur{color:var(--g900)}
+.left{width:280px;border-right:1px solid var(--g200);padding:20px}
+.lbl{font-size:12px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.02em;margin:0 0 10px}
+.kv{display:flex;justify-content:space-between;padding:6px 0;color:var(--g600)}.kv span:last-child{color:var(--g900)}
+.sv{height:130px;border-radius:10px;background:linear-gradient(135deg,#9db8d6,#c9d7c0 55%,#8e9a86);margin:8px 0;position:relative;overflow:hidden}
+.sv::after{content:"Street View";position:absolute;left:8px;top:8px;background:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px}
+.addr{font-weight:500;line-height:1.5}
+.main{flex:1;min-width:0}
+.hdr{padding:20px 24px 0;position:relative}
+.name{font-size:20px;font-weight:600;display:flex;align-items:center;gap:10px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;color:var(--g600);margin-top:4px}
+.meta .d{width:1px;height:14px;background:var(--g300)}
+.newjob{position:absolute;right:24px;top:20px;border:1px solid var(--g300);background:#fff;border-radius:8px;padding:8px 14px;font-weight:600;color:var(--g700);box-shadow:var(--xs)}
+.tabs{display:flex;gap:4px;margin-top:14px;border-bottom:1px solid var(--g200);align-items:flex-end}
+.tab{padding:10px 12px;font-weight:600;color:var(--g500);border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:6px;cursor:pointer}
+.tab.on{color:var(--p700);border-color:var(--p700)}
+.cnt{font-size:12px;padding:0 7px;border-radius:20px;border:1px solid var(--g200);background:var(--g50);color:var(--g700)}
+.tab.on .cnt{background:var(--p50);border-color:var(--p100);color:var(--p700)}
+.body{display:flex}
+.content{flex:1;padding:24px}
+.rp{width:280px;border-left:1px solid var(--g200);padding:20px}
+.empty{border:1px dashed var(--g300);border-radius:12px;padding:28px;text-align:center;color:var(--g500);line-height:1.6}
+.empty b{color:var(--g900)}
+.row{border:1px solid var(--g200);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;margin-bottom:8px}
+/* dropdown */
+.dd{position:absolute;z-index:20;width:380px;background:#fff;border:1px solid var(--g200);border-radius:12px;box-shadow:var(--sh);padding:6px;display:none}
+.dd.open{display:block}
+.dd input{width:100%;border:1px solid var(--g300);border-radius:8px;padding:8px 10px 8px 32px;font:inherit;margin-bottom:6px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2398A2B3' stroke-width='2'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m14 14-3-3'/%3E%3C/svg%3E") 10px center no-repeat}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:8px;cursor:pointer}
+.opt:hover{background:var(--g50)}
+.opt.sel{background:var(--p50)}
+.opt .t{font-weight:600;color:var(--g900)}
+.opt .s{color:var(--g500);font-size:13px;margin-top:2px;line-height:1.4}
+.opt .chk{margin-left:auto;color:var(--p600);font-weight:700;visibility:hidden}
+.opt.sel .chk{visibility:visible}
+.pin{width:28px;height:28px;border-radius:8px;background:var(--g100);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add{display:flex;align-items:center;gap:8px;padding:10px;border-top:1px solid var(--g200);margin-top:4px;color:var(--p700);font-weight:600;cursor:pointer;border-radius:0 0 8px 8px}
+.add:hover{background:var(--g50)}
+.trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px;display:inline-block;vertical-align:bottom}
+/* Variant A */
+.vA-trigger{display:inline-flex;align-items:center;gap:8px;margin-top:10px;border:1px solid var(--g300);border-radius:8px;padding:6px 10px;background:#fff;box-shadow:var(--xs);font-weight:600;color:var(--g900)}
+.vA-trigger:hover{background:var(--g50)}
+.vA-trigger .of{font-weight:500;color:var(--g500);font-size:12px;padding:1px 7px;border-radius:20px;background:var(--g100)}
+/* Variant B */
+.vB-scope{display:flex;align-items:center;gap:0;margin-right:12px;padding-bottom:6px}
+.vB-trigger{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--g100);border-radius:8px;padding:7px 10px;font-weight:600;color:var(--g900)}
+.vB-trigger:hover{background:var(--g200)}
+.vB-slash{color:var(--g300);font-size:20px;margin-left:12px}
+/* Variant C */
+.vC-crumb{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:4px 8px;margin:-4px -8px;border-radius:6px;font-weight:600;color:var(--g900)}
+.vC-crumb:hover{background:var(--g100)}
+.vC-band{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;background:var(--g50);border:1px solid var(--g200);margin-top:12px;color:var(--g600)}
+.vC-band b{color:var(--g900)}
+.link{color:var(--p700);font-weight:600;cursor:pointer;background:none;border:0;padding:0}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(52,64,84,.6);display:none;align-items:center;justify-content:center;z-index:50}
+.ov.open{display:flex}
+.modal{width:440px;background:#fff;border-radius:12px;padding:20px;box-shadow:var(--sh)}
+.modal h3{margin:0 0 4px}.modal p{margin:0 0 16px;color:var(--g500)}
+.modal label{display:block;font-weight:500;color:var(--g700);margin:0 0 6px}
+.modal input{width:100%;border:1px solid var(--g300);border-radius:8px;padding:9px 12px;font:inherit;margin-bottom:14px}
+.mf{display:flex;justify-content:flex-end;gap:10px}
+.btn{border:1px solid var(--g300);background:#fff;border-radius:8px;padding:9px 14px;font-weight:600;color:var(--g700)}
+.btn.pr{background:var(--p600);border-color:var(--p600);color:#fff}
+.toast{position:fixed;right:24px;top:70px;background:#fff;border:1px solid var(--g200);border-radius:12px;box-shadow:var(--sh);padding:12px 16px;display:none;z-index:60}
+.toast.show{display:block}
+.c0{display:inline-flex;align-items:center;gap:4px;border:0;background:none;padding:0;color:var(--p700);font-weight:600}
+.c1{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:0;color:var(--g900);font-weight:600}
+.c1:hover .trunc{text-decoration:underline;text-decoration-color:var(--g300);text-underline-offset:3px}
+.c2{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--g200);background:var(--g50);border-radius:16px;padding:2px 8px 2px 6px;color:var(--g700);font-weight:600;font-size:13px}
+.c2:hover{background:var(--g100)}
+.c2 .more{font-weight:500;color:var(--g500);background:#fff;border:1px solid var(--g200);border-radius:10px;padding:0 6px;font-size:12px}
+.c3{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:2px 6px;margin-left:2px;border-radius:6px;color:var(--g600);font-weight:500;font-size:15px}
+.c3:hover{background:var(--g100)}
+.c4{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:3px 6px;margin:-3px -6px;border-radius:6px;color:var(--g900);font-weight:600}
+.c4:hover,.c4.act{background:var(--g100)}
+.c4 svg:last-child{color:var(--g400)}
+</style>
+</head>
+<body>
+<div class="switch"><b>Property switcher</b>
+  <div class="seg" id="seg">
+    <button data-v="0" class="on">Current · Blue link</button>
+    <button data-v="1">1 · Neutral + pin</button>
+    <button data-v="2">2 · Soft pill + count</button>
+    <button data-v="3">3 · On the name line</button>
+    <button data-v="4">4 · Ghost button</button>
+  </div>
+</div>
+<div class="note" id="note"></div>
+<div class="crumbs" id="crumbs"></div>
+<div class="page">
+  <aside class="left">
+    <p class="lbl">Lead summary</p>
+    <div class="kv"><span>Created</span><span>12/03/2026</span></div>
+    <div class="kv"><span>Source</span><span>Google</span></div>
+    <div class="kv"><span>Owner</span><span>Adam Smith</span></div>
+    <p class="lbl" style="margin-top:24px">Property</p>
+    <div class="sv"></div>
+    <div class="addr" id="leftAddr"></div>
+    <div class="kv"><span>Material</span><span id="mat"></span></div>
+    <div class="kv"><span>Stories</span><span id="sto"></span></div>
+  </aside>
+  <section class="main">
+    <div class="hdr" id="hdr"></div>
+    <div class="body">
+      <div class="content" id="content"></div>
+      <aside class="rp"><p class="lbl">Details</p><div class="kv"><span>Status</span><span>In Progress</span></div><div class="kv"><span>Tags</span><span>Finance</span></div></aside>
+    </div>
+  </section>
+</div>
+
+<div class="dd" id="dd"></div>
+<div class="ov" id="ov"><div class="modal">
+  <h3>Add property</h3><p>A new address for John Keller. Leads, quotes, jobs and invoices can be linked to it.</p>
+  <label>Address *</label><input id="nAddr" placeholder="Start typing an address">
+  <label>Name (optional)</label><input id="nName" placeholder="e.g. Holiday house">
+  <div class="mf"><button class="btn" onclick="closeAdd()">Cancel</button><button class="btn pr" onclick="saveAdd()">Add property</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const PIN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#475467" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+const CHEV='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
+const P=[
+ {id:1,name:'Home',street:'364 Park Rd',suburb:'Regents Park',full:'364 Park Rd, Regents Park, Sydney NSW 2143',mat:'Colorbond',sto:2,c:{lead:1,quotes:2,jobs:5,invoices:3}},
+ {id:2,name:'Rental',street:'13 Yellow Lane',suburb:'Parramatta',full:'13 Yellow Lane, Parramatta, Sydney NSW 2150',mat:'Tile',sto:1,c:{lead:1,quotes:1,jobs:1,invoices:1}},
+ {id:3,name:'Warehouse',street:'Unit 4, 1120-1124 Canterbury Road Industrial Estate',suburb:'Punchbowl',full:'Unit 4, 1120-1124 Canterbury Road Industrial Estate, Punchbowl, Sydney NSW 2196',mat:'Metal deck',sto:1,c:{lead:1,quotes:0,jobs:0,invoices:0}},
+];
+let v='0',sel=1,tab='jobs',q='';
+const pl=(n,w)=>n+' '+w+(n===1?'':'s');
+const cur=()=>P.find(p=>p.id===sel);
+const short=p=>`${p.street}, ${p.suburb}`;
+const NOTES={
+ '0':['Current · Blue link (your version)','Address first in the contact line, blue with a chevron.',['Compact, no extra height.','Blue reads as a link (“open address”), not as a switcher.','Looks the same as the email, though it does something different.']],
+ '1':['1 · Neutral text + pin icon','Same place, but dark semibold text with a pin icon. The pin says “address”, the chevron says “switch”.',['Not confused with a link.','Weight separates it from the gray contact info.','Hover: subtle underline.']],
+ '2':['2 · Soft pill + “+2”','A light gray pill at the start of the line. “+2” shows that the customer has more properties.',['Clearly a control, still small.','The count makes multiple properties discoverable.','When there is 1 property: no “+N”, chevron stays for “Add property”.']],
+ '3':['3 · On the name line','“John Keller · 📍 364 Park Rd ▾”. Contact line stays untouched.',['Address sits next to the customer it belongs to.','Contact info line keeps its meaning.','Name line gets long with long names.']],
+ '4':['4 · Ghost button','Like 1, but with a gray background on hover/open, as a real button. Common in Linear/Notion headers.',['Clear affordance on hover.','Same compact size as your version.','Open state is visible while the menu is open.']],
+};
+function render(){
+ const p=cur(),n=NOTES[v];
+ document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ document.getElementById('note').innerHTML=`<h3>${n[0]}</h3>${n[1]}<ul>${n[2].map(x=>`<li>${x}</li>`).join('')}</ul>`;
+ document.getElementById('crumbs').innerHTML=`<span>⌂</span><span class="sep">›</span><span>All Customers</span><span class="sep">›</span><span class="cur">John Keller</span>`;
+ const contact=`koray.okumus@gmail.com<span class="d"></span>+61 412 345 678<span class="d"></span>Owner<span class="d"></span>Business<span class="d"></span>33-65432`;
+ const tabs=['lead','quotes','jobs','invoices'].map(k=>`<div class="tab ${tab===k?'on':''}" data-t="${k}">${k[0].toUpperCase()+k.slice(1)}${p.c[k]?`<span class="cnt">${p.c[k]}</span>`:''}</div>`).join('');
+ const s2=short(p),more=P.length-1;
+ const TR={
+  '0':`<button class="c0" id="trig"><span class="trunc" style="max-width:300px">${s2}</span>${CHEV}</button><span class="d"></span>`,
+  '1':`<button class="c1" id="trig">${PIN}<span class="trunc" style="max-width:300px">${s2}</span>${CHEV}</button><span class="d"></span>`,
+  '2':`<button class="c2" id="trig">${PIN}<span class="trunc" style="max-width:280px">${s2}</span>${more?`<span class="more">+${more}</span>`:''}${CHEV}</button><span class="d"></span>`,
+  '3':'',
+  '4':`<button class="c4" id="trig">${PIN}<span class="trunc" style="max-width:300px">${s2}</span>${CHEV}</button><span class="d"></span>`,
+ }[v];
+ const nm=v==='3'?`<div class="name">John Keller <span style="color:#D0D5DD;font-weight:400">·</span><button class="c3" id="trig">${PIN}<span class="trunc" style="max-width:300px">${s2}</span>${CHEV}</button></div>`:`<div class="name">John Keller</div>`;
+ document.getElementById('hdr').innerHTML=`<button class="newjob">+ New Job</button>${nm}<div class="meta">${TR}${contact}</div><div class="tabs">${tabs}</div>`;
+ document.getElementById('leftAddr').textContent=p.full;
+ document.getElementById('mat').textContent=p.mat;document.getElementById('sto').textContent=p.sto;
+ const n2=p.c[tab],T=tab[0].toUpperCase()+tab.slice(1);
+ document.getElementById('content').innerHTML=n2
+  ?Array.from({length:Math.min(n2,4)},(_,i)=>`<div class="row"><span><b>${T.replace(/s$/,'')} #${7820+i+p.id*10}</b> · ${p.street}</span><span style="color:#667085">In Progress</span></div>`).join('')
+  :`<div class="empty"><b>No ${tab} for this property yet</b><br>${short(p)}</div>`;
+ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{tab=t.dataset.t;render()});
+ ['trig','trig2'].forEach(id=>{const el=document.getElementById(id);if(el)el.onclick=e=>{e.stopPropagation();openDD(el)}});
+}
+function openDD(anchor){
+ document.querySelectorAll('.act').forEach(x=>x.classList.remove('act'));anchor.classList.add('act');
+ const dd=document.getElementById('dd'),r=anchor.getBoundingClientRect();
+ dd.style.left=(r.left+window.scrollX)+'px';dd.style.top=(r.bottom+window.scrollY+6)+'px';
+ q='';drawDD();dd.classList.add('open');dd.querySelector('input').focus();
+}
+function drawDD(){
+ const dd=document.getElementById('dd');
+ const list=P.filter(p=>(p.full+' '+p.name).toLowerCase().includes(q.toLowerCase()));
+ dd.innerHTML=(P.length>5||true?`<input placeholder="Search properties" value="${q}" oninput="q=this.value;drawDD();this.focus();this.setSelectionRange(q.length,q.length)">`:'')+
+  (list.length?list.map(p=>{const tot=p.c.quotes+p.c.jobs+p.c.invoices;return `<div class="opt ${p.id===sel?'sel':''}" data-id="${p.id}"><div class="pin">${PIN}</div><div style="min-width:0"><div class="t">${p.name}</div><div class="s">${p.full}</div><div class="s">${pl(p.c.quotes,'quote')} · ${pl(p.c.jobs,'job')} · ${pl(p.c.invoices,'invoice')}</div></div><span class="chk">✓</span></div>`}).join('')
+   :`<div class="opt" style="cursor:default"><div class="s">No properties match “${q}”</div></div>`)+
+  `<div class="add" onclick="openAdd()">+ Add property</div>`;
+ dd.querySelectorAll('.opt[data-id]').forEach(o=>o.onclick=()=>{sel=+o.dataset.id;closeDD();render();toast('Showing records for '+short(cur()))});
+}
+function closeDD(){document.getElementById('dd').classList.remove('open');document.querySelectorAll('.act').forEach(x=>x.classList.remove('act'))}
+document.addEventListener('click',e=>{if(!e.target.closest('#dd'))closeDD()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDD();closeAdd()}});
+function openAdd(){closeDD();document.getElementById('ov').classList.add('open');document.getElementById('nAddr').value='';document.getElementById('nName').value='';document.getElementById('nAddr').focus()}
+function closeAdd(){document.getElementById('ov').classList.remove('open')}
+function saveAdd(){const a=document.getElementById('nAddr').value.trim();if(!a){document.getElementById('nAddr').style.borderColor='#F04438';return}
+ const parts=a.split(',');const id=Date.now();P.push({id,name:document.getElementById('nName').value.trim()||'Property '+(P.length+1),street:parts[0].trim(),suburb:(parts[1]||'').trim()||'—',full:a,mat:'—',sto:'—',c:{lead:0,quotes:0,jobs:0,invoices:0}});
+ sel=id;closeAdd();render();toast('Property added')}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2200)}
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{v=b.dataset.v;closeDD();render()});
+render();
+</script>
+</body>
+</html>

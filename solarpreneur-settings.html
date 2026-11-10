@@ -285,7 +285,6 @@ const COLORS=['#101828','#344054','#475467','#667085','#98A2B3','#D0D5DD','#EAEC
 let uid=100; const nid=()=>++uid;
 const S={
   priority:[{id:1,name:'Low',color:'gray'},{id:2,name:'Medium',color:'blue'},{id:3,name:'High',color:'amber'},{id:4,name:'Urgent',color:'red'}],
-  difficulty:[{id:1,name:'Easy'},{id:2,name:'Standard'},{id:3,name:'Complex'}],
   holdReasons:[{id:1,name:'Waiting for customer'},{id:2,name:'Waiting for network approval'},{id:3,name:'Stock delay'},{id:4,name:'Weather'}],
   cancelReasons:[{id:1,name:'Customer changed mind'},{id:2,name:'Price too high'},{id:3,name:'Went with a competitor'},{id:4,name:'Site not suitable'}],
   reasonRequired:true,
@@ -397,7 +396,7 @@ const PAGES=[
   {group:'Jobs'},
   {id:'job-types',label:'Job Types',office:'hidden',count:()=>S.jobTypes.length,desc:'Picked when creating a quote or job. Decides which milestones and line item templates it gets.'},
   {id:'milestones',label:'Milestone Types',office:'hidden',count:()=>S.milestones.length,desc:'Milestones you can add to job types. Start and Complete are added to every job automatically.'},
-  {id:'priority',label:'Priority & Difficulty',office:'hidden',desc:'Options in the Priority and Difficulty dropdowns on a job.'},
+  {id:'priority',label:'Priority Levels',office:'hidden',desc:'Options in the Priority dropdown on a job.'},
   {id:'reasons',label:'On Hold / Cancel Reasons',office:'hidden',desc:'Reasons picked when a job is put On Hold or Cancelled. Used in reports.'},
   {id:'change-orders',label:'Change Orders',office:'hidden',desc:'Whether changes to a job need a Manager’s approval.'},
   {group:'Templates'},
@@ -898,11 +897,10 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 /* ================= PRIORITY & DIFFICULTY ================= */
 function pPriority(p){
   setHeader(p.label,p.desc);
-  const f={priority:clone(S.priority),difficulty:clone(S.difficulty)};
+  const f={priority:clone(S.priority)};
   const draw=()=>{$('#content').innerHTML=`
-    <div class="panel"><div class="panel-head"><div><h3>Priority ${A("Confirmed by Ahmed. The levels and colours are my example defaults.")}</h3><p>Shown as a coloured badge on jobs. The order here is the order in the dropdown.</p></div></div><div class="panel-body">${listEditor('prio',f.priority,{ph:'New priority level',colors:true,onChange:draw})}</div></div>
-    <div class="panel"><div class="panel-head"><div><h3>Difficulty ${A("Confirmed by Ahmed. The levels are my example defaults.")}</h3><p>Helps when assigning installers to a job.</p></div></div><div class="panel-body">${listEditor('diff',f.difficulty,{ph:'New difficulty level',onChange:draw})}</div></div>`};
-  saveFn=()=>{S.priority=f.priority;S.difficulty=f.difficulty;setDirty(false);toast('Settings saved','Priority & Difficulty updated');render()};
+    <div class="panel"><div class="panel-head"><div><h3>Priority ${A("Confirmed by Ahmed. The levels and colours are my example defaults.")}</h3><p>Shown as a coloured badge on jobs. The order here is the order in the dropdown.</p></div></div><div class="panel-body">${listEditor('prio',f.priority,{ph:'New priority level',colors:true,onChange:draw})}</div></div>`};
+  saveFn=()=>{S.priority=f.priority;setDirty(false);toast('Settings saved','Priority levels updated');render()};
   draw();
 }
 
