@@ -287,7 +287,6 @@ const S={
   priority:[{id:1,name:'Low',color:'gray'},{id:2,name:'Medium',color:'blue'},{id:3,name:'High',color:'amber'},{id:4,name:'Urgent',color:'red'}],
   holdReasons:[{id:1,name:'Awaiting council/permit approval'},{id:2,name:'Awaiting network (DNSP) approval'},{id:3,name:'Awaiting stock/parts'},{id:4,name:'Awaiting customer (decision, payment, access)'},{id:5,name:'Other',locked:true,note:'Note is mandatory'}],
   cancelReasons:[{id:1,name:'Customer withdrew'},{id:2,name:'Finance declined'},{id:3,name:'Site not feasible'}],
-  reasonRequired:true,
   numbering:{job:{pre:'JOB-',next:124},quote:{pre:'Q-',next:58},invoice:{pre:'INV-',next:124}},
   commission:{basis:'sale',rep:10,manager:5},
   timeTypes:[{id:1,name:'Labour',billable:true},{id:2,name:'Travel',billable:false},{id:3,name:'Site visit',billable:true},{id:4,name:'Admin',billable:false}],
@@ -909,14 +908,11 @@ function pPriority(p){
 /* ================= ON HOLD / CANCEL REASONS ================= */
 function pReasons(p){
   setHeader(p.label,p.desc);
-  const f={hold:clone(S.holdReasons),cancel:clone(S.cancelReasons),req:S.reasonRequired};
+  const f={hold:clone(S.holdReasons),cancel:clone(S.cancelReasons)};
   const draw=()=>{$('#content').innerHTML=`
     <div class="panel"><div class="panel-head"><div><h3>On Hold reasons ${A("Reasons are from Ahmed (Oct 28). Editing the list in Settings is my assumption. 'Other' is a fixed system option with a mandatory note.")}</h3><p>Picked when a job is put On Hold.</p></div></div><div class="panel-body">${listEditor('hold',f.hold,{ph:'New reason',onChange:draw})}</div></div>
-    <div class="panel"><div class="panel-head"><div><h3>Cancel reasons ${A("Reasons are from Ahmed (Oct 29). Editing the list in Settings is my assumption.")}</h3><p>Picked when a job is Cancelled. Shown in reports.</p></div></div><div class="panel-body">${listEditor('cancel',f.cancel,{ph:'New reason',onChange:draw})}</div></div>
-    <div class="panel"><div class="panel-head"><div><h3>Rules</h3></div></div><div class="panel-body">
-      <div class="row"><div class="lbl"><div class="n">Reason is required ${A("My addition: whether picking a reason is mandatory.")}</div><div class="h">Off: the reason can be skipped. Changing a reason here doesn't change jobs that already have it.</div></div><div class="ctl"><button class="toggle ${f.req?'on':''}" id="rReq"></button></div></div></div></div>`;
-    $('#rReq').onclick=()=>{f.req=!f.req;setDirty(true);draw()}};
-  saveFn=()=>{S.holdReasons=f.hold;S.cancelReasons=f.cancel;S.reasonRequired=f.req;setDirty(false);toast('Settings saved','Reasons updated')};
+    <div class="panel"><div class="panel-head"><div><h3>Cancel reasons ${A("Reasons are from Ahmed (Oct 29). Editing the list in Settings is my assumption.")}</h3><p>Picked when a job is Cancelled. Shown in reports.</p></div></div><div class="panel-body">${listEditor('cancel',f.cancel,{ph:'New reason',onChange:draw})}</div></div>`};
+  saveFn=()=>{S.holdReasons=f.hold;S.cancelReasons=f.cancel;setDirty(false);toast('Settings saved','Reasons updated')};
   draw();
 }
 
