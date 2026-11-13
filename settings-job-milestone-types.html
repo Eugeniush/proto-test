@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings · Job types & Milestone types</title>
+<style>
+:root{--g25:#fcfcfd;--g50:#f9fafb;--g100:#f2f4f7;--g200:#eaecf0;--g300:#d0d5dd;--g400:#98a2b3;--g500:#667085;--g600:#475467;--g700:#344054;--g800:#1d2939;--g900:#101828;--b50:#eff4ff;--b100:#d1e0ff;--b600:#2970ff;--b700:#155eef;--e50:#fef3f2;--e300:#fda29b;--e600:#d92d20;--e700:#b42318;--ok:#079455}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--g900);font-size:14px;line-height:20px;background:#fff}
+button{font:inherit}
+svg{flex:none}
+/* top nav */
+.top{height:64px;border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 32px;gap:40px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px}
+.logo i{width:32px;height:32px;border-radius:8px;background:var(--g900);display:grid;place-items:center;color:#fff;font-style:normal}
+.nav{display:flex;gap:4px}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 12px;font-size:13px;font-weight:600;color:var(--g700);text-decoration:none}
+.nav a svg{color:var(--g500)}
+.nav a.on,.nav a.on svg{color:var(--b700)}
+.top .sp{flex:1}
+.search{width:240px;height:36px;border:1px solid var(--g300);border-radius:8px;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--g500)}
+.ico-btn{all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;color:var(--g500);position:relative}
+.ico-btn:hover{background:var(--g50)}
+.dot{position:absolute;top:7px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--e600);border:1.5px solid #fff}
+.ava{width:36px;height:36px;border-radius:50%;background:#e9d7fe;color:#6941c6;display:grid;place-items:center;font-weight:600;font-size:13px}
+/* layout */
+.wrap{display:grid;grid-template-columns:256px 1fr;gap:32px;padding:32px}
+h1{grid-column:1/-1;margin:0 0 -8px;font-size:20px;font-weight:600;line-height:30px}
+.side .g{font-size:14px;color:var(--g500);font-weight:500;margin:20px 0 8px}
+.side .g:first-child{margin-top:0}
+.side .i{display:flex;align-items:center;gap:10px;padding:8px;border-radius:6px;font-weight:600;color:var(--g700);cursor:default}
+.side .i svg{color:var(--g400)}
+.side .i.on{background:var(--g50)}
+.panel{background:#fafafa;border-radius:16px;padding:32px 24px;min-height:540px}
+.col{max-width:640px;margin:0 auto}
+.ph{display:flex;align-items:flex-start;gap:16px;margin-bottom:24px}
+.ph .t{flex:1}
+.ph h2{margin:0;font-size:16px;font-weight:600;line-height:24px}
+.ph p{margin:2px 0 0;color:var(--g600)}
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;border:1px solid var(--g300);border-radius:8px;background:#fff;font-weight:600;color:var(--g700);box-shadow:0 1px 2px rgba(16,24,40,.05);white-space:nowrap}
+.btn:hover{background:var(--g50)}
+.btn.pri{background:var(--b700);border-color:var(--b700);color:#fff;box-shadow:inset 0 0 0 1px rgba(16,24,40,.18),0 1px 2px rgba(16,24,40,.05)}
+.btn.pri:hover{background:#004eeb}
+.btn.pri[disabled]{background:var(--g100);border-color:var(--g200);color:var(--g400);box-shadow:none;cursor:not-allowed}
+.btn.dng{background:var(--e600);border-color:var(--e600);color:#fff}
+.btn:focus-visible{outline:2px solid var(--b600);outline-offset:2px}
+.card{background:#fff;border:1px solid var(--g200);border-radius:12px;padding:0 16px}
+.row{display:flex;align-items:center;gap:16px;padding:14px 0;border-top:1px solid var(--g200)}
+.row:first-child{border-top:0}
+.row .t{flex:1;min-width:0}
+.row .nm{font-weight:600;font-size:16px;line-height:24px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;color:var(--g500);font-size:13px;line-height:18px}
+.chain svg{color:var(--g400)}
+.badge{font-size:12px;font-weight:500;color:var(--g700);border:1px solid var(--g300);background:var(--g50);border-radius:6px;padding:1px 6px;white-space:nowrap}
+.acts{display:flex;gap:4px;margin-left:16px}
+.ib{all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;color:var(--g500)}
+.ib:hover{background:var(--g50)}
+.ib.del{color:var(--e600)}
+.ib.del:hover{background:var(--e50)}
+.ib[disabled]{color:var(--g300);cursor:not-allowed;background:none}
+.empty{padding:40px 16px;text-align:center;color:var(--g500)}
+.row.flash{animation:fl 1.8s ease}
+@keyframes fl{0%,50%{background:var(--b50)}100%{background:transparent}}
+/* drawer */
+.ov{position:fixed;inset:0;background:rgba(12,17,29,.5);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.ov.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:480px;max-width:100%;background:#fff;box-shadow:-20px 0 24px -4px rgba(16,24,40,.08),-8px 0 8px -4px rgba(16,24,40,.03);transform:translateX(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:41;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dh{display:flex;align-items:flex-start;gap:12px;padding:24px 24px 20px;border-bottom:1px solid var(--g200)}
+.dh .t{flex:1}
+.dh h3{margin:0;font-size:18px;line-height:28px;font-weight:600}
+.dh p{margin:2px 0 0;color:var(--g600)}
+.db{flex:1;overflow:auto;padding:24px}
+.df{display:flex;justify-content:flex-end;gap:12px;padding:16px 24px;border-top:1px solid var(--g200)}
+.f label{display:block;font-weight:500;color:var(--g700);margin-bottom:6px}
+.f label .req{color:var(--b700)}
+.inp{width:100%;height:44px;padding:0 14px;border:1px solid var(--g300);border-radius:8px;font:inherit;font-size:16px;color:var(--g900);box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.inp:focus{outline:none;border-color:var(--b600);box-shadow:0 0 0 4px rgba(41,112,255,.16)}
+.inp.err{border-color:var(--e300)}
+.err-t{color:var(--e600);margin-top:6px;font-size:14px}
+.sec{margin-top:28px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+.sec-h b{font-weight:600;font-size:14px;color:var(--g700)}
+.sec-h span{color:var(--g500);font-size:13px}
+.hint{color:var(--g500);margin:0 0 12px}
+.ms{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.mi{display:flex;align-items:center;gap:10px;height:48px;padding:0 8px 0 12px;border:1px solid var(--g200);border-radius:8px;background:#fff}
+.mi.sys{background:var(--g50)}
+.mi .n{width:24px;height:24px;border-radius:6px;border:1px solid var(--g200);background:#fff;display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--g600)}
+.mi .x{flex:1;font-weight:500}
+.mi .lock{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--g500)}
+.mi .hdl{cursor:grab;color:var(--g400);display:grid;place-items:center;width:20px}
+.mi.drag{opacity:.4}
+.mi.over{box-shadow:0 -2px 0 var(--b600)}
+.mi .ib{width:32px;height:32px}
+.ib.rm{color:var(--g400)}.ib.rm:hover{color:var(--e600);background:var(--e50)}
+.addw{position:relative;margin-top:8px}
+.addb{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;height:44px;padding:0 12px;border:1px dashed var(--g300);border-radius:8px;color:var(--b700);font-weight:600}
+.addb:hover{background:var(--b50);border-color:var(--b100)}
+.addb[disabled]{color:var(--g400);cursor:not-allowed;background:none}
+.dd{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--g200);border-radius:8px;box-shadow:0 12px 16px -4px rgba(16,24,40,.08),0 4px 6px -2px rgba(16,24,40,.03);padding:4px;z-index:5;max-height:260px;overflow:auto}
+.opt{all:unset;cursor:pointer;display:block;width:100%;box-sizing:border-box;padding:9px 10px;border-radius:6px}
+.opt:hover,.opt:focus{background:var(--g50)}
+.opt small{display:block;color:var(--g500);font-size:12px}
+.dd .ft{border-top:1px solid var(--g200);margin-top:4px;padding:8px 10px 4px}
+.lnk{color:var(--b700);font-weight:600;text-decoration:none}
+.lnk:hover{text-decoration:underline}
+/* modal + toast */
+.mov{position:fixed;inset:0;background:rgba(12,17,29,.5);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.modal{background:#fff;border-radius:12px;width:400px;max-width:100%;padding:24px;box-shadow:0 20px 24px -4px rgba(16,24,40,.08)}
+.modal h3{margin:0 0 4px;font-size:18px;line-height:28px}
+.modal p{margin:0;color:var(--g600)}
+.mf{display:flex;justify-content:flex-end;gap:12px;margin-top:24px}
+.toast{position:fixed;top:24px;right:24px;background:#fff;border:1px solid var(--g200);border-radius:12px;padding:14px 16px;box-shadow:0 12px 16px -4px rgba(16,24,40,.08);z-index:70;display:flex;gap:12px;align-items:flex-start;min-width:280px}
+.toast .c{width:32px;height:32px;border-radius:50%;background:#dcfae6;color:var(--ok);display:grid;place-items:center}
+.toast b{display:block}
+.toast span{color:var(--g600)}
+
+.ph h2{font-size:16px}
+.dh .hi{width:40px;height:40px;border:1px solid var(--g200);border-radius:8px;display:grid;place-items:center;color:var(--g700);box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.dh{border-bottom:1px dashed var(--g300);margin:0 24px;padding:24px 0 20px}
+.sec-h{align-items:center;margin-bottom:8px}
+.sec-h .lnk{display:inline-flex;align-items:center;gap:4px;cursor:pointer;background:none;border:0;font:inherit;font-weight:600;color:var(--b700);padding:0}
+.sec-h .lnk[disabled]{color:var(--g400);cursor:not-allowed}
+.mbox{border:1px solid var(--g200);border-radius:8px;padding:0 16px}
+.mi{border:0;border-top:1px solid var(--g200);border-radius:0;height:56px;padding:0;gap:12px;background:none}
+.mi:first-child{border-top:0}
+.mi.sys{background:none;color:var(--g500)}
+.mi.sys .x{color:var(--g500)}
+.mi .lk{color:var(--g400);display:grid;place-items:center;width:20px}
+.mi .lock{font-size:12px;color:var(--g500)}
+.ib.del svg{color:var(--e600)}
+.addw{position:relative}
+.dd{top:28px;left:auto;right:0;width:280px}
+.tipw{position:relative;display:inline-block}
+.tip{position:absolute;bottom:calc(100% + 8px);right:0;width:260px;background:#fff;border:1px solid var(--g200);border-radius:8px;padding:12px;box-shadow:0 12px 16px -4px rgba(16,24,40,.08);display:none;z-index:5}
+.tip b{display:block;font-size:12px}.tip span{font-size:12px;color:var(--g600)}
+.tipw:hover .tip{display:block}
+/* milestone types */
+.ch{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--g200)}
+.ch b{font-weight:600;color:var(--g700)}
+.ch .lnk{display:inline-flex;align-items:center;gap:4px;cursor:pointer;background:none;border:0;font:inherit;font-weight:600;color:var(--b700)}
+.mrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--g200)}
+.mrow:first-of-type{border-top:0}
+.mrow .hdl{color:var(--g400);cursor:grab;display:grid;place-items:center}
+.mrow .inp{height:36px;font-size:14px;flex:1}
+.mrow.drag{opacity:.4}.mrow.over{box-shadow:0 -2px 0 var(--b600)}
+.ib.cx{color:var(--e600)}
+.ib.ok{background:var(--b700);color:#fff;border-radius:8px}.ib.ok:hover{background:#004eeb}
+.modal .mi2{width:40px;height:40px;border:1px solid var(--g200);border-radius:8px;display:grid;place-items:center;color:var(--e600);margin-bottom:16px}
+.modal{position:relative}
+.modal .mx{position:absolute;top:16px;right:16px}
+.mf.full .btn{flex:1}
+.side .i{cursor:pointer}
+.side .i:hover{background:var(--g50)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo"><i>✦</i>Acme Corp</div>
+  <nav class="nav" id="nav"></nav>
+  <div class="sp"></div>
+  <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Search</div>
+  <button class="ico-btn" aria-label="Security"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10Z"/><path d="m13 7-3 5h4l-3 5"/></svg></button>
+  <button class="ico-btn" aria-label="Notifications"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot"></span></button>
+  <div class="ava">LC</div>
+</header>
+<div class="wrap">
+  <h1>Settings</h1>
+  <aside class="side" id="side"></aside>
+  <main class="panel"><div class="col" id="page"></div></main>
+</div>
+<div class="ov" id="ov" onclick="tryClose()"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle"></aside>
+<div id="modal"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const IC={
+ plus:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ arrow:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>',
+ edit:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+ trash:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m5 5v5m4-5v5"/></svg>',
+ x:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+ lock:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+ grip:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>',
+ check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>'
+};
+const NAV=[['Home','<path d="M3 10.5 12 4l9 6.5V20H3z"/>'],['Customers','<circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21 20c0-3-1.8-5.2-4.5-5.8"/>',1],['Operations','<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>'],['Inventory','<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/>'],['Service','<path d="m3 21 7-7m4-4 7-7M6 3l4 4-3 3-4-4zM14 14l4 4 3-3-4-4z"/>'],['Finance','<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>'],['Manager','<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V4h8v3M9 7v13m6-13v13"/>']];
+$('#nav').innerHTML=NAV.map(([n,p,on])=>`<a href="#" class="${on?'on':''}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>${n}</a>`).join('');
+
+IC.tag='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></svg>';
+IC.menu='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+IC.plus16='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+const S_ICON=p=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const SIDE=[['jt','Job types','<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>'],['mt','Milestone types','<path d="M5 21V4m0 0h11l-2 4 2 4H5"/>']];
+let PAGE='jt';
+function renderSide(){$('#side').innerHTML='<div class="g">Jobs</div>'+SIDE.map(([k,n,p])=>`<div class="i ${PAGE===k?'on':''}" id="nav-${k}" onclick="go('${k}')">${S_ICON(p)}${n}</div>`).join('')}
+function go(k){PAGE=k;MT_EDIT=null;renderSide();renderPage()}
+
+/* data — job types store a copy of milestone names (Assumption) */
+let MT=['Site survey','Installation','Inspection','Metering','Grid approval','Handover','Service','Checking work'];
+let TYPES=[{id:1,n:'Solar Installation',ms:['Installation','Metering'],jobs:24},{id:2,n:'Battery Retrofit',ms:['Installation','Handover'],jobs:9},{id:3,n:'Warranty',ms:['Inspection','Installation'],jobs:7},{id:4,n:'Annual Service',ms:['Service'],jobs:15},{id:5,n:'Complaint',ms:['Inspection'],jobs:1}];
+let flash=null;
+
+function renderPage(){PAGE==='jt'?renderJT():renderMT()}
+
+/* ---------- Job types ---------- */
+function renderJT(){
+ $('#page').innerHTML=`<div class="ph"><div class="t"><h2>Job types</h2><p>Each type sets the milestones a new job goes through.</p></div>
+  <button class="btn pri" id="addJT" onclick="openDrawer()">${IC.plus}Add job type</button></div><div class="card" id="list"></div>`;
+ if(!TYPES.length){$('#list').innerHTML='<div class="empty">No job types yet. Add your first one to start creating jobs.</div>';return}
+ $('#list').innerHTML=TYPES.map(t=>{const seq=['Start',...t.ms,'Complete'];
+  return `<div class="row ${flash===t.id?'flash':''}"><div class="t"><div class="nm" style="font-size:14px">${esc(t.n)}</div><div class="chain">${seq.map((s,i)=>(i?IC.arrow:'')+`<span>${esc(s)}</span>`).join('')}</div></div>
+  ${t.jobs?`<span class="badge">${t.jobs} Job${t.jobs===1?'':'s'}</span>`:''}
+  <div class="acts"><button class="ib" title="Edit" aria-label="Edit ${esc(t.n)}" onclick="openDrawer(${t.id})">${IC.edit}</button><button class="ib del" title="Delete" aria-label="Delete ${esc(t.n)}" onclick="askDelJT(${t.id})">${IC.trash}</button></div></div>`}).join('');
+ flash=null;
+}
+let D=null;
+function openDrawer(id){
+ const t=id?TYPES.find(x=>x.id===id):null;
+ D={id:t?t.id:null,n:t?t.n:'',ms:t?[...t.ms]:[],menu:false,err:''};
+ D.orig=JSON.stringify([D.n,D.ms]);
+ drawDrawer();$('#ov').classList.add('on');$('#drawer').classList.add('on');
+ setTimeout(()=>$('#jtName')&&$('#jtName').focus(),260);
+}
+const dirty=()=>D&&JSON.stringify([D.n.trim(),D.ms])!==JSON.stringify([JSON.parse(D.orig)[0].trim(),JSON.parse(D.orig)[1]]);
+const canSave=()=>D.n.trim().length>0&&(!D.id||dirty());
+function drawDrawer(){
+ const edit=!!D.id, avail=MT.filter(m=>!D.ms.includes(m));
+ const list=[`<li class="mi sys"><span class="lk">${IC.lock}</span><span class="n">1</span><span class="x">Start</span><span class="lock">Always first</span></li>`]
+  .concat(D.ms.map((m,i)=>`<li class="mi" draggable="true" data-i="${i}"><span class="hdl" title="Drag to reorder">${IC.menu}</span><span class="n">${i+2}</span><span class="x">${esc(m)}</span><button class="ib del" title="Remove" aria-label="Remove ${esc(m)}" onclick="rmMs(${i})">${IC.trash}</button></li>`))
+  .concat(`<li class="mi sys"><span class="lk">${IC.lock}</span><span class="n">${D.ms.length+2}</span><span class="x">Complete</span><span class="lock">Always last</span></li>`).join('');
+ $('#drawer').innerHTML=`
+ <div class="dh"><span class="hi">${IC.tag}</span><div class="t"><h3 id="dTitle">${edit?'Edit Job Type':'Add New Job Type'}</h3><p>Name the type and set its milestones.</p></div><button class="ib" aria-label="Close" onclick="tryClose()">${IC.x}</button></div>
+ <div class="db">
+  <div class="f"><label for="jtName">Name <span class="req">*</span></label><input id="jtName" class="inp ${D.err?'err':''}" value="${esc(D.n)}" placeholder="e.g. Commercial Solar" maxlength="60" oninput="D.n=this.value;D.err='';updFooter()" onkeydown="if(event.key==='Enter'&&canSave())save()">${D.err?`<div class="err-t">${D.err}</div>`:''}</div>
+  <div class="sec">
+   <div class="sec-h"><b>Milestones</b><div class="addw"><button class="lnk" id="addMsBtn" ${avail.length?'':'disabled title="All milestone types added"'} onclick="event.stopPropagation();D.menu=!D.menu;drawDrawer()" aria-expanded="${D.menu}">${IC.plus16}Add</button>
+   ${D.menu?`<div class="dd" onclick="event.stopPropagation()">${avail.map(m=>`<button class="opt" onclick="addMs('${esc(m)}')">${esc(m)}</button>`).join('')}<div class="ft"><a class="lnk" href="#" onclick="event.preventDefault();closeDrawerForce();go('mt')">Manage milestone types →</a></div></div>`:''}</div></div>
+   <ul class="ms mbox" id="ms">${list}</ul>
+  </div>
+ </div>
+ <div class="df"><button class="btn" onclick="tryClose()">Cancel</button>
+  <span class="tipw" id="saveW"><button class="btn pri" id="saveBtn" ${canSave()?'':'disabled'} onclick="save()">${edit?'Save changes':'Add'}</button>${tipHtml()}</span></div>`;
+ bindDnD();
+}
+function tipHtml(){if(canSave())return'';return D.n.trim()?`<div class="tip"><b>No changes yet</b><span>Edit the name or milestones to save.</span></div>`:`<div class="tip"><b>Name is required</b><span>Enter a name for this job type to add it.</span></div>`}
+function updFooter(){$('#saveBtn').disabled=!canSave();const w=$('#saveW');const old=w.querySelector('.tip');if(old)old.remove();w.insertAdjacentHTML('beforeend',tipHtml());const i=$('#jtName');i.classList.remove('err');const e=i.parentNode.querySelector('.err-t');if(e)e.remove()}
+function addMs(m){D.ms.push(m);D.menu=false;drawDrawer()}
+function rmMs(i){D.ms.splice(i,1);drawDrawer()}
+function bindDnD(){let from=null;
+ document.querySelectorAll('#ms .mi[draggable]').forEach(el=>{
+  el.addEventListener('dragstart',e=>{from=+el.dataset.i;el.classList.add('drag');e.dataTransfer.effectAllowed='move'});
+  el.addEventListener('dragend',()=>{el.classList.remove('drag');document.querySelectorAll('.over').forEach(o=>o.classList.remove('over'))});
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
+  el.addEventListener('dragleave',()=>el.classList.remove('over'));
+  el.addEventListener('drop',e=>{e.preventDefault();const to=+el.dataset.i;if(from===null||from===to)return;const [m]=D.ms.splice(from,1);D.ms.splice(to,0,m);drawDrawer()});
+ });}
+function save(){
+ const n=D.n.trim();
+ if(TYPES.some(t=>t.id!==D.id&&t.n.toLowerCase()===n.toLowerCase())){D.err='A job type with this name already exists.';drawDrawer();return}
+ const cnt=D.ms.length+2;
+ if(D.id){const t=TYPES.find(x=>x.id===D.id);t.n=n;t.ms=[...D.ms];flash=t.id;closeDrawerForce();renderJT();toast('Job type updated',`${n} with ${cnt} milestones`)}
+ else{const id=Math.max(0,...TYPES.map(t=>t.id))+1;TYPES.unshift({id,n,ms:[...D.ms],jobs:0});flash=id;closeDrawerForce();renderJT();toast('Job type added',`${n} with ${cnt} milestones`)}
+}
+function tryClose(){if(D&&dirty()){confirmM({title:'Discard changes?',text:'Your changes to this job type won’t be saved.',cta:'Discard',fn:closeDrawerForce});return}closeDrawerForce()}
+function closeDrawerForce(){$('#ov').classList.remove('on');$('#drawer').classList.remove('on');D=null}
+function askDelJT(id){const t=TYPES.find(x=>x.id===id);
+ if(t.jobs>0){confirmM({title:`Can’t delete ${esc(t.n)}`,text:`${t.jobs} job${t.jobs===1?' uses':'s use'} this job type. Change the job type on those jobs first.`});return}
+ confirmM({title:`Delete ${esc(t.n)}?`,text:'This job type will be permanently removed.',cta:'Delete',fn:()=>{TYPES=TYPES.filter(x=>x.id!==id);renderJT();toast('Job type deleted',`${t.n} permanently removed`)}});
+}
+
+/* ---------- Milestone types ---------- */
+let MT_EDIT=null; // {i:index or -1 for new, v:value}
+function renderMT(){
+ const rows=[];
+ if(MT_EDIT&&MT_EDIT.i===-1)rows.push(mtRow(-1,MT_EDIT.v,true));
+ MT.forEach((m,i)=>rows.push(mtRow(i,MT_EDIT&&MT_EDIT.i===i?MT_EDIT.v:m,MT_EDIT&&MT_EDIT.i===i)));
+ $('#page').innerHTML=`<div class="ph"><div class="t"><h2>Milestones</h2><p>The steps you pick from when setting up a job type.</p></div></div>
+ <div class="card"><div class="ch"><b>All milestones</b><button class="lnk" id="addMT" onclick="startNew()">${IC.plus16}Add milestone</button></div><div id="mtList">${rows.join('')}</div>${MT.length||MT_EDIT?'':'<div class="empty">No milestone types yet.</div>'}</div>`;
+ bindMtDnD();
+ if(MT_EDIT){const el=$('#mtIn');if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length)}}
+}
+function mtRow(i,v,editing){
+ return `<div class="mrow" data-i="${i}" ${i>=0&&!editing?'draggable="true"':''}><span class="hdl">${IC.menu}</span>
+ <input class="inp" ${editing?'id="mtIn"':''} value="${esc(v)}" placeholder="e.g. Site survey" aria-label="Milestone name"
+  onfocus="${editing?'':`MT_EDIT={i:${i},v:this.value};renderMT()`}" oninput="MT_EDIT.v=this.value;document.getElementById('okBtn').disabled=!this.value.trim()"
+  onkeydown="if(event.key==='Enter')commitMT();if(event.key==='Escape'){event.stopPropagation();cancelMT()}">
+ ${editing?`<button class="ib cx" title="Cancel" aria-label="Cancel" onmousedown="event.preventDefault()" onclick="cancelMT()">${IC.x}</button><button class="ib ok" id="okBtn" title="Save" aria-label="Save" ${v.trim()?'':'disabled'} onmousedown="event.preventDefault()" onclick="commitMT()">${IC.check}</button>`
+  :`<button class="ib del" title="Delete" aria-label="Delete ${esc(v)}" onclick="askDelMT(${i})">${IC.trash}</button>`}</div>`;
+}
+function startNew(){MT_EDIT={i:-1,v:''};renderMT()}
+function cancelMT(){MT_EDIT=null;renderMT()}
+function commitMT(){
+ if(!MT_EDIT)return;const v=MT_EDIT.v.trim();if(!v)return;
+ if(MT.some((m,i)=>i!==MT_EDIT.i&&m.toLowerCase()===v.toLowerCase())){toast('Milestone not saved',`${v} already exists`,true);return}
+ if(MT_EDIT.i===-1){MT.unshift(v);MT_EDIT=null;renderMT();toast('Milestone type added',`${v} is ready to add to job types`)}
+ else{const old=MT[MT_EDIT.i];MT[MT_EDIT.i]=v;MT_EDIT=null;renderMT();if(old!==v)toast('Milestone type renamed',`${old} is now ${v}`)}
+}
+function askDelMT(i){const m=MT[i];
+ confirmM({icon:true,full:true,title:`Delete ${esc(m)}?`,text:'This milestone type will be permanently removed. You won’t be able to add it to job types.',cta:'Delete',
+  fn:()=>{MT.splice(i,1);renderMT();toast('Milestone type deleted',`${m} permanently removed`)}});
+}
+function bindMtDnD(){let from=null;
+ document.querySelectorAll('#mtList .mrow[draggable]').forEach(el=>{
+  el.addEventListener('dragstart',e=>{from=+el.dataset.i;el.classList.add('drag')});
+  el.addEventListener('dragend',()=>{el.classList.remove('drag');document.querySelectorAll('.over').forEach(o=>o.classList.remove('over'))});
+  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
+  el.addEventListener('dragleave',()=>el.classList.remove('over'));
+  el.addEventListener('drop',e=>{e.preventDefault();const to=+el.dataset.i;if(from===null||from===to||to<0)return;const [m]=MT.splice(from,1);MT.splice(to,0,m);renderMT()});
+ });}
+
+/* ---------- shared ---------- */
+function confirmM(o){
+ window._mfn=o.fn;
+ $('#modal').innerHTML=`<div class="mov" onclick="if(event.target===this)closeM()"><div class="modal" role="alertdialog" aria-labelledby="mT">
+ <button class="ib mx" aria-label="Close" onclick="closeM()">${IC.x}</button>
+ ${o.icon?`<div class="mi2">${IC.trash}</div>`:''}<h3 id="mT">${o.title}</h3><p>${o.text}</p>
+ <div class="mf ${o.full?'full':''}">${o.cta?`<button class="btn" onclick="closeM()">Cancel</button><button class="btn dng" id="mOk" onclick="const f=window._mfn;closeM();f&&f()">${o.cta}</button>`:`<button class="btn" onclick="closeM()">OK</button>`}</div></div></div>`;
+}
+function closeM(){$('#modal').innerHTML=''}
+function toast(t,s,err){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.innerHTML=`<span class="c" ${err?'style="background:#fee4e2;color:#d92d20"':''}>${err?IC.x:IC.check}</span><div><b>${esc(t)}</b><span>${esc(s||'')}</span></div><button class="ib" style="width:24px;height:24px;margin-left:auto" aria-label="Dismiss" onclick="this.parentNode.remove()">${IC.x}</button>`;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}
+document.addEventListener('click',()=>{if(D&&D.menu){D.menu=false;drawDrawer()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#modal').innerHTML){closeM();return}if(D){if(D.menu){D.menu=false;drawDrawer();return}tryClose()}}});
+renderSide();renderPage();
+</script>
+</body>
+</html>
