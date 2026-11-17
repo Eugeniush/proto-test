@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Change email — variant C</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--g50:#F9FAFB;--g100:#F2F4F7;--g200:#EAECF0;--g300:#D0D5DD;--g400:#98A2B3;--g500:#667085;--g600:#475467;--g700:#344054;--g900:#101828;
+--p300:#84ADFF;--p600:#155EEF;--p700:#004EEB;--e300:#FDA29B;--e600:#D92D20;--s50:#ECFDF3;--s600:#079455}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--g900);font-size:14px;background:#fff}
+button,input{font:inherit}
+.top{height:64px;border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 32px;gap:12px;font-weight:700;font-size:18px}
+.top i{width:32px;height:32px;border-radius:8px;background:#0C111D;display:inline-block}
+.dev{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:12px;font-weight:500;color:var(--g500)}
+.dev button{border:1px dashed var(--g300);background:var(--g50);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--g700);cursor:pointer}
+.wrap{display:flex;gap:32px;padding:32px}
+.sub{width:220px;flex:none}.sub h6{margin:0 0 8px;font-size:13px;font-weight:500;color:var(--g500)}
+.sub a{display:block;padding:8px 12px;border-radius:6px;font-weight:600;color:var(--g700)}.sub a.on{background:var(--g50)}
+.area{flex:1;background:#FAFAFA;border-radius:16px;padding:40px;min-height:640px;display:flex;gap:32px;justify-content:center;align-items:flex-start}
+.sec{width:640px}
+h2{font-size:16px;font-weight:600;margin:0}.muted{color:var(--g600)}
+.div{height:1px;background:var(--g200);margin:20px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.lbl{font-weight:500;color:var(--g700);margin-bottom:6px}.req{color:var(--p600)}
+.inp{display:flex;align-items:center;gap:8px;height:40px;border:1px solid var(--g300);border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.05);padding:0 12px}
+.inp input{border:0;outline:0;flex:1;height:100%;background:none;color:var(--g900);min-width:0}
+.inp:focus-within{border-color:var(--p300);box-shadow:0 0 0 4px rgba(21,94,239,.12)}
+.inp.err{border-color:var(--e300)}.inp.err:focus-within{box-shadow:0 0 0 4px rgba(217,45,32,.12)}
+.inp svg{flex:none}
+.hint{font-size:13px;color:var(--g600);margin-top:6px}.errt{font-size:13px;color:var(--e600);margin-top:6px}
+.foot{display:flex;justify-content:flex-end;gap:12px}
+.btn{height:40px;padding:0 16px;border-radius:8px;border:1px solid var(--g300);background:#fff;font-weight:600;color:var(--g700);cursor:pointer;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.btn.pr{background:var(--p600);border-color:var(--p600);color:#fff}.btn:disabled{opacity:.5;cursor:default}
+.toast{position:fixed;right:24px;top:80px;width:400px;background:#fff;border:1px solid var(--g200);border-radius:12px;padding:16px;display:flex;gap:12px;box-shadow:0 12px 16px -4px rgba(16,24,40,.08);transform:translateY(-10px);opacity:0;transition:.2s;z-index:20;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+.toast .ic{width:20px;height:20px;border-radius:50%;background:var(--s50);color:var(--s600);display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;margin-top:1px}
+.toast b{display:block;font-weight:600;margin-bottom:2px}.toast span{color:var(--g600)}
+.note{border:1px dashed var(--g300);border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--g600);background:#fff;margin-bottom:20px;line-height:1.5}
+.note b{color:var(--g900)}
+.mail{width:340px;flex:none;background:#fff;border:1px solid var(--g200);border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.mail .hd{background:var(--g50);border-bottom:1px solid var(--g200);padding:10px 14px;font-size:12px;color:var(--g600);line-height:1.6}
+.mail .hd b{color:var(--g900);font-weight:600}
+.mail .bd{padding:20px;font-size:13px;line-height:1.55;color:var(--g700)}
+.mail .bd p{margin:0 0 12px}
+.mail .cta{display:inline-block;background:var(--p600);color:#fff;border-radius:8px;padding:8px 14px;font-weight:600;font-size:13px;margin:4px 0 12px}
+.mail .empty{padding:28px 20px;color:var(--g500);font-size:13px;text-align:center}
+.tag{display:inline-block;font-size:11px;font-weight:600;color:var(--g600);background:var(--g100);border-radius:10px;padding:2px 8px;margin-bottom:8px}
+</style></head><body>
+<div class="top"><i></i>Acme Corp
+  <div class="dev">Prototype only: <button id="reset">↺ Reset</button></div>
+</div>
+<div class="wrap">
+  <nav class="sub"><h6>Account</h6><a class="on">Profile details</a><a>Password</a></nav>
+  <main class="area">
+    <div class="sec">
+      <div class="note"><b>Variant C.</b> Email is edited like any other field and saved with <b>Save</b>. On save we check the address isn't used by another account, show a toast, and send a notice to the <b>old</b> address. Try <code>sarah.mitchell@acmecorp.com.au</code> to see the "already taken" error.</div>
+      <div id="page"></div>
+    </div>
+    <aside class="mail" id="mail"></aside>
+  </main>
+</div>
+<div class="toast" id="toast"><div class="ic">✓</div><div><b id="tT"></b><span id="tB"></span></div></div>
+
+<script>
+const TAKEN=['sarah.mitchell@acmecorp.com.au','james.okafor@acmecorp.com.au'];
+const START={first:'Olivia',last:'Rhye',phone:'+61 412 345 678',email:'olivia@untitledui.com'};
+let saved={...START},f={...START},err={},lastMail=null,tmr;
+const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mailIc='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+const dirty=()=>Object.keys(START).some(k=>f[k]!==saved[k]);
+function toast(t,b){$('#tT').textContent=t;$('#tB').textContent=b;$('#toast').classList.add('show');clearTimeout(tmr);tmr=setTimeout(()=>$('#toast').classList.remove('show'),4000)}
+const field=(k,label,req,icon,ph)=>`<div><div class="lbl">${label}${req?' <span class="req">*</span>':''}</div>
+  <div class="inp ${err[k]?'err':''}">${icon||''}<input id="f_${k}" value="${esc(f[k])}" placeholder="${ph||''}"></div>
+  ${err[k]?`<div class="errt">${err[k]}</div>`:(k==='email'?'<div class="hint">Used to sign in.</div>':'')}</div>`;
+function page(){
+  $('#page').innerHTML=`<h2>Profile details</h2><p class="muted" style="margin:4px 0 0">Update your name, photo, phone and email.</p><div class="div"></div>
+  <div class="grid">${field('first','First name',1,'','Enter first name')}${field('last','Last name',1,'','Enter last name')}</div>
+  <div class="div"></div>
+  <div class="grid">${field('phone','Phone number',0)}${field('email','Email address',1,mailIc,'e.g. name@company.com')}</div>
+  <div class="div"></div><div class="foot"><button class="btn" id="cancel" ${dirty()?'':'disabled'}>Cancel</button><button class="btn pr" id="save" ${dirty()?'':'disabled'}>Save</button></div>`;
+  Object.keys(START).forEach(k=>{$('#f_'+k).oninput=e=>{f[k]=e.target.value;if(err[k]){delete err[k];const box=e.target.parentNode;box.classList.remove('err');const n=box.nextElementSibling;if(n)n.outerHTML=k==='email'?'<div class="hint">Used to sign in.</div>':''}$('#cancel').disabled=$('#save').disabled=!dirty()}});
+  $('#cancel').onclick=()=>{f={...saved};err={};page()};
+  $('#save').onclick=save;
+}
+function save(){
+  err={};const e=f.email.trim();
+  if(!f.first.trim())err.first='Please enter your first name';
+  if(!f.last.trim())err.last='Please enter your last name';
+  if(!e)err.email='Please enter your email';
+  else if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e))err.email='Enter a valid email, e.g. name@company.com';
+  else if(e.toLowerCase()!==saved.email.toLowerCase()&&TAKEN.includes(e.toLowerCase()))err.email=`${esc(e)} is already used by another account`;
+  if(Object.keys(err).length){page();const k=Object.keys(err)[0];$('#f_'+k).focus();return}
+  const changed=[];if(f.first.trim()!==saved.first||f.last.trim()!==saved.last)changed.push('name');if(f.phone!==saved.phone)changed.push('phone');
+  const emailChanged=e.toLowerCase()!==saved.email.toLowerCase();if(emailChanged)changed.push('email');
+  const old=saved.email;saved={first:f.first.trim(),last:f.last.trim(),phone:f.phone,email:e};f={...saved};
+  if(emailChanged)lastMail={to:old,newEmail:e,name:saved.first};
+  page();mail();
+  if(changed.length===1&&emailChanged)toast('Email updated','Sign in with '+e+' from now on');
+  else if(changed.length===1&&changed[0]==='name')toast('Name updated','Changed to '+saved.first+' '+saved.last);
+  else if(changed.length===1&&changed[0]==='phone')toast('Phone updated','Changed to '+saved.phone);
+  else{const cap=changed.join(' and ').replace(/^./,c=>c.toUpperCase()).replace(' and ',changed.length>2?', ':' and ');toast('Profile updated',cap+' updated')}
+}
+function mail(){
+  const m=$('#mail');
+  if(!lastMail){m.innerHTML=`<div class="hd"><b>Email sent to the old address</b></div><div class="empty">Change the email and save — the notice sent to the old address appears here.</div>`;return}
+  m.innerHTML=`<div class="hd"><span class="tag">Prototype preview</span><br>To: <b>${esc(lastMail.to)}</b><br>Subject: <b>Your Solarpreneur email was changed</b></div>
+  <div class="bd"><p>Hi ${esc(lastMail.name)},</p>
+  <p>The email for your Solarpreneur account was changed to <b>${esc(lastMail.newEmail)}</b>. From now on, sign in with this address.</p>
+  <p>If you didn't make this change, contact your company admin right away.</p>
+  <p style="margin:0">Thanks,<br>The Solarpreneur team</p></div>`;
+}
+$('#reset').onclick=()=>{saved={...START};f={...START};err={};lastMail=null;page();mail()};
+page();mail();
+</script></body></html>

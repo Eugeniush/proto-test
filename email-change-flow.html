@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Change email — flow</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--g25:#FCFCFD;--g50:#F9FAFB;--g100:#F2F4F7;--g200:#EAECF0;--g300:#D0D5DD;--g400:#98A2B3;--g500:#667085;--g600:#475467;--g700:#344054;--g900:#101828;
+--p25:#F5F8FF;--p50:#EFF4FF;--p100:#D1E0FF;--p300:#84ADFF;--p600:#155EEF;--p700:#004EEB;--e300:#FDA29B;--e600:#D92D20;--e700:#B42318;--s50:#ECFDF3;--s600:#079455;--w50:#FFFAEB;--w200:#FEDF89;--w700:#B54708}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;color:var(--g900);font-size:14px;background:#fff}
+button,input{font:inherit}
+.top{height:64px;border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 32px;gap:12px;font-weight:700;font-size:18px}
+.top i{width:32px;height:32px;border-radius:8px;background:#0C111D;display:inline-block}
+.dev{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:12px;font-weight:500;color:var(--g500)}
+.dev button{border:1px dashed var(--g300);background:var(--g50);border-radius:6px;padding:5px 9px;font-size:12px;color:var(--g700);cursor:pointer}
+.wrap{display:flex;gap:32px;padding:32px}
+.sub{width:220px;flex:none}.sub h6{margin:0 0 8px;font-size:13px;font-weight:500;color:var(--g500)}
+.sub a{display:block;padding:8px 12px;border-radius:6px;font-weight:600;color:var(--g700)}.sub a.on{background:var(--g50)}
+.area{flex:1;background:#FAFAFA;border-radius:16px;padding:40px;min-height:640px}
+.sec{max-width:640px;margin:0 auto}
+h2{font-size:16px;font-weight:600;margin:0}.muted{color:var(--g600)}
+.div{height:1px;background:var(--g200);margin:20px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.lbl{font-weight:500;color:var(--g700);margin-bottom:6px}.req{color:var(--p600)}
+.inp{display:flex;align-items:center;height:40px;border:1px solid var(--g300);border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.05);overflow:hidden}
+.inp input{border:0;outline:0;flex:1;height:100%;padding:0 12px;background:none;color:var(--g900)}
+.inp:focus-within{border-color:var(--p300);box-shadow:0 0 0 4px rgba(21,94,239,.12)}
+.inp.err{border-color:var(--e300)}.inp.err:focus-within{box-shadow:0 0 0 4px rgba(217,45,32,.12)}
+.inp input[readonly]{color:var(--g700)}
+.inp .tb{height:100%;border:0;border-left:1px solid var(--g300);background:#fff;padding:0 14px;font-weight:600;color:var(--g700);cursor:pointer}
+.inp .tb:hover{background:var(--g50)}
+.hint{font-size:13px;color:var(--g600);margin-top:6px;line-height:1.45}.errt{font-size:13px;color:var(--e600);margin-top:6px}
+.link{border:0;background:none;padding:0;color:var(--p700);font-weight:600;cursor:pointer;font-size:13px}.link:disabled{color:var(--g400);cursor:default}
+.link.gray{color:var(--g600)}
+.pending{margin-top:8px;border:1px solid var(--w200);background:var(--w50);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.45;color:var(--g700)}
+.pending b{color:var(--g900);font-weight:600}
+.foot{display:flex;justify-content:flex-end;gap:12px}
+.btn{height:40px;padding:0 16px;border-radius:8px;border:1px solid var(--g300);background:#fff;font-weight:600;color:var(--g700);cursor:pointer;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.btn.pr{background:var(--p600);border-color:var(--p600);color:#fff}.btn:disabled{opacity:.5;cursor:default}
+.ov{position:fixed;inset:0;background:rgba(12,17,29,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:10}
+.ov.show{display:flex}
+.modal{width:400px;background:#fff;border-radius:12px;box-shadow:0 20px 24px -4px rgba(16,24,40,.08),0 8px 8px -4px rgba(16,24,40,.03);padding:24px;position:relative}
+.modal .x{position:absolute;right:16px;top:16px;border:0;background:none;font-size:20px;color:var(--g400);cursor:pointer;width:36px;height:36px;border-radius:8px}
+.modal .x:hover{background:var(--g50)}
+.fi{width:48px;height:48px;border-radius:10px;border:1px solid var(--g200);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.modal h3{margin:0 0 4px;font-size:18px;font-weight:600}.modal p{margin:0;color:var(--g600);line-height:1.5}
+.step{font-size:12px;color:var(--g500);font-weight:500;margin-bottom:6px}
+.mact{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
+.mact .btn{width:100%}
+.resend{margin-top:16px;font-size:13px;color:var(--g600)}
+.toast{position:fixed;right:24px;top:80px;width:400px;background:#fff;border:1px solid var(--g200);border-radius:12px;padding:16px;display:flex;gap:12px;box-shadow:0 12px 16px -4px rgba(16,24,40,.08);transform:translateY(-10px);opacity:0;transition:.2s;z-index:20}
+.toast.show{opacity:1;transform:none}
+.toast .ic{width:20px;height:20px;border-radius:50%;background:var(--s50);color:var(--s600);display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;margin-top:1px}
+.toast b{display:block;font-weight:600;margin-bottom:2px}.toast span{color:var(--g600)}
+.note{max-width:640px;margin:0 auto 20px;border:1px dashed var(--g300);border-radius:10px;padding:10px 14px;font-size:12.5px;color:var(--g600);background:#fff}
+.note b{color:var(--g900)}
+</style></head><body>
+<div class="top"><i></i>Acme Corp
+  <div class="dev">Prototype only:
+    <button id="simOpen" disabled>▶ Open link from inbox</button>
+    <button id="reset">↺ Reset</button></div>
+</div>
+<div class="wrap">
+  <nav class="sub"><h6>Account</h6><a class="on">Profile details</a><a>Password</a></nav>
+  <main class="area">
+    <div class="note"><b>Assumption:</b> email is used to sign in, so a new email has to be confirmed from its inbox before it replaces the old one. Not confirmed by Ahmed. In this demo the password is anything except <code>wrong</code>.</div>
+    <div class="sec" id="page"></div>
+  </main>
+</div>
+
+<div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"><div class="ic">✓</div><div><b id="tT"></b><span id="tB"></span></div></div>
+
+<script>
+const START={first:'Olivia',last:'Rhye',phone:'+61 412 345 678',email:'olivia@untitledui.com',pending:null};
+let S=structuredClone(START),M={step:0,pw:'',pwErr:'',em:'',emErr:'',cool:0};let tmr,cdTimer;
+const $=s=>document.querySelector(s);const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ICON={lock:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+mail:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+send:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#079455" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>'};
+
+function toast(t,b){$('#tT').textContent=t;$('#tB').textContent=b;$('#toast').classList.add('show');clearTimeout(tmr);tmr=setTimeout(()=>$('#toast').classList.remove('show'),3500)}
+
+function page(){
+  $('#page').innerHTML=`<h2>Profile details</h2><p class="muted" style="margin:4px 0 0">Update your name, photo, phone and email.</p><div class="div"></div>
+  <div class="grid"><div><div class="lbl">First name <span class="req">*</span></div><div class="inp"><input value="${esc(S.first)}"></div></div>
+  <div><div class="lbl">Last name <span class="req">*</span></div><div class="inp"><input value="${esc(S.last)}"></div></div></div>
+  <div class="div"></div>
+  <div class="grid"><div><div class="lbl">Phone number</div><div class="inp"><input value="${esc(S.phone)}"></div></div>
+  <div><div class="lbl">Email address <span class="req">*</span></div>
+    <div class="inp"><input readonly value="${esc(S.email)}" aria-label="Email address"><button class="tb" id="chg">Change</button></div>
+    ${S.pending?`<div class="pending">We've sent a link to <b>${esc(S.pending)}</b>. Until you confirm it, sign in with your current email.<div style="margin-top:6px;display:flex;gap:14px"><button class="link" id="pResend" ${M.cool?'disabled':''}>${M.cool?`Resend link (${M.cool}s)`:'Resend link'}</button><button class="link gray" id="pCancel">Cancel change</button></div></div>`
+      :`<div class="hint">Used to sign in. A new email needs confirmation.</div>`}
+  </div></div>
+  <div class="div"></div><div class="foot"><button class="btn" disabled>Cancel</button><button class="btn pr" disabled>Save</button></div>`;
+  $('#chg').onclick=()=>openStep(1);
+  if(S.pending){$('#pResend').onclick=resend;$('#pCancel').onclick=()=>{S.pending=null;stopCool();page();sim();toast('Email change cancelled','You still sign in with '+S.email)}}
+  sim();
+}
+function sim(){$('#simOpen').disabled=!S.pending}
+
+function openStep(n){M.step=n;if(n===1){M.pw='';M.pwErr=''}if(n===2&&!M.em){M.emErr=''}$('#ov').classList.add('show');modal()}
+function close(){M.step=0;$('#ov').classList.remove('show');page()}
+
+function modal(){
+  const m=$('#modal');
+  if(M.step===1){m.innerHTML=`<button class="x" id="mx" aria-label="Close">×</button><div class="fi">${ICON.lock}</div>
+    <div class="step">Step 1 of 2</div><h3>Confirm it's you</h3><p>Enter your password to change your email.</p>
+    <div style="margin-top:20px"><div class="lbl">Password</div><div class="inp ${M.pwErr?'err':''}"><input type="password" id="pw" placeholder="Enter your password" value="${esc(M.pw)}"></div>${M.pwErr?`<div class="errt">${M.pwErr}</div>`:''}
+    <div style="margin-top:8px"><button class="link">Forgot password?</button></div></div>
+    <div class="mact"><button class="btn" id="mc">Cancel</button><button class="btn pr" id="mn" ${M.pw?'':'disabled'}>Continue</button></div>`;
+    const pw=$('#pw');pw.focus();pw.oninput=e=>{M.pw=e.target.value;M.pwErr='';$('#mn').disabled=!M.pw;pw.parentNode.classList.remove('err');const er=pw.parentNode.nextElementSibling;if(er&&er.classList.contains('errt'))er.remove()};
+    pw.onkeydown=e=>{if(e.key==='Enter'&&M.pw)next1()};$('#mn').onclick=next1;
+  }
+  if(M.step===2){m.innerHTML=`<button class="x" id="mx" aria-label="Close">×</button><div class="fi">${ICON.mail}</div>
+    <div class="step">Step 2 of 2</div><h3>Change email</h3><p>We'll send a confirmation link to your new email. Your current email (${esc(S.email)}) works until you confirm.</p>
+    <div style="margin-top:20px"><div class="lbl">New email</div><div class="inp ${M.emErr?'err':''}"><input type="email" id="em" placeholder="e.g. name@company.com" value="${esc(M.em)}"></div>${M.emErr?`<div class="errt">${M.emErr}</div>`:''}</div>
+    <div class="mact"><button class="btn" id="mc">Back</button><button class="btn pr" id="mn" ${M.em.trim()?'':'disabled'}>Send link</button></div>`;
+    const em=$('#em');em.focus();
+    em.oninput=e=>{M.em=e.target.value;$('#mn').disabled=!M.em.trim();if(M.emErr){M.emErr='';em.parentNode.classList.remove('err');const er=em.parentNode.nextElementSibling;if(er)er.remove()}};
+    em.onkeydown=e=>{if(e.key==='Enter'&&M.em.trim())next2()};$('#mn').onclick=next2;
+  }
+  if(M.step===3){m.innerHTML=`<button class="x" id="mx" aria-label="Close">×</button><div class="fi" style="border-color:#ABEFC6;background:var(--s50)">${ICON.send}</div>
+    <h3>Check your inbox</h3><p>We've sent a link to <b style="color:var(--g900)">${esc(S.pending)}</b>. Open it to confirm your new email.</p>
+    <div class="resend">Didn't get it? Check spam or <button class="link" id="mResend" ${M.cool?'disabled':''}>${M.cool?`resend in ${M.cool}s`:'resend the link'}</button>.</div>
+    <div class="mact"><button class="btn" id="mc">Use another email</button><button class="btn pr" id="mn">Done</button></div>`;
+    $('#mResend').onclick=resend;$('#mn').onclick=close;
+  }
+  $('#mx').onclick=close;
+  $('#mc').onclick=()=>{if(M.step===1)close();else if(M.step===2)openStep(1);else{M.em=S.pending;S.pending=null;stopCool();openStep(2)}};
+}
+function next1(){if(M.pw==='wrong'){M.pwErr='Incorrect password. Try again.';modal();return}M.em='';M.emErr='';openStep(2)}
+function next2(){const v=M.em.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){M.emErr='Enter a valid email, e.g. name@company.com';modal();return}
+  if(v.toLowerCase()===S.email.toLowerCase()){M.emErr='This is already your email.';modal();return}
+  S.pending=v;M.em='';startCool();M.step=3;modal();page();}
+function startCool(){M.cool=30;clearInterval(cdTimer);cdTimer=setInterval(()=>{M.cool--;if(M.cool<=0){M.cool=0;clearInterval(cdTimer)}if(M.step===3)modal();else page()},1000)}
+function stopCool(){clearInterval(cdTimer);M.cool=0}
+function resend(){if(M.cool)return;startCool();toast('Link sent again','Sent to '+S.pending);M.step===3?modal():page()}
+$('#simOpen').onclick=()=>{if(!S.pending)return;S.email=S.pending;S.pending=null;stopCool();if(M.step)close();page();toast('Email updated','Sign in with '+S.email+' from now on')};
+$('#reset').onclick=()=>{S=structuredClone(START);M={step:0,pw:'',pwErr:'',em:'',emErr:'',cool:0};stopCool();$('#ov').classList.remove('show');page()};
+$('#ov').onclick=e=>{if(e.target.id==='ov')close()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&M.step)close()});
+page();
+</script></body></html>
