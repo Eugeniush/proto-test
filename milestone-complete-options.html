@@ -97,8 +97,7 @@ header p{margin:0;color:var(--muted)}
   <div class="tabs">
     <button class="tab on" data-opt="1">Option 1 — Status dropdown</button>
     <button class="tab" data-opt="2">Option 2 — "Mark complete" button</button>
-    <button class="tab" data-opt="4">Option 3 — Auto-complete from bookings</button>
-    <button class="tab" data-opt="5">Option 4 — Bookings + Manager sign-off</button>
+    <button class="tab" data-opt="5">Option 3 — Bookings + Manager sign-off</button>
   </div>
 </header>
 
@@ -124,7 +123,7 @@ const DESC={
    pro:'Clear, deliberate action, consistent with the job\'s Complete. Easy to restrict by role.',con:'Adds a button to every milestone.'},
  4:{t:'Option 3 — Auto-complete from bookings',p:'A milestone completes itself when all bookings linked to it are finished (the installer completes the visit: checklist, photos). The office can still complete it manually as a fallback.',
    pro:'Matches how job status already moves automatically from bookings. Less manual work for the office.',con:'Every milestone needs linked bookings — unclear what happens when there are none.'},
- 5:{t:'Option 4 — Bookings + Manager sign-off',p:'<b>Usually automatic:</b> a milestone completes itself when all its linked bookings are finished (the installer completes the visit).<br><b>Manual — Manager only:</b> milestones without bookings (e.g. Permit approval), or ones that need closing early, are completed by a <b>Manager</b>. That manual action is the sign-off.<br><br>Switch <i>Viewing as</i> to see what a Project Coordinator sees.',
+ 5:{t:'Option 3 — Bookings + Manager sign-off',p:'<b>Usually automatic:</b> a milestone completes itself when all its linked bookings are finished (the installer completes the visit).<br><b>Manual — Manager only:</b> milestones without bookings (e.g. Permit approval), or ones that need closing early, are completed by a <b>Manager</b>. That manual action is the sign-off.<br><br>Switch <i>Viewing as</i> to see what a Project Coordinator sees.',
    pro:'Built on agreed rules: bookings are linked to milestones, the installer\'s visit feeds the completion check, sign-off = Manager. Works for milestones with and without bookings.',con:'Manager has to step in for every milestone that has no bookings.'}
 };
 let role='Manager';
