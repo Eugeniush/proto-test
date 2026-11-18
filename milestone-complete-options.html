@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to mark a milestone as complete — 3 options</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--text:#181d27;--sec:#414651;--muted:#535862;--label:#717680;--ph:#a4a7ae;--bd:#e9eaeb;--bd2:#d5d7da;--bg:#fafafa;
+--brand:#1570ef;--brand-bg:#eff8ff;--brand-bd:#b2ddff;--green:#079455;--green-s:#47cd89;--green-bg:#ecfdf3;--green-bd:#abefc6;
+--gray-bg:#fafafa;--red:#d92d20;--red-bg:#fef3f2;--red-bd:#fecdca;--amber:#b54708;--amber-bg:#fffaeb;--amber-bd:#fedf89}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;color:var(--text);background:#f5f5f5;font-size:14px}
+header{background:#fff;border-bottom:1px solid var(--bd);padding:20px 32px}
+header h1{margin:0 0 4px;font-size:20px}
+header p{margin:0;color:var(--muted)}
+.tabs{display:flex;gap:4px;margin-top:16px}
+.tab{border:1px solid var(--bd);background:#fff;padding:8px 14px;border-radius:8px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer}
+.tab.on{background:var(--brand-bg);border-color:var(--brand-bd);color:var(--brand)}
+.wrap{display:grid;grid-template-columns:360px 1fr;gap:24px;padding:24px 32px;align-items:start}
+.panel{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:20px}
+.sub{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--label);margin:0 0 14px}
+.side .how{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:20px}
+.how h2{font-size:16px;margin:0 0 8px}
+.how p,.how li{color:var(--sec);line-height:1.55}
+.how ul{padding-left:18px;margin:8px 0}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.pc div{border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.45}
+.pro{background:var(--green-bg);border:1px solid var(--green-bd)} .con{background:var(--red-bg);border:1px solid var(--red-bd)}
+.pc b{display:block;margin-bottom:4px}
+.ctrl{display:flex;gap:16px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--bd);flex-wrap:wrap}
+.ctrl label{display:flex;gap:8px;align-items:center;color:var(--sec);cursor:pointer}
+.reset{border:1px solid var(--bd2);background:#fff;border-radius:8px;padding:6px 12px;font:inherit;font-weight:600;color:var(--sec);cursor:pointer}
+/* milestones */
+.ms{position:relative}
+.step{display:grid;grid-template-columns:32px 1fr;gap:12px;position:relative;padding-bottom:20px}
+.step:not(:last-child)::before{content:"";position:absolute;left:15px;top:36px;bottom:4px;border-left:2px dotted var(--bd2)}
+.ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;border:1px solid var(--bd2);background:#fff;color:var(--sec)}
+.ic.done{background:#4caf50;border-color:#4caf50;color:#fff}
+.ic.prog{border-color:var(--brand-bd);color:var(--brand);background:var(--brand-bg)}
+.ic.cpl{border-color:var(--red-bd);color:#f04438;background:#fff}
+.ic.cpl.done{background:#fff;border-color:var(--red);color:var(--red)}
+.ttl{display:flex;justify-content:space-between;align-items:center;min-height:32px}
+.ttl b{font-size:16px;font-weight:600}
+.ttl.dis b{color:var(--label)}
+.chev{border:none;background:none;color:var(--label);cursor:pointer;font-size:14px;padding:4px}
+.rows{margin-top:4px}
+.r{display:flex;justify-content:space-between;align-items:center;min-height:28px;color:var(--muted);gap:8px}
+.r .v{color:var(--text);font-weight:500}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--bd2);border-radius:6px;padding:2px 6px;font-size:12px;color:var(--sec);background:#fff}
+.av{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#c7b9a5,#7d6a55)}
+.badge{display:inline-flex;align-items:center;gap:2px;height:22px;border-radius:6px;padding:2px 6px;font-size:12px;line-height:18px;font-weight:500;border:1px solid;white-space:nowrap}
+.badge svg{width:12px;height:12px;flex:none}
+.b-up{background:#fafafa;border-color:#e5e5e5;color:#404040}.b-up svg{stroke:#737373}
+.b-prog{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}.b-prog svg{stroke:#3b82f6}
+.b-done{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}.b-done svg{stroke:#22c55e}
+.b-hold{background:#fefce8;border-color:#fef08a;color:#a16207}.b-hold svg{stroke:#eab308}
+.dd{position:relative}
+.dd .badge{cursor:pointer;padding:2px 6px 2px 8px}
+.menu{position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--bd);border-radius:8px;box-shadow:0 12px 16px -4px rgba(10,13,18,.08),0 4px 6px -2px rgba(10,13,18,.03);padding:4px;min-width:160px;z-index:20;display:none}
+.menu.open{display:block}
+.menu div{padding:8px 10px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--sec)}
+.menu div:hover{background:var(--gray-bg)}
+.menu div.cur{font-weight:600;color:var(--text)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--bd2);background:#fff;border-radius:8px;padding:7px 12px;font:inherit;font-weight:600;color:var(--sec);cursor:pointer;box-shadow:0 1px 2px rgba(10,13,18,.05)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.link{border:none;box-shadow:none;background:none;color:var(--brand);padding:4px 0}
+.meta{font-size:12px;color:var(--label);margin-top:2px}
+.act{margin-top:8px;display:flex;gap:8px}
+.tipw{position:relative;display:inline-block}
+.tip{position:absolute;bottom:calc(100% + 8px);left:0;background:#0c111d;color:#fff;font-size:12px;font-weight:500;padding:8px 10px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:.12s;z-index:30}
+.tipw:hover .tip{opacity:1}
+.bk{margin-top:8px;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;background:var(--gray-bg)}
+.bk .h{font-size:12px;color:var(--label);margin-bottom:6px}
+.bkr{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;font-size:13px}
+.bkr .n{color:var(--sec)}
+.auto{font-size:12px;color:var(--green);margin-top:6px}
+/* activity */
+.log{margin-top:16px}
+.log .it{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--bd);font-size:13px;color:var(--sec)}
+.log .it:first-of-type{border-top:none}
+.log .t{color:var(--label);margin-left:auto;white-space:nowrap}
+.toast{position:fixed;top:20px;right:20px;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 12px 16px -4px rgba(10,13,18,.08);padding:14px 16px;display:none;gap:10px;align-items:flex-start;z-index:50;min-width:300px}
+.toast.show{display:flex}
+.toast b{display:block}
+.toast span{color:var(--muted);font-size:13px}
+.ok{width:20px;height:20px;border-radius:50%;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;flex:none}
+.flag{font-size:12px;color:var(--muted);background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:8px;padding:8px 10px;margin-top:12px;line-height:1.45}
+</style>
+</head>
+<body>
+<header>
+  <h1>How do we mark a milestone as complete?</h1>
+  <p>Three options to choose from. Click through the milestones on the right — the job's <b>Complete</b> stays blocked until every milestone is completed (agreed rule).</p>
+  <div class="tabs">
+    <button class="tab on" data-opt="1">Option 1 — Status dropdown</button>
+    <button class="tab" data-opt="2">Option 2 — "Mark complete" button</button>
+    <button class="tab" data-opt="4">Option 3 — Auto-complete from bookings</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="side">
+    <div class="how" id="how"></div>
+  </div>
+  <div class="panel" style="max-width:420px">
+    <p class="sub">Milestones</p>
+    <div class="ms" id="ms"></div>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="ok">✓</div><div><b id="tt"></b><span id="tb"></span></div></div>
+
+<script>
+const ME='Jay May';
+const DESC={
+ 1:{t:'Option 1 — Status dropdown',p:'The status badge on each milestone becomes a dropdown. Choosing <b>Completed</b> closes the milestone and logs the date and the user automatically — the same way the job\'s Complete already works.',
+   pro:'Simplest. Status is already a Stage 1 field — no new UI element.',con:'Easy to complete by accident. No clear place for a manager sign-off.'},
+ 2:{t:'Option 2 — "Mark complete" button',p:'Each expanded milestone gets an explicit <b>Mark complete</b> button. After clicking, the milestone shows "Completed on … by …" and can be reopened if needed. The button can be shown only to roles that are allowed to progress milestones.',
+   pro:'Clear, deliberate action, consistent with the job\'s Complete. Easy to restrict by role.',con:'Adds a button to every milestone.'},
+ 4:{t:'Option 3 — Auto-complete from bookings',p:'A milestone completes itself when all bookings linked to it are finished (the installer completes the visit: checklist, photos). The office can still complete it manually as a fallback.',
+   pro:'Matches how job status already moves automatically from bookings. Less manual work for the office.',con:'Every milestone needs linked bookings — unclear what happens when there are none.'}
+};
+let opt=1, hold=false, state, log;
+function fresh(){
+ state=[
+  {name:'Installation',date:'12/03/2026',who:['John Doe','+5'],status:'In Progress',open:true,bookings:[{n:'Installation day 1 · 12/03',done:true},{n:'Installation day 2 · 13/03',done:false}]},
+  {name:'Checking work',date:'14/03/2026',who:['Alex Sounder'],status:'Upcoming',open:true,bookings:[{n:'Final check · 14/03',done:false}]}
+ ];
+ log=[{a:'Lana Steiner',m:'Created job',t:'12/03/2026'}];
+ jobDone=null;
+}
+let jobDone=null;
+const now=()=>{const d=new Date();return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;};
+function toast(t,b){const el=document.getElementById('toast');document.getElementById('tt').textContent=t;document.getElementById('tb').textContent=b;el.classList.add('show');clearTimeout(window._t);window._t=setTimeout(()=>el.classList.remove('show'),2600);}
+function complete(i,by,auto){const m=state[i];m.status='Completed';m.on=now();m.by=by;log.unshift({a:auto?'System':by,m:`Completed milestone "${m.name}"${auto?' (all bookings finished)':''}`,t:'Just now'});toast('Milestone completed',`${m.name} · ${m.on}`);render();}
+function setStatus(i,s){const m=state[i];if(s==='Completed'){complete(i,ME);return;}const was=m.status;m.status=s;delete m.on;delete m.by;if(was==='Completed'){log.unshift({a:ME,m:`Reopened milestone "${m.name}"`,t:'Just now'});jobDone=null;}render();}
+function reopen(i){setStatus(i,'In Progress');}
+const badgeCls=s=>s==='Completed'?'b-done':s==='In Progress'?'b-prog':'b-up';
+function stepIcon(i,m){return m.status==='Completed'?`<div class="ic done">✓</div>`:m.status==='In Progress'?`<div class="ic prog">${i+2}</div>`:`<div class="ic">${i+2}</div>`;}
+function render(){
+ const D=DESC[opt];
+ document.getElementById('how').innerHTML=`<h2>${D.t}</h2><p>${D.p}</p>
+  <div class="pc"><div class="pro"><b>Pros</b>${D.pro}</div><div class="con"><b>Cons</b>${D.con}</div></div>
+  <div class="ctrl"><label><input type="checkbox" id="hold" ${hold?'checked':''}> Job is On Hold</label><button class="reset" id="rst">Reset</button></div>
+  <div class="flag">Same for every option: milestones can't be progressed while the job is On Hold; every completion is logged in Activity; the job's Complete is blocked until all milestones are completed.</div>`;
+ document.getElementById('hold').onchange=e=>{hold=e.target.checked;render();};
+ document.getElementById('rst').onclick=()=>{fresh();render();};
+ let h=`<div class="step"><div class="ic done" style="background:#4caf50">▶</div><div><div class="ttl"><b>Start</b></div><div class="rows"><div class="r">Created On<span class="v">12/03/2026</span></div></div></div></div>`;
+ state.forEach((m,i)=>{
+  const done=m.status==='Completed';
+  let statusCell;
+  if(opt===1){
+   statusCell=hold?`<span class="badge b-hold">On Hold</span>`:`<div class="dd"><span class="badge ${badgeCls(m.status)}" data-dd="${i}">${m.status}<svg viewBox="0 0 12 12" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5l3 3 3-3"/></svg></span><div class="menu" id="mn${i}">${['Upcoming','In Progress','Completed'].map(s=>`<div data-set="${i}|${s}" class="${s===m.status?'cur':''}"><span class="badge ${badgeCls(s)}">${s}</span></div>`).join('')}</div></div>`;
+  } else statusCell=hold&&!done?`<span class="badge b-hold">On Hold</span>`:`<span class="badge ${badgeCls(m.status)}">${m.status}</span>`;
+  let extra='';
+  if(m.open){
+   if(done) extra+=`<div class="r">Completed On<span class="v">${m.on}</span></div><div class="r">Completed by<span class="v">${m.by}</span></div>`;
+   if(opt===2){
+     extra+= done?`<div class="act"><button class="btn sm" data-reopen="${i}">Reopen</button></div>`
+       :`<div class="act"><span class="tipw"><button class="btn sm pri" data-mark="${i}" ${hold?'disabled':''}>✓ Mark complete</button>${hold?'<span class="tip">Resume the job to progress milestones</span>':''}</span></div>`;
+   }
+   if(opt===4){
+     extra+=`<div class="bk"><div class="h">Linked bookings</div>${m.bookings.map((b,j)=>`<div class="bkr"><span class="n">${b.n}</span>${b.done?'<span class="badge b-done">Finished</span>':`<button class="btn sm" data-visit="${i}|${j}" ${hold?'disabled':''}>Finish visit</button>`}</div>`).join('')}</div>`;
+     extra+= done?`<div class="auto">${m.by==='System'?'✓ Completed automatically — all bookings finished':'✓ Completed manually'}</div><div class="act"><button class="btn sm" data-reopen="${i}">Reopen</button></div>`
+       :`<div class="act"><button class="btn link" data-mark="${i}" ${hold?'disabled':''}>Complete manually</button></div>`;
+   }
+  }
+  h+=`<div class="step">${stepIcon(i,m)}<div><div class="ttl"><b>${m.name}</b><button class="chev" data-tg="${i}">${m.open?'⌃':'⌄'}</button></div>
+   <div class="rows"><div class="r">Date<span class="v">${m.date}</span></div>${m.open?`<div class="r">Assigned to<span>${m.who.map(w=>w.startsWith('+')?`<span class="chip">${w}</span>`:`<span class="chip"><span class="av"></span>${w}</span>`).join(' ')}</span></div><div class="r">Status${statusCell}</div>`:''}${extra}</div></div></div>`;
+ });
+ const allDone=state.every(m=>m.status==='Completed');
+ const left=state.filter(m=>m.status!=='Completed').length;
+ const canComplete=allDone&&!hold&&!jobDone;
+ const tipText=hold?'Resume the job before completing it':`${left} milestone${left>1?'s':''} not yet completed`;
+ h+=`<div class="step"><div class="ic cpl ${jobDone?'done':''}">■</div><div><div class="ttl ${jobDone||canComplete?'':'dis'}"><b>Complete</b></div>
+  <div class="rows">${jobDone?`<div class="r">Completed On<span class="v">${jobDone}</span></div>`:`<div class="act"><span class="tipw"><button class="btn sm ${canComplete?'pri':''}" id="jobc" ${canComplete?'':'disabled'}>Complete job</button>${canComplete?'':`<span class="tip">${tipText}</span>`}</span></div>`}</div></div></div>`;
+ document.getElementById('ms').innerHTML=h;
+ document.getElementById('log').innerHTML=`<p class="sub" style="margin-top:8px">Activity</p>`+log.slice(0,6).map(l=>`<div class="it"><b style="font-weight:600;color:var(--text)">${l.a}</b> ${l.m}<span class="t">${l.t}</span></div>`).join('');
+ // events
+ document.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{const m=state[+b.dataset.tg];m.open=!m.open;render();});
+ document.querySelectorAll('[data-dd]').forEach(b=>b.onclick=e=>{e.stopPropagation();const mn=document.getElementById('mn'+b.dataset.dd);document.querySelectorAll('.menu.open').forEach(x=>x!==mn&&x.classList.remove('open'));mn.classList.toggle('open');});
+ document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{const [i,s]=b.dataset.set.split('|');setStatus(+i,s);});
+ document.querySelectorAll('[data-mark]').forEach(b=>b.onclick=()=>complete(+b.dataset.mark,ME));
+ document.querySelectorAll('[data-reopen]').forEach(b=>b.onclick=()=>reopen(+b.dataset.reopen));
+ document.querySelectorAll('[data-visit]').forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.visit.split('|').map(Number);const m=state[i];m.bookings[j].done=true;log.unshift({a:'Installer',m:`Finished visit "${m.bookings[j].n}"`,t:'Just now'});if(m.status==='Upcoming')m.status='In Progress';if(m.bookings.every(x=>x.done))complete(i,'System',true);else render();});
+ const jc=document.getElementById('jobc'); if(jc) jc.onclick=()=>{jobDone=now();log.unshift({a:ME,m:'Completed job #7821',t:'Just now'});toast('Job completed','#7821 · '+jobDone);render();};
+}
+document.addEventListener('click',()=>document.querySelectorAll('.menu.open').forEach(m=>m.classList.remove('open')));
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');opt=+t.dataset.opt;fresh();render();});
+fresh();render();
+</script>
+</body>
+</html>
