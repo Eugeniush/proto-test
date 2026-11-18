@@ -98,6 +98,7 @@ header p{margin:0;color:var(--muted)}
     <button class="tab on" data-opt="1">Option 1 — Status dropdown</button>
     <button class="tab" data-opt="2">Option 2 — "Mark complete" button</button>
     <button class="tab" data-opt="4">Option 3 — Auto-complete from bookings</button>
+    <button class="tab" data-opt="5">Option 4 — Bookings + Manager sign-off</button>
   </div>
 </header>
 
@@ -122,14 +123,18 @@ const DESC={
  2:{t:'Option 2 — "Mark complete" button',p:'Each expanded milestone gets an explicit <b>Mark complete</b> button. After clicking, the milestone shows "Completed on … by …" and can be reopened if needed. The button can be shown only to roles that are allowed to progress milestones.',
    pro:'Clear, deliberate action, consistent with the job\'s Complete. Easy to restrict by role.',con:'Adds a button to every milestone.'},
  4:{t:'Option 3 — Auto-complete from bookings',p:'A milestone completes itself when all bookings linked to it are finished (the installer completes the visit: checklist, photos). The office can still complete it manually as a fallback.',
-   pro:'Matches how job status already moves automatically from bookings. Less manual work for the office.',con:'Every milestone needs linked bookings — unclear what happens when there are none.'}
+   pro:'Matches how job status already moves automatically from bookings. Less manual work for the office.',con:'Every milestone needs linked bookings — unclear what happens when there are none.'},
+ 5:{t:'Option 4 — Bookings + Manager sign-off',p:'<b>Usually automatic:</b> a milestone completes itself when all its linked bookings are finished (the installer completes the visit).<br><b>Manual — Manager only:</b> milestones without bookings (e.g. Permit approval), or ones that need closing early, are completed by a <b>Manager</b>. That manual action is the sign-off.<br><br>Switch <i>Viewing as</i> to see what a Project Coordinator sees.',
+   pro:'Built on agreed rules: bookings are linked to milestones, the installer\'s visit feeds the completion check, sign-off = Manager. Works for milestones with and without bookings.',con:'Manager has to step in for every milestone that has no bookings.'}
 };
+let role='Manager';
 let opt=1, hold=false, state, log;
 function fresh(){
  state=[
   {name:'Installation',date:'12/03/2026',who:['John Doe','+5'],status:'In Progress',open:true,bookings:[{n:'Installation day 1 · 12/03',done:true},{n:'Installation day 2 · 13/03',done:false}]},
   {name:'Checking work',date:'14/03/2026',who:['Alex Sounder'],status:'Upcoming',open:true,bookings:[{n:'Final check · 14/03',done:false}]}
  ];
+ if(opt===5) state.unshift({name:'Permit approval',date:'10/03/2026',who:['Jay May'],status:'In Progress',open:true,bookings:[]});
  log=[{a:'Lana Steiner',m:'Created job',t:'12/03/2026'}];
  jobDone=null;
 }
@@ -145,9 +150,10 @@ function render(){
  const D=DESC[opt];
  document.getElementById('how').innerHTML=`<h2>${D.t}</h2><p>${D.p}</p>
   <div class="pc"><div class="pro"><b>Pros</b>${D.pro}</div><div class="con"><b>Cons</b>${D.con}</div></div>
-  <div class="ctrl"><label><input type="checkbox" id="hold" ${hold?'checked':''}> Job is On Hold</label><button class="reset" id="rst">Reset</button></div>
+  <div class="ctrl">${opt===5?`<label>Viewing as <select id="role" style="font:inherit;border:1px solid var(--bd2);border-radius:8px;padding:5px 8px"><option ${role==='Manager'?'selected':''}>Manager</option><option ${role==='Project Coordinator'?'selected':''}>Project Coordinator</option></select></label>`:''}<label><input type="checkbox" id="hold" ${hold?'checked':''}> Job is On Hold</label><button class="reset" id="rst">Reset</button></div>
   <div class="flag">Same for every option: milestones can't be progressed while the job is On Hold; every completion is logged in Activity; the job's Complete is blocked until all milestones are completed.</div>`;
  document.getElementById('hold').onchange=e=>{hold=e.target.checked;render();};
+ const rs=document.getElementById('role'); if(rs) rs.onchange=e=>{role=e.target.value;render();};
  document.getElementById('rst').onclick=()=>{fresh();render();};
  let h=`<div class="step"><div class="ic done" style="background:#4caf50">▶</div><div><div class="ttl"><b>Start</b></div><div class="rows"><div class="r">Created On<span class="v">12/03/2026</span></div></div></div></div>`;
  state.forEach((m,i)=>{
@@ -162,6 +168,14 @@ function render(){
    if(opt===2){
      extra+= done?`<div class="act"><button class="btn sm" data-reopen="${i}">Reopen</button></div>`
        :`<div class="act"><span class="tipw"><button class="btn sm pri" data-mark="${i}" ${hold?'disabled':''}>✓ Mark complete</button>${hold?'<span class="tip">Resume the job to progress milestones</span>':''}</span></div>`;
+   }
+   if(opt===5){
+     const isMgr=role==='Manager'; const noBk=!m.bookings.length;
+     extra+= noBk?`<div class="bk"><div class="h">Linked bookings</div><div class="bkr"><span class="n" style="color:var(--label)">No bookings — completed manually by a Manager</span></div></div>`
+       :`<div class="bk"><div class="h">Linked bookings</div>${m.bookings.map((b,j)=>`<div class="bkr"><span class="n">${b.n}</span>${b.done?'<span class="badge b-done">Finished</span>':`<button class="btn sm" data-visit="${i}|${j}" ${hold?'disabled':''}>Finish visit</button>`}</div>`).join('')}</div>`;
+     if(done){ extra+=`<div class="auto">${m.by==='System'?'✓ Completed automatically — all bookings finished':'✓ Completed manually by '+m.by+' (Manager sign-off)'}</div>`+(isMgr?`<div class="act"><button class="btn sm" data-reopen="${i}">Reopen</button></div>`:''); }
+     else { const dis=hold||!isMgr; const tip=hold?'Resume the job to progress milestones':!isMgr?'Only a Manager can complete milestones manually':'';
+       extra+=`<div class="act"><span class="tipw"><button class="btn sm ${noBk?'pri':'link'}" data-mark="${i}" ${dis?'disabled':''}>${noBk?'✓ Mark complete':'Complete manually'}</button>${tip?`<span class="tip">${tip}</span>`:''}</span></div>`; }
    }
    if(opt===4){
      extra+=`<div class="bk"><div class="h">Linked bookings</div>${m.bookings.map((b,j)=>`<div class="bkr"><span class="n">${b.n}</span>${b.done?'<span class="badge b-done">Finished</span>':`<button class="btn sm" data-visit="${i}|${j}" ${hold?'disabled':''}>Finish visit</button>`}</div>`).join('')}</div>`;
