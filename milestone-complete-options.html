@@ -108,7 +108,6 @@ header p{margin:0;color:var(--muted)}
   <div class="panel" style="max-width:420px">
     <p class="sub">Milestones</p>
     <div class="ms" id="ms"></div>
-    <div class="log" id="log"></div>
   </div>
 </div>
 
@@ -150,7 +149,7 @@ function render(){
  document.getElementById('how').innerHTML=`<h2>${D.t}</h2><p>${D.p}</p>
   <div class="pc"><div class="pro"><b>Pros</b>${D.pro}</div><div class="con"><b>Cons</b>${D.con}</div></div>
   <div class="ctrl">${opt===5?`<label>Viewing as <select id="role" style="font:inherit;border:1px solid var(--bd2);border-radius:8px;padding:5px 8px"><option ${role==='Manager'?'selected':''}>Manager</option><option ${role==='Project Coordinator'?'selected':''}>Project Coordinator</option></select></label>`:''}<label><input type="checkbox" id="hold" ${hold?'checked':''}> Job is On Hold</label><button class="reset" id="rst">Reset</button></div>
-  <div class="flag">Same for every option: milestones can't be progressed while the job is On Hold; every completion is logged in Activity; the job's Complete is blocked until all milestones are completed.</div>`;
+  <div class="flag">Same for every option: milestones can't be progressed while the job is On Hold; the job's Complete is blocked until all milestones are completed.</div>`;
  document.getElementById('hold').onchange=e=>{hold=e.target.checked;render();};
  const rs=document.getElementById('role'); if(rs) rs.onchange=e=>{role=e.target.value;render();};
  document.getElementById('rst').onclick=()=>{fresh();render();};
@@ -192,8 +191,7 @@ function render(){
  h+=`<div class="step"><div class="ic cpl ${jobDone?'done':''}">■</div><div><div class="ttl ${jobDone||canComplete?'':'dis'}"><b>Complete</b></div>
   <div class="rows">${jobDone?`<div class="r">Completed On<span class="v">${jobDone}</span></div>`:`<div class="act"><span class="tipw"><button class="btn sm ${canComplete?'pri':''}" id="jobc" ${canComplete?'':'disabled'}>Complete job</button>${canComplete?'':`<span class="tip">${tipText}</span>`}</span></div>`}</div></div></div>`;
  document.getElementById('ms').innerHTML=h;
- document.getElementById('log').innerHTML=`<p class="sub" style="margin-top:8px">Activity</p>`+log.slice(0,6).map(l=>`<div class="it"><b style="font-weight:600;color:var(--text)">${l.a}</b> ${l.m}<span class="t">${l.t}</span></div>`).join('');
- // events
+  // events
  document.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{const m=state[+b.dataset.tg];m.open=!m.open;render();});
  document.querySelectorAll('[data-dd]').forEach(b=>b.onclick=e=>{e.stopPropagation();const mn=document.getElementById('mn'+b.dataset.dd);document.querySelectorAll('.menu.open').forEach(x=>x!==mn&&x.classList.remove('open'));mn.classList.toggle('open');});
  document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{const [i,s]=b.dataset.set.split('|');setStatus(+i,s);});
