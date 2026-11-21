@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Графік відключень — варіант A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#E6E6EA}
+body{font-family:Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#141414;-webkit-font-smoothing:antialiased}
+button,select{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+
+/* ===== variant tabs (prototype chrome) ===== */
+.tabs{position:sticky;top:0;z-index:60;background:#141414;display:flex;gap:6px;padding:8px;overflow-x:auto;align-items:center;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{padding:8px 12px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap;color:#9a9a9a}
+.tabs button.on{background:#fff;color:#141414}
+.tabs .demo{margin-left:auto;color:#F5C542;border:1px dashed rgba(245,197,66,.5)}
+.shell{max-width:430px;margin:0 auto;min-height:100vh;position:relative}
+@media(min-width:520px){.shell{margin:24px auto 40px;border-radius:32px;overflow:clip;box-shadow:0 30px 80px rgba(0,0,0,.18);min-height:820px}}
+
+/* ===== shared bits ===== */
+.bell{position:relative;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;flex:none}
+.bell svg{width:20px;height:20px}
+.badge{position:absolute;top:4px;right:4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#E5484D;color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;border:2px solid var(--bg,#fff);animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.sg{position:absolute;top:0;bottom:0;display:block}
+.sg em{font-style:normal}
+.foot{padding:18px 20px 28px;font-size:11px;line-height:1.5;color:#9A9AA0}
+.foot a{color:inherit}
+
+/* ===== notifications sheet ===== */
+.sheet-bg{position:fixed;inset:0;z-index:100;background:rgba(10,10,12,.45);display:flex;justify-content:center;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.sheet-bg.open{opacity:1;pointer-events:auto}
+.sheet{width:100%;max-width:430px;max-height:82vh;background:#fff;border-radius:24px 24px 0 0;display:flex;flex-direction:column;transform:translateY(30px);transition:transform .25s ease}
+.sheet-bg.open .sheet{transform:none}
+.sheet .grab{width:38px;height:5px;border-radius:3px;background:#DDD;margin:8px auto 0}
+.sh-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 10px}
+.sh-head b{font-size:20px;font-weight:800}
+.sh-head button{font-size:14px;font-weight:700;color:#6B6B70;padding:6px 10px;border-radius:10px;background:#F2F2F4}
+.sh-list{overflow-y:auto;padding:0 12px 24px}
+.sh-sec{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9A9AA0;padding:12px 8px 6px}
+.nt{display:flex;gap:12px;padding:12px 10px;border-radius:16px;position:relative}
+.nt.new{background:#FFF7E0}
+.nt .ic{width:36px;height:36px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:12px;font-weight:800;background:#F2F2F4}
+.nt.mine .ic{background:#141414;color:#F5C542}
+.nt .bd{flex:1;min-width:0}
+.nt .tt{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:700}
+.nt .tt small{font-size:12px;font-weight:600;color:#9A9AA0;white-space:nowrap}
+.nt p{font-size:13px;color:#55555B;margin-top:3px;line-height:1.45}
+.nt .src{font-size:10.5px;color:#ABABB0;margin-top:6px;line-height:1.35;letter-spacing:-.01em}
+.nt .chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.nt .ch{font-size:12px;font-weight:700;padding:3px 8px;border-radius:8px}
+.ch.add{color:#C62F35;background:#FDECEC;border:1px solid #F5BDBF}
+.ch.rem{color:#217A45;background:#E7F6EC;border:1px dashed #8CCFA5}
+.nt .dot{position:absolute;left:2px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#E5484D}
+.sheet.dark{background:#17191E;color:#F2F2F2}
+.sheet.dark .grab{background:#33363D}
+.sheet.dark .sh-head button{background:#24272E;color:#B5B7BD}
+.sheet.dark .nt.new{background:#2A2416}
+.sheet.dark .nt .ic{background:#24272E}
+.sheet.dark .nt.mine .ic{background:#FFB020;color:#141414}
+.sheet.dark .nt p{color:#A8AAB0}
+.sheet.dark .ch.add{background:#3A1C1E;border-color:#7A2E32;color:#FF8A8E}
+.sheet.dark .ch.rem{background:#15301F;border-color:#2E7A4A;color:#6FD69A}
+
+/* =========================================================
+   VARIANT A — "Таблиця" (найближче до референсу)
+   ========================================================= */
+.va{--bg:#FAFAF7;--y:#F5C542;--off:#D4D4D4;--red:#E5484D;--grn:#2E9E5B;--line:#EDEDE8;background:var(--bg);min-height:100%}
+.va-head{padding:16px 16px 10px}
+.va-r1{display:flex;align-items:center;gap:10px}
+.va-pill{background:var(--y);font-weight:800;font-size:18px;padding:6px 12px;border-radius:12px}
+.va-date{flex:1;font-size:18px;font-weight:800;line-height:1.15}
+.va .bell{border:1px solid #E4E4DE;background:#fff}
+.va-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:12px;font-weight:600;color:#8D8D86}
+.va-clock{display:flex;align-items:center;gap:6px}
+.va-clock b{font-size:17px;font-weight:700;color:#141414}
+.va-clock::before{content:"";width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+.va-upd b{color:#55554F;font-weight:700}
+.va-seg{display:flex;background:#EFEFEA;border-radius:12px;padding:3px;margin-top:14px}
+.va-seg button{flex:1;padding:8px;border-radius:10px;font-size:14px;font-weight:700;color:#7A7A74}
+.va-seg button.on{background:#fff;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.va-mine{margin:4px 16px 10px;background:#141414;color:#fff;border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.va-mine label{font-size:11px;color:#A5A5A0;font-weight:600;display:flex;flex-direction:column;gap:2px}
+.va-mine select{color:#F5C542;font-size:20px;font-weight:800;appearance:none;-webkit-appearance:none;padding-right:14px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23F5C542' stroke-width='2' fill='none'/%3E%3C/svg%3E") right center no-repeat}
+.va-mine select option{color:#141414}
+.va-mine .st{flex:1;text-align:right;font-size:15px;font-weight:800}
+.va-mine .st span{display:block;font-size:12px;font-weight:600;color:#A5A5A0}
+.va-mine .st.on::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ADE80;margin-right:6px;vertical-align:1px}
+.va-mine .st.off::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#E5484D;margin-right:6px;vertical-align:1px}
+.va-legend{display:flex;gap:12px;padding:2px 16px 10px;font-size:11px;font-weight:600;color:#6F6F69;flex-wrap:wrap}
+.va-legend i{display:inline-block;width:16px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.lg-off{background:#D4D4D4}.lg-chg{border:2px solid #E5484D}.lg-cnl{border:1.5px dashed #2E9E5B;background:#E3F4E8}
+.va-card{margin:0 12px;background:#fff;border:1px solid #ECECE6;border-radius:20px;padding:16px 14px 14px}
+.va-ch{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.va-ch b{font-size:17px;font-weight:800}
+.va-ch span{font-size:13px;font-weight:700;color:#6F6F69}
+.va-ch span em{font-style:normal;color:#141414}
+.va-tl{position:relative;margin-top:28px}
+.va-hrs{position:relative;height:16px}
+.va-hrs span{position:absolute;top:0;transform:translateX(-50%);font-size:10.5px;font-weight:700;color:#8D8D86}
+.va-hrs span:first-child{transform:none}
+.va-hrs span:last-child{transform:translateX(-100%)}
+.va-track{position:relative;height:56px;border-radius:12px;background:#F6F6F2;background-image:repeating-linear-gradient(to right,#E7E7E1 0 1px,transparent 1px calc(100%/24));overflow:visible}
+.va-track .sg{top:6px;bottom:6px;border-radius:8px}
+.va .sg.off{background:var(--off)}
+.va .sg.chg{border:2px solid var(--red);border-radius:8px}
+.va .sg.cnl{background:#E3F4E8;border:1.5px dashed #7CC497;border-radius:8px}
+.va-past{position:absolute;top:0;bottom:0;left:0;background:rgba(255,255,255,.6);border-radius:12px 0 0 12px;pointer-events:none}
+.va-now{position:absolute;top:-8px;bottom:-4px;width:2px;margin-left:-1px;background:#141414;pointer-events:none}
+.va-now b{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#141414;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap}
+.va-list{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.va-it{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#F6F6F2}
+.va-it .mk{width:14px;height:14px;border-radius:4px;flex:none}
+.va-it .tm{font-size:15px;font-weight:700}
+.va-it .lb{flex:1;font-size:12px;font-weight:600;color:#6F6F69}
+.va-it .tg{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px}
+.va-it .tg.chg{color:#C62F35;background:#FDECEC}
+.va-it .tg.now{color:#fff;background:#141414}
+.va-it.past{opacity:.45}
+.va-it.cnl{background:#F1FAF4}
+.va-empty{font-size:14px;font-weight:600;color:#6F6F69;padding:10px 0}
+
+
+/* ---- timeline variants ---- */
+.tl-sw{display:flex;gap:4px;background:#F1F1EC;border-radius:10px;padding:3px;margin-top:14px}
+.tl-sw button{flex:1;padding:7px 4px;border-radius:8px;font-size:12.5px;font-weight:700;color:#7A7A74}
+.tl-sw button.on{background:#fff;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+:root{--on:#FFD84D;--onPast:#F4E6A8;--dark:#2E2E2E;--darkPast:#8B8B87}
+.lgd{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;font-weight:600;color:#6F6F69;margin-top:12px}
+.lgd i{display:inline-block;width:14px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.hatch{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 3px,transparent 3px 7px)!important}
+
+/* V1 — смуга */
+.t1{position:relative;margin-top:30px}
+.t1-bar{position:relative;height:64px;border-radius:14px;overflow:hidden;display:flex}
+.t1-p{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 6px;overflow:hidden;border-right:2px solid #fff}
+.t1-p:last-child{border-right:0}
+.t1-p.on{background:var(--on);color:#5A4600}
+.t1-p.off{background:var(--dark);color:#fff}
+.t1-p.past.on{background-color:var(--onPast);color:#8A7A3A}
+.t1-p.past.off{background-color:var(--darkPast);color:#F2F2F2}
+.t1-p b{font-size:12px;font-weight:800;white-space:nowrap}
+.t1-p small{font-size:10.5px;font-weight:600;white-space:nowrap;opacity:.85}
+.t1-p .ico{font-size:13px;line-height:1}
+.t1-mk{position:absolute;pointer-events:none}
+.t1-mk.chg{top:0;bottom:0;border:2.5px solid #E5484D;border-radius:6px}
+.t1-mk.cnl{bottom:4px;height:5px;border-radius:3px;background:repeating-linear-gradient(90deg,#2E9E5B 0 4px,transparent 4px 7px)}
+.t1-now{position:absolute;top:-10px;bottom:-6px;width:3px;margin-left:-1.5px;background:#E5484D;border-radius:2px;z-index:3}
+.t1-now b{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#E5484D;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap}
+.t1-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.t1-st{border-radius:14px;padding:10px 12px;background:#F6F6F2}
+.t1-st h4{font-size:11px;font-weight:700;color:#8D8D86;text-transform:uppercase;letter-spacing:.05em}
+.t1-st div{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-top:6px;color:#55554F}
+.t1-st div b{color:#141414}
+.t1-st i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+
+/* V2 — погодинна сітка */
+.t2{margin-top:14px}
+.t2-g{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.t2-c{position:relative;border-radius:10px;height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;overflow:hidden}
+.t2-c .h{font-size:11px;font-weight:800}
+.t2-c svg{width:18px;height:18px}
+.t2-c.on{background:#FFF1B8;color:#6B5500}
+.t2-c.off{background:var(--dark);color:#fff}
+.t2-c.half{background:linear-gradient(90deg,var(--dark) 0 50%,#FFF1B8 50%);color:#fff}
+.t2-c.half.r{background:linear-gradient(90deg,#FFF1B8 0 50%,var(--dark) 50%)}
+.t2-c.past{opacity:.42}
+.t2-c.past::after{content:"✓";position:absolute;top:3px;right:5px;font-size:9px;font-weight:800}
+.t2-c.cur{outline:2.5px solid #E5484D;outline-offset:1px;opacity:1}
+.t2-c .pr{position:absolute;left:0;bottom:0;height:4px;background:#E5484D}
+.t2-c.chg{box-shadow:inset 0 0 0 2px #E5484D}
+.t2-c.cnl{box-shadow:inset 0 0 0 1.5px #2E9E5B;background-image:repeating-linear-gradient(135deg,rgba(46,158,91,.15) 0 3px,transparent 3px 6px)}
+.t2-sep{grid-column:1/-1;font-size:10.5px;font-weight:700;color:#8D8D86;text-transform:uppercase;letter-spacing:.05em;padding:6px 2px 0}
+.t2-sum{margin-top:12px;font-size:13px;font-weight:600;color:#55554F;line-height:1.5}
+.t2-sum b{color:#141414}
+
+/* V3 — хронологія */
+.t3{margin-top:16px;position:relative}
+.t3-r{display:grid;grid-template-columns:46px 18px 1fr;gap:10px;position:relative}
+.t3-t{font-size:13px;font-weight:700;padding-top:1px;text-align:right;color:#141414}
+.t3-rail{position:relative;display:flex;justify-content:center}
+.t3-rail::before{content:"";position:absolute;top:4px;bottom:-4px;width:8px;border-radius:4px;background:var(--c)}
+.t3-rail .dt{position:relative;z-index:1;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--c);margin-top:1px}
+.t3-b{padding-bottom:16px;min-height:var(--hh)}
+.t3-b .ti{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+.t3-b .ti .tg{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:#F1F1EC;color:#6F6F69}
+.t3-b .ti .tg.now{background:#E5484D;color:#fff}
+.t3-b .ti .tg.chg{background:#FDECEC;color:#C62F35}
+.t3-b .ti .tg.cnl{background:#E7F6EC;color:#217A45}
+.t3-b p{font-size:12.5px;font-weight:600;color:#6F6F69;margin-top:2px}
+.t3-pb{height:6px;border-radius:3px;background:#EEEEE8;margin-top:8px;overflow:hidden;max-width:220px}
+.t3-pb i{display:block;height:100%;background:#E5484D;border-radius:3px}
+.t3-r.past .t3-b,.t3-r.past .t3-t{opacity:.45}
+.t3-r.past .t3-rail::before{opacity:.45}
+.t3-r.cur .t3-b{background:#FFF8E1;margin:-6px 0 10px -8px;padding:6px 10px 12px 8px;border-radius:12px}
+.t3-end .t3-t{opacity:.6}
+
+/* V4 — сітка 4×6 */
+.t4{margin-top:14px}
+.t4-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.t4-c{position:relative;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.t4-c svg{width:16px;height:16px;flex:none}
+.t4-c.on{background:#FFF1B8;color:#5A4600}
+.t4-c.on svg{color:#E0A800}
+.t4-c.off{background:#2E2E2E;color:#fff}
+.t4-c.half{background:linear-gradient(90deg,#FFF1B8 0 50%,#2E2E2E 50%);color:#141414}
+.t4-c.half.r{background:linear-gradient(90deg,#2E2E2E 0 50%,#FFF1B8 50%)}
+.t4-c.half span{background:rgba(255,255,255,.85);padding:1px 6px;border-radius:6px}
+.t4-c.past{opacity:.45}
+.t4-c.cur{outline:3px solid #2F6BFF;outline-offset:2px;opacity:1}
+.t4-c.chg{box-shadow:inset 0 0 0 2.5px #E5484D}
+.t4-c.cnl{box-shadow:inset 0 0 0 2px #2E9E5B}
+.t4-lg{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-size:12px;font-weight:600;color:#6F6F69}
+.t4-lg span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.t4-lg i{width:12px;height:12px;border-radius:50%;flex:none}
+.wk{display:flex;background:#EFEFEA;border-radius:12px;padding:3px}
+.wk button{flex:1;padding:8px 0;border-radius:10px;font-size:14px;font-weight:700;color:#7A7A74;position:relative}
+.wk button.on{background:#fff;color:#141414;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.wk button.td::after{content:"";position:absolute;left:50%;bottom:3px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:#E5484D}
+.wk button.na{color:#B5B5AE}
+.wk-empty{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;padding:48px 16px;color:#6F6F69;font-size:13px}
+.wk-empty b{font-size:15px;color:#141414}
+.wk button.on::after{display:none}
+</style>
+</head>
+<body>
+<main class="shell" id="app"></main>
+<div class="sheet-bg" id="sheetBg"><div class="sheet" id="sheet"></div></div>
+
+<script>
+/* ---------------- test data (з референсу, 21.11) ---------------- */
+const TODAY = {
+ '1.1':{off:[[18.5,22]],add:[[20.5,22]],cancel:[[16,18.5]]},
+ '1.2':{off:[[18.5,20.5]],add:[[20,20.5]],cancel:[[14.5,18.5]]},
+ '2.1':{off:[[15,20]],add:[[15,16]],cancel:[[20,22]]},
+ '2.2':{off:[[15,20.5]],add:[],cancel:[[14.5,15]]},
+ '3.1':{off:[[18.5,23.5]],add:[],cancel:[[11.5,12.5],[18,18.5]]},
+ '3.2':{off:[[0,1],[16,17],[17,18],[18,19],[19,20],[22,23],[23,24]],add:[],cancel:[]}, // тест: дані з 2-го скріншота
+ '4.1':{off:[[0,1],[10,12],[20,24]],add:[[10,11.5]],cancel:[[12,15]]},
+ '4.2':{off:[[0,1],[10,12],[20,24]],add:[[10,11.5]],cancel:[[12,13.5]]},
+ '5.1':{off:[[1,2],[11.5,15.5],[22.5,24]],add:[[15,15.5]],cancel:[[22,22.5]]},
+ '5.2':{off:[[1,1.5],[11.5,15.5],[23.5,24]],add:[],cancel:[[15.5,18.5]]},
+ '6.1':{off:[[23.5,24]],add:[],cancel:[[13,18]]},
+ '6.2':{off:[[22,22.5],[23.5,24]],add:[[22,22.5]],cancel:[[12,16.5],[18,18.5]]}
+};
+const ORDER = Object.keys(TODAY);
+function genTomorrow(shift=0){
+  const base=[0,2,4,6,8,3], o={};
+  ORDER.forEach(k=>{const [g,s]=k.split('.').map(Number);const st=(base[g-1]+shift)%9+(s===2?.5:0);
+    o[k]={off:[[st,Math.min(st+4,24)],[st+12,Math.min(st+16,24)]],add:[],cancel:[]};});
+  return o;
+}
+const TOMORROW = genTomorrow();
+const PAST = {}; // тестові дані для минулих днів тижня
+for(let i=1;i<=6;i++)PAST[-i]=genTomorrow(i*2+1);
+const SOURCE = {name:'Київська область · графік відключень', url:'https://vyshgorod.in.ua/svitlo', host:'vyshgorod.in.ua/svitlo', schedule:'Графік №17', provider:'ПрАТ «ДТЕК Київські регіональні електромережі»', providerShort:'ДТЕК Київські регіональні електромережі', hostShort:'vyshgorod.in.ua'};
+
+/* ---------------- helpers ---------------- */
+const pad=n=>String(n).padStart(2,'0');
+function fmt(h){const m=Math.round(h*60);return pad(Math.floor(m/60))+':'+pad(m%60)}
+function dur(h){const m=Math.round(h*60),H=Math.floor(m/60),M=m%60;if(!M)return H+' год';if(!H)return M+' хв';return H+' г '+M+' хв'}
+function durLong(h){const m=Math.max(0,Math.round(h*60)),H=Math.floor(m/60),M=m%60;if(!H)return M+' хв';if(!M)return H+' год';return H+' год '+M+' хв'}
+const total=q=>q.off.reduce((a,[s,e])=>a+e-s,0);
+const rng=([s,e])=>fmt(s)+'–'+fmt(e);
+const pos=(s,e)=>`left:${s/24*100}%;width:${(e-s)/24*100}%`;
+function merged(q){const r=[];q.off.forEach(([s,e])=>{const l=r[r.length-1];if(l&&l[1]>=s)l[1]=Math.max(l[1],e);else r.push([s,e])});return r}
+function status(q,t){
+  const m=merged(q);
+  for(const [s,e] of m){ if(t>=s&&t<e) return {on:false,until:e>=24?null:e}; }
+  const nx=m.find(([s])=>s>t); return {on:true,until:nx?nx[0]:null};
+}
+function kyiv(){
+  let p;try{p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Kyiv',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date())}
+  catch(e){p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Kiev',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date())}
+  const g=t=>+p.find(x=>x.type===t).value;return {y:g('year'),m:g('month'),d:g('day'),h:g('hour')%24,mi:g('minute')};
+}
+function segs(q,labels){
+  let h='';
+  q.cancel.forEach(([s,e])=>h+=`<i class="sg cnl" style="${pos(s,e)}"></i>`);
+  merged(q).forEach(([s,e])=>h+=`<i class="sg off" style="${pos(s,e)}">${labels&&e-s>=1.5?`<em>${fmt(s)}–${fmt(e)}</em>`:''}</i>`);
+  q.add.forEach(([s,e])=>h+=`<i class="sg chg" style="${pos(s,e)}"></i>`);
+  return h;
+}
+const store={get(k,d){try{const v=localStorage.getItem('svitlo.'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+             set(k,v){try{localStorage.setItem('svitlo.'+k,JSON.stringify(v))}catch(e){}}};
+const ICON={
+ bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'
+};
+
+/* ---------------- state ---------------- */
+const S={
+  v:store.get('v','a'), day:0, mine:store.get('mine','3.2'), tl:store.get('tl',4),
+  upd:'09:17', notifs:[], read:new Set(store.get('read',['n-y'])), freshIds:new Set()
+};
+(function buildNotifs(){
+  S.notifs.push({id:'n-upd',time:'09:17',kind:'upd',title:'Графік оновлено',text:'Змінено графіки для 12 підчерг на сьогодні. Перевірте свою чергу.'});
+  ORDER.forEach(k=>{const q=TODAY[k];if(q.add.length||q.cancel.length)S.notifs.push({id:'n-'+k,time:'09:17',kind:'q',queue:k,add:q.add.map(rng),rem:q.cancel.map(rng)})});
+  S.notifs.push({id:'n-y',time:'вчора, 20:40',kind:'upd',title:'Опубліковано графік на сьогодні',text:SOURCE.schedule+'. Попередній графік на завтра — у вкладці «Завтра».',old:true});
+})();
+const unread=()=>S.notifs.filter(n=>!S.read.has(n.id)).length;
+
+function dayInfo(i){
+  const k=kyiv();const d=new Date(k.y,k.m-1,k.d+i);
+  const ds=d.toLocaleDateString('uk-UA',{weekday:'long',day:'numeric',month:'long'});
+  const td=new Date(k.y,k.m-1,k.d);
+  const upd=pad(td.getDate())+'.'+pad(td.getMonth()+1)+'.'+td.getFullYear();
+  const wd=ds.split(',')[0];
+  const label=i===0?'Сьогодні':i===1?'Завтра':i===-1?'Вчора':wd[0].toUpperCase()+wd.slice(1);
+  return {i,label,dateStr:ds,weekday:wd,dayMonth:ds.split(', ')[1]||ds,dow:(td.getDay()+6)%7,
+    data:i===0?TODAY:i===1?TOMORROW:i<0?PAST[i]:null,updDate:upd,t:i===0?k.h+k.mi/60:(i<0?24:null),clock:pad(k.h)+':'+pad(k.mi)};
+}
+const bell=()=>{const n=unread();return `<button class="bell" data-act="bell" aria-label="Сповіщення${n?', непрочитаних: '+n:''}">${ICON.bell}${n?`<span class="badge">${n}</span>`:''}</button>`};
+const mineSelect=(id)=>`<select id="${id}" class="mineSel" aria-label="Моя черга">${ORDER.map(k=>`<option ${k===S.mine?'selected':''}>${k}</option>`).join('')}</select>`;
+const footer=()=>`<footer class="foot">Джерело: ${SOURCE.provider} · ${SOURCE.name}, <a href="${SOURCE.url}" target="_blank" rel="noopener">${SOURCE.host}</a> · ${SOURCE.schedule}<br>Графік може змінюватися протягом дня. Зараз показано тестові дані.</footer>`;
+
+/* timeline */
+/* ---- timeline helpers ---- */
+function periods(q){const m=merged(q),r=[];let c=0;m.forEach(([a,b])=>{if(a>c)r.push({a:c,b:a,on:true});r.push({a,b,on:false});c=b});if(c<24)r.push({a:c,b:24,on:true});return r}
+const ovl=(a,b,L)=>L.some(([x,y])=>x<b&&y>a);
+const BULB_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V16h8v-1.3A7 7 0 0 0 12 2z"/></svg>';
+const BULB_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V16h8v-1.3A7 7 0 0 0 12 2z"/><path d="M3 3l18 18"/></svg>';
+function sumSplit(P,t){const r={pOn:0,pOff:0,fOn:0,fOff:0};P.forEach(p=>{const past=t==null?0:Math.max(0,Math.min(p.b,t)-p.a),fut=(p.b-p.a)-past;if(p.on){r.pOn+=past;r.fOn+=fut}else{r.pOff+=past;r.fOff+=fut}});return r}
+
+const sh=h=>h%1?fmt(h):pad(h);
+function tl1(q,t,clock){
+  const P=periods(q);
+  // split periods at "now" so past part is visually different
+  const parts=[];P.forEach(p=>{if(t!=null&&p.a<t&&t<p.b){parts.push({...p,b:t,past:true,cut:'r'});parts.push({...p,a:t,cut:'l'})}else parts.push({...p,past:t!=null&&p.b<=t})});
+  const bar=parts.map(p=>{const w=p.b-p.a;const full=P.find(x=>x.a<=p.a&&p.b<=x.b);
+    const lab=w>=(full.a%1||full.b%1?4.5:2.5)?`<span class="ico">${p.on?'ϟ':'⏻'}</span><b>${sh(full.a)}–${sh(full.b)}</b><small>${dur(full.b-full.a)}</small>`:(w>=1.2?`<span class="ico">${p.on?'ϟ':'⏻'}</span>`:'');
+    return `<div class="t1-p ${p.on?'on':'off'} ${p.past?'past hatch':''}" style="flex:${w} 0 0">${lab}</div>`}).join('');
+  const mk=q.add.map(([a,b])=>`<i class="t1-mk chg" style="${pos(a,b)}"></i>`).join('')+q.cancel.map(([a,b])=>`<i class="t1-mk cnl" style="${pos(a,b)}"></i>`).join('');
+  const S2=sumSplit(P,t);
+  const hours=[0,3,6,9,12,15,18,21,24].map(h=>`<span style="left:${h/24*100}%">${pad(h)}</span>`).join('');
+  return `<div class="t1"><div style="position:relative"><div class="t1-bar">${bar}</div>${mk}
+     ${t!=null?`<div class="t1-now" style="left:${t/24*100}%"><b>${clock}</b></div>`:''}</div>
+    <div class="va-hrs" style="margin-top:6px">${hours}</div></div>
+    <div class="lgd"><span><i style="background:var(--on)"></i>Світло є</span><span><i style="background:var(--dark)"></i>Без світла</span><span><i class="hatch" style="background:var(--darkPast)"></i>Минуло</span><span><i style="border:2px solid #E5484D"></i>Змінено</span><span><i style="background:repeating-linear-gradient(90deg,#2E9E5B 0 3px,transparent 3px 5px);height:4px"></i>Скасовано</span></div>
+    ${t!=null?`<div class="t1-stats">
+      <div class="t1-st"><h4>Минуло · 00:00–${clock}</h4><div><span><i style="background:var(--on)"></i>Світло</span><b>${dur(S2.pOn)}</b></div><div><span><i style="background:var(--dark)"></i>Без світла</span><b>${dur(S2.pOff)}</b></div></div>
+      <div class="t1-st"><h4>Попереду · до 24:00</h4><div><span><i style="background:var(--on)"></i>Світло</span><b>${dur(S2.fOn)}</b></div><div><span><i style="background:var(--dark)"></i>Без світла</span><b>${dur(S2.fOff)}</b></div></div>
+    </div>`:''}`;
+}
+
+function tl2(q,t){
+  const m=merged(q);let cells='';
+  for(let h=0;h<24;h++){
+    if(h===0)cells+='<div class="t2-sep">Ніч і ранок · 00–12</div>';
+    if(h===12)cells+='<div class="t2-sep">День і вечір · 12–24</div>';
+    const f1=ovl(h,h+.5,m),f2=ovl(h+.5,h+1,m);
+    let cls=f1&&f2?'off':(!f1&&!f2?'on':(f1?'half':'half r'));
+    if(t!=null&&h+1<=t)cls+=' past'; const cur=t!=null&&h<=t&&t<h+1;
+    if(cur)cls+=' cur';
+    if(ovl(h,h+1,q.add))cls+=' chg'; else if(ovl(h,h+1,q.cancel)&&!(f1&&f2))cls+=' cnl';
+    const isOff=f1||f2;
+    cells+=`<div class="t2-c ${cls}" title="${pad(h)}:00–${pad(h+1)}:00"><span class="h">${pad(h)}–${pad(h+1)}</span>${isOff?BULB_OFF:BULB_ON}${cur?`<span class="pr" style="width:${(t-h)*100}%"></span>`:''}</div>`;
+  }
+  return `<div class="t2"><div class="t2-g">${cells}</div>
+    <div class="lgd"><span><i style="background:#FFF1B8"></i>Світло є</span><span><i style="background:var(--dark)"></i>Без світла</span><span><i style="background:linear-gradient(90deg,var(--dark) 50%,#FFF1B8 50%)"></i>Пів години</span><span><i style="outline:2px solid #E5484D;outline-offset:-2px"></i>Зараз / змінено</span><span><i style="box-shadow:inset 0 0 0 1.5px #2E9E5B"></i>Скасовано</span></div>
+    <div class="t2-sum">Без світла <b>${dur(total(q))}</b>: ${m.map(rng).join(', ')||'—'}</div></div>`;
+}
+
+function tl3(q,t){
+  const P=periods(q);
+  const rows=P.map(p=>{const past=t!=null&&p.b<=t,cur=t!=null&&p.a<=t&&t<p.b,w=p.b-p.a;
+    const c=p.on?'#FFD84D':'#2E2E2E';
+    let tag='';
+    if(past)tag='<span class="tg">минуло</span>';
+    else if(cur)tag='<span class="tg now">зараз</span>';
+    else if(t!=null)tag=`<span class="tg">через ${durLong(p.a-t)}</span>`;
+    const chg=!p.on&&ovl(p.a,p.b,q.add)?'<span class="tg chg">змінено</span>':'';
+    const cn=p.on&&q.cancel.filter(([a,b])=>a<p.b&&b>p.a);
+    const cnt=cn&&cn.length?`<p>Скасовано відключення: ${cn.map(rng).join(', ')}</p>`:'';
+    return `<div class="t3-r ${past?'past':''} ${cur?'cur':''}" style="--c:${c};--hh:${Math.max(52,Math.min(w,8)*12)}px">
+      <div class="t3-t mono">${fmt(p.a)}</div><div class="t3-rail"><span class="dt"></span></div>
+      <div class="t3-b"><div class="ti">${p.on?'Світло є':'Без світла'} ${tag}${chg}</div>
+        <p>${fmt(p.a)}–${fmt(p.b)} · ${durLong(w)}${cur?` · залишилось <b style="color:#141414">${durLong(p.b-t)}</b>`:''}</p>${cnt}
+        ${cur?`<div class="t3-pb"><i style="width:${(t-p.a)/w*100}%"></i></div>`:''}</div></div>`}).join('');
+  return `<div class="t3">${rows}<div class="t3-r t3-end"><div class="t3-t mono">24:00</div><div></div><div></div></div></div>`;
+}
+
+
+const BOLT='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>';
+const BOLT_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/><path d="M3 3l18 18"/></svg>';
+function tl4(q,t){
+  const m=merged(q);let cells='';
+  for(let h=0;h<24;h++){
+    const f1=ovl(h,h+.5,m),f2=ovl(h+.5,h+1,m);
+    let cls=f1&&f2?'off':(!f1&&!f2?'on':(f1?'half r':'half'));
+    const cur=t!=null&&h<=t&&t<h+1;
+    if(t!=null&&h+1<=t)cls+=' past'; if(cur)cls+=' cur';
+    if(ovl(h,h+1,q.add))cls+=' chg'; else if(ovl(h,h+1,q.cancel))cls+=' cnl';
+    const ic=cls.includes('half')?'':(f1?BOLT_OFF:BOLT);
+    cells+=`<div class="t4-c ${cls}">${ic}<span>${pad(h)}:00</span></div>`;
+  }
+  return `<div class="t4"><div class="t4-g">${cells}</div>
+   <div class="t4-lg">
+    <span><i style="border:2px solid #2F6BFF"></i>зараз</span>
+    <span><i style="background:#FFF1B8"></i>є світло</span>
+    <span><i style="background:#2E2E2E"></i>немає світла</span>
+    <span><i style="background:linear-gradient(90deg,#FFF1B8 50%,#2E2E2E 50%)"></i>пів години</span>
+    ${q.add.length?'<span><i style="box-shadow:inset 0 0 0 2.5px #E5484D"></i>змінено</span>':''}
+    ${q.cancel.length?'<span><i style="box-shadow:inset 0 0 0 2px #2E9E5B"></i>скасовано</span>':''}
+   </div></div>`;
+}
+
+/* ================= VARIANT A — одна черга ================= */
+function renderA(){
+  const D=dayInfo(S.day),t=D.t,q=D.data?D.data[S.mine]:null;
+  let st='';
+  if(!q)st=`<div class="st">—<span>графік ще не опубліковано</span></div>`;
+  else if(S.day!==0)st=`<div class="st">${dur(total(q))}<span>без світла · ${D.label.toLowerCase()}</span></div>`;
+  else if(t!=null){const s=status(q,t);st=`<div class="st ${s.on?'on':'off'}">${s.on?'Світло є':'Світла немає'}<span>${s.until!=null?(s.on?'вимкнуть о ':'увімкнуть о ')+fmt(s.until):'до кінця доби'}</span></div>`}
+  const hours=[0,3,6,9,12,15,18,21,24].map(h=>`<span style="left:${h/24*100}%">${pad(h)}</span>`).join('');
+  return `<div class="va">
+  <header class="va-head">
+    <div class="va-r1"><span class="va-pill">${D.label}</span><div class="va-date">${Math.abs(S.day)>1?D.dayMonth:D.dateStr}</div>${bell()}</div>
+    <div class="va-meta">
+      <div class="va-clock"><b class="mono">${D.clock}</b>Київ</div>
+      <div class="va-upd">Оновлено <b class="mono">${D.updDate.slice(0,5)}, ${S.upd}</b></div>
+    </div>
+  </header>
+  <div class="va-mine"><label>Моя черга${mineSelect('selA')}</label>${st}</div>
+  <section class="va-card">
+    <div class="wk">${['Пн','Вт','Ср','Чт','Пт','Сб','Нд'].map((n,j)=>{const off=j-D.dow;return `<button class="${off===S.day?'on':''} ${off===0?'td':''} ${off>1?'na':''}" data-act="day" data-i="${off}">${n}</button>`}).join('')}</div>
+    ${q?tl4(q,t):`<div class="wk-empty"><b>Графік на ${D.weekday} ще не опубліковано</b><span>Зазвичай графік на наступний день з'являється ввечері.</span></div>`}
+  </section>
+  ${footer()}
+  </div>`;
+}
+
+/* ---------------- render & events ---------------- */
+const app=document.getElementById('app');
+function render(){
+  app.innerHTML=renderA();
+}
+app.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;
+  const a=el.dataset.act;
+  if(a==='bell')openSheet();
+  if(a==='day'){S.day=+el.dataset.i;render()}
+  if(a==='tl'){S.tl=+el.dataset.i;store.set('tl',S.tl);render()}
+  if(a==='mine'){S.mine=el.dataset.q;store.set('mine',S.mine);render()}
+});
+app.addEventListener('change',e=>{if(e.target.classList.contains('mineSel')){S.mine=e.target.value;store.set('mine',S.mine);render()}});
+
+
+/* ---------------- notification center ---------------- */
+const bg=document.getElementById('sheetBg'),sheet=document.getElementById('sheet');
+function openSheet(){
+  const fresh=new Set(S.notifs.filter(n=>!S.read.has(n.id)).map(n=>n.id));
+  const sorted=[...S.notifs].sort((a,b)=>(a.old?1:0)-(b.old?1:0)||(b.queue===S.mine)-(a.queue===S.mine));
+  const item=n=>`<div class="nt ${fresh.has(n.id)?'new':''} ${n.queue===S.mine?'mine':''}">
+    ${fresh.has(n.id)?'<span class="dot"></span>':''}
+    <div class="ic">${n.kind==='q'?n.queue:'ϟ'}</div>
+    <div class="bd"><div class="tt"><span>${n.kind==='q'?`Черга ${n.queue}${n.queue===S.mine?' · моя':''}`:n.title}</span><small>${n.time}</small></div>
+    ${n.kind==='q'?`<div class="chips">${n.add.map(x=>`<span class="ch add">+ ${x}</span>`).join('')}${n.rem.map(x=>`<span class="ch rem">− ${x}</span>`).join('')}</div>`:`<p>${n.text}</p>`}<div class="src">${n.provider||SOURCE.providerShort} · ${n.via||SOURCE.hostShort}</div></div></div>`;
+  const nw=sorted.filter(n=>fresh.has(n.id)),old=sorted.filter(n=>!fresh.has(n.id));
+  sheet.className='sheet';
+  sheet.innerHTML=`<div class="grab"></div><div class="sh-head"><b>Сповіщення</b><button id="shClose">Закрити</button></div>
+   <div class="sh-list">${nw.length?`<div class="sh-sec">Нові · ${nw.length}</div>${nw.map(item).join('')}`:''}
+   ${old.length?`<div class="sh-sec">Прочитані</div>${old.map(item).join('')}`:''}
+   <p style="font-size:12px;color:#9A9AA0;padding:14px 10px 0">«+» — додано відключення, «−» — прибрано (скасовано).</p></div>`;
+  bg.classList.add('open');
+  S.notifs.forEach(n=>S.read.add(n.id));store.set('read',[...S.read]);
+  render();
+  document.getElementById('shClose').onclick=closeSheet;
+}
+function closeSheet(){bg.classList.remove('open')}
+bg.addEventListener('click',e=>{if(e.target===bg)closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+
+/* demo: an incoming schedule change */
+let demoN=0;
+document.getElementById('demo')?.addEventListener('click',()=>{
+  const k=kyiv();const time=pad(k.h)+':'+pad(k.mi);
+  const pool=[['21:00–22:00'],['22:30–23:00'],['19:00–19:30']];
+  S.notifs.unshift({id:'n-demo-'+Date.now(),time,kind:'q',queue:S.mine,add:pool[demoN%3],rem:demoN%2?['13:00–14:00']:[]});
+  demoN++;S.upd=time;render();
+});
+
+render();
+setInterval(()=>{if(!bg.classList.contains('open'))render()},30000);
+</script>
+</body>
